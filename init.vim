@@ -1,8 +1,7 @@
 set runtimepath^=~/.nvim runtimepath+=~/.nvim/after
 let &packpath = &runtimepath
 source ~/.vimrc
-
-source ~/.config/nvim/lsp.vim
+lua require 'lsp'
 
 " Expand
 imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
