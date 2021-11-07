@@ -1,3 +1,5 @@
+local cmd = vim.cmd
+local opt = vim.opt
 local lspconfig = require"lspconfig"
 
 local eslint = {
@@ -10,9 +12,6 @@ local eslint = {
 }
 
 lspconfig.tsserver.setup {
-  init_options = {
-    documentFormatting = false
-  }
 }
 
 lspconfig.efm.setup {
@@ -76,3 +75,37 @@ require'lspconfig'.sumneko_lua.setup {
         },
     },
 }
+cmd [[
+autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+autocmd CursorHoldI <buffer> lua vim.lsp.buf.signature_help()
+autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+]]
+
+local function normalKeymap(lhs, rhs)
+  vim.api.nvim_set_keymap('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', {})
+end
+
+normalKeymap('<c-d><c-h>', 'buf.hover')
+normalKeymap('<c-d><c-j>', 'buf.definition')
+normalKeymap('<c-d><c-n>', 'diagnostic.goto_next')
+normalKeymap('<c-d><c-p>', 'diagnostic.goto_prev')
+normalKeymap('<c-d><c-m>', 'buf.rename')
+normalKeymap('<c-d><c-l>', 'buf.references')
+normalKeymap('<c-f>', 'buf.formatting_seq_sync')
+normalKeymap('<c-d><c-o>', 'buf.code_action')
+
+opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
+opt.updatetime = 500
+
+cmd [[hi LspReferenceText guibg=#6b778d]]
+cmd [[hi LspReferenceRead guibg=#6b778d]]
+cmd [[hi LspReferenceWrite guibg=#6b778d]]
+cmd [[hi LspSignatureActiveParameter guibg=#6b778d]]
+
+local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl })
+end
