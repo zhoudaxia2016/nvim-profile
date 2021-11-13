@@ -75,12 +75,22 @@ require'lspconfig'.sumneko_lua.setup {
         },
     },
 }
-cmd [[
-autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
-autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
-autocmd CursorHoldI <buffer> lua vim.lsp.buf.signature_help()
-autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-]]
+-- The following example advertise capabilities to `clangd`.
+require'lspconfig'.html.setup {
+}
+
+local function bindCursorEvent(event, handler)
+  cmd('autocmd '.. event ..  ' <buffer> lua if(IsExistActiveLspClient()) then vim.lsp.buf.' .. handler .. '() end')
+end
+
+bindCursorEvent('CursorHold', 'document_highlight')
+bindCursorEvent('CursorHoldI', 'signature_help')
+bindCursorEvent('CursorMoved', 'clear_references')
+bindCursorEvent('CursorMovedI', 'clear_references')
+
+function IsExistActiveLspClient()
+  return table.getn(vim.lsp.get_active_clients()) ~= 0
+end
 
 local function normalKeymap(lhs, rhs)
   vim.api.nvim_set_keymap('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', {})
