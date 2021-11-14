@@ -2,6 +2,7 @@ local api = vim.api
 local ns = api.nvim_create_namespace('gitlen')
 local jobstart = require'util.jobstart'
 local debounce = require'util.debounce'
+local util = require('util')
 vim.cmd[[ hi GitBlameLen guifg=#616E88 guibg=#3B4252]]
 function starts(String, Start)
    return string.sub(String, 1, string.len(Start)) == Start
@@ -12,7 +13,7 @@ local function setBlameMsg()
     local cmd = 'git blame ' .. vim.fn.expand('%') .. ' -L' .. lineNum .. ',' .. lineNum
     jobstart(cmd,
       function(msg)
-        msg = string.gsub(msg, "^%s*(.-)%s*$", "%1")
+        msg = util.trim(msg)
         if starts(msg, '00000000') then
           api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, {virt_text_pos = 'eol', virt_text = {{'Not commit yet', 'GitBlameLen'}}})
         else
@@ -20,7 +21,7 @@ local function setBlameMsg()
           cmd = 'git log ' .. commitId .. " --pretty=format:'<%an>%ar->%h %s' | awk 'NR==1 {print; exit}'"
           jobstart(cmd,
             function(m)
-              m = string.gsub(m, "^[%s]*(.-)%s*$", "%1")
+              m = util.trim(m)
               api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, {virt_text_pos = 'eol', virt_text = {{m, 'GitBlameLen'}}})
             end)
         end
@@ -34,4 +35,9 @@ function GitHandlerCursorMoved()
   debounceSetBlmeMsg()
 end
 
-vim.cmd[[ au CursorMoved * call v:lua.GitHandlerCursorMoved() ]]
+jobstart('git rev-parse --is-inside-work-tree', function(isGitWorkTree)
+  isGitWorkTree = util.trim(isGitWorkTree)
+  if isGitWorkTree == 'true' then
+    vim.cmd[[ au CursorMoved * call v:lua.GitHandlerCursorMoved() ]]
+  end
+end)
