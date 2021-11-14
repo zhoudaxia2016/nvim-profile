@@ -8,10 +8,19 @@ local eslint = {
   lintFormats = {"%f:%l:%c: %m"},
   lintIgnoreExitCode = true,
   formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
-  formatStdin = true
+  formatStdin = true,
 }
 
+local bin_name = 'typescript-language-server'
+local getPath = function (str)
+  return str:match("(.*/)")
+end
 lspconfig.tsserver.setup {
+    init_options = { plugins = {{ name = 'ts-plugin-test', location = getPath(os.getenv('NODE_PATH'))} }},
+    cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '3' },
+    handlers = {
+      ['textDocument/formatting'] = nil
+    }
 }
 
 lspconfig.efm.setup {
