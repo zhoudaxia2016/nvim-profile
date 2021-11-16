@@ -32,3 +32,4 @@ let g:vsnip_filetypes.typescriptreact = ['typescript']
 lua require 'translate'
 lua require 'git'
 lua require 'popup'
+lua require 'chore'
