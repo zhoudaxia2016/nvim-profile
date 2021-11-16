@@ -26,7 +26,9 @@ local function jobstart(script, cb, cwd)
     stderr:close()
     handle:close()
     if code == 0 and signal == 0 then
-      vim.schedule(function() cb(output_buf) end)
+      if cb ~= nil then
+        vim.schedule(function() cb(output_buf) end)
+      end
     else
       print(1)
     end
