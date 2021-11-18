@@ -9,3 +9,4 @@ function CopyToSystem()
   jobstart('clip.exe < ' .. temp)
 end
 vim.api.nvim_set_keymap('n', '<m-o>', '<Cmd>call v:lua.CopyToSystem()<cr>', { silent = true })
+

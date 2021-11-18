@@ -30,7 +30,7 @@ local function jobstart(script, cb, cwd)
         vim.schedule(function() cb(output_buf) end)
       end
     else
-      print(1)
+      print('Error at commond ' .. script)
     end
   end)
 
