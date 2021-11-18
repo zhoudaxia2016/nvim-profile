@@ -102,7 +102,7 @@ function IsExistActiveLspClient()
 end
 
 local function normalKeymap(lhs, rhs)
-  vim.api.nvim_set_keymap('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', {})
+  vim.api.nvim_set_keymap('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', { silent = true })
 end
 
 normalKeymap('<c-d><c-h>', 'buf.hover')
@@ -113,6 +113,8 @@ normalKeymap('<c-d><c-m>', 'buf.rename')
 normalKeymap('<c-d><c-l>', 'buf.references')
 normalKeymap('<c-f>', 'buf.formatting_seq_sync')
 normalKeymap('<c-d><c-o>', 'buf.code_action')
+normalKeymap('<c-d><c-u>', 'lua print("diagnostic count: table.getn(vim.diagnostic.get())"')
+vim.api.nvim_set_keymap('n', '<c-d><c-u>', '<Cmd>lua print("diagnostic count: " .. table.getn(vim.diagnostic.get()))<cr>', { silent = true })
 
 opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
 opt.updatetime = 500
