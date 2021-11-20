@@ -18,6 +18,7 @@ local function hilightSelectLine()
   api.nvim_buf_add_highlight(popupMenuBuf, ns, selectLineHighlightName, selectLine, 0, -1)
 end
 function PopupClose()
+  vim.cmd[[stopinsert]]
   api.nvim_win_hide(popupInputWin)
   api.nvim_win_hide(popupMenuWin)
 end
