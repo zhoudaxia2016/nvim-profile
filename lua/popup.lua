@@ -36,7 +36,7 @@ function PopupConfirm()
 end
 function Popup(menus, cbf)
   cb = cbf
-  menuLen = table.getn(menus)
+  menuLen = #menus
   if popupInputBuf == nil then
     popupInputBuf = api.nvim_create_buf(false, true)
     api.nvim_buf_set_name(popupInputBuf, popupInputBufName)
@@ -60,7 +60,7 @@ function Popup(menus, cbf)
   popupInputWin = api.nvim_open_win(popupInputBuf, 1, { style = 'minimal', relative = 'editor', row = 0, col = popupX, width = popupWidth, height = 1, border = 'single', anchor='SW' })
   api.nvim_win_set_option(popupInputWin, 'winhl', 'Normal:PopupNormal')
   vim.defer_fn(function()
-    popupMenuWin = api.nvim_open_win(popupMenuBuf, false, { style = 'minimal', relative = 'win', win = popupInputWin, row = 1, col = -1, width = popupWidth, height = table.getn(content), border = 'single' })
+    popupMenuWin = api.nvim_open_win(popupMenuBuf, false, { style = 'minimal', relative = 'win', win = popupInputWin, row = 1, col = -1, width = popupWidth, height = #content, border = 'single' })
     api.nvim_win_call(popupMenuWin, hilightSelectLine)
     api.nvim_win_set_option(popupMenuWin, 'winhl', 'Normal:PopupNormal')
   end, 10)
