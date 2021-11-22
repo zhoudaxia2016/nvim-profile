@@ -90,25 +90,29 @@ function EasyMotion()
       table.insert(words, { s = s, e = e })
     end
   end
-  if table.getn(words) > 0 then
+  if #words > 0 then
     table.remove(words)
   end
   local lineNum = vim.fn.line('.')
   for i, col in pairs(words) do
-    if i > table.getn(colorList) then
+    if i > #colorList then
       break
     end
     vim.api.nvim_buf_set_extmark(0, ns, lineNum - 1, col.s - 1, { end_col = col.e, hl_group = colorList[i].hlg })
   end
   vim.defer_fn(function()
     local key = vim.fn.getcharstr()
-    for i, v in pairs(colorList) do
-      if key == v.key then
-        if i <= table.getn(words) then
-          vim.fn.cursor(lineNum, words[i].s)
+    if #words > 0 then
+      for i, v in pairs(colorList) do
+        if key == v.key then
+          if i <= #words then
+            vim.fn.cursor(lineNum, words[i].s)
+          end
+          break
         end
-        break
       end
+    else
+      vim.cmd('normal! f' .. key)
     end
     vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
   end, 0)

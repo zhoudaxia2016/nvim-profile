@@ -35,3 +35,10 @@ lua require 'git'
 lua require 'popup'
 lua require 'chore'
 lua require 'easy-motion'
+set inccommand=split
+augroup highlight_yank
+  autocmd!
+  au TextYankPost * silent! lua vim.highlight.on_yank { higroup='VimWarn', timeout=700 }
+augroup END
+
+lua require 'gotofile'

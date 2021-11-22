@@ -26,8 +26,9 @@ local on_attach = function(client, bufnr)
   normalKeymap('<c-d><c-p>', 'diagnostic.goto_prev')
   normalKeymap('<c-d><c-m>', 'buf.rename')
   normalKeymap('<c-d><c-l>', 'buf.references')
-  normalKeymap('<c-f>', 'buf.formatting_seq_sync')
+  normalKeymap('<c-d>f', 'buf.formatting_seq_sync')
   normalKeymap('<c-d><c-o>', 'buf.code_action')
+  normalKeymap('<c-d><c-y>', 'buf.type_definition')
   normalKeymap('<c-d><c-u>', 'lua print("diagnostic count: table.getn(vim.diagnostic.get())"')
   vim.api.nvim_set_keymap('n', '<c-d><c-u>', '<Cmd>lua print("diagnostic count: " .. table.getn(vim.diagnostic.get()))<cr>', { silent = true })
 end
@@ -152,3 +153,4 @@ lspconfig.jsonls.setup{
     }
   }
 }
+

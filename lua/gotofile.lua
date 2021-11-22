@@ -1,0 +1,55 @@
+local rootDir
+local o = vim.o
+local config
+function GotoFile()
+  local paths = config.paths
+  local fname = vim.v.fname
+  local isRelative = fname:find('^%./')
+  for key, targets in pairs(paths) do
+    key = key:gsub('%*', '(.*)')
+    if fname:match(key) then
+      for _, value in ipairs(targets) do
+        value = value:gsub('%*', '%%1')
+        fname = fname:gsub(key, value)
+        if isRelative == nil then
+          fname = fname:gsub('^%.', config.baseUrl)
+        end
+        if vim.fn.filereadable(fname) then
+          return fname
+        end
+      end
+    end
+  end
+  return fname
+end
+
+vim.cmd[[au BufEnter *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()]]
+
+local function readFile(name)
+  local file = io.open(name)
+  local json = file:read('*a')
+  file:close()
+  return json
+end
+
+local function readJsonFile(name)
+  local json = readFile(name)
+  json = json:gsub('%s*//[^\n]*\n', '')
+  return vim.fn.json_decode(json)
+end
+
+function ConfigGotoFile()
+  if config == nil then
+    local configFile = 'package.json'
+    rootDir = vim.fn['utils#findRoot'](configFile)
+    if rootDir == nil then return end
+    local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
+    config = {}
+    config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
+    config.paths = tsconfig.compilerOptions.paths
+  end
+  print(vim.inspect(config))
+  o.sua = o.sua .. ',.js' .. ',.ts' .. ',.tsx' .. ',.jsx'
+  o.isfname = o.isfname .. ',@-@'
+  o.includeexpr = 'v:lua.GotoFile()'
+end
