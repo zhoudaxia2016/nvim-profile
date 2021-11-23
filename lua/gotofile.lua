@@ -7,6 +7,7 @@ function GotoFile()
   local isRelative = fname:find('^%./')
   for key, targets in pairs(paths) do
     key = key:gsub('%*', '(.*)')
+    local finish
     if fname:match(key) then
       for _, value in ipairs(targets) do
         value = value:gsub('%*', '%%1')
@@ -15,15 +16,19 @@ function GotoFile()
           fname = fname:gsub('^%.', config.baseUrl)
         end
         if vim.fn.filereadable(fname) then
-          return fname
+          finish = true
+          break
         end
       end
+    end
+    if finish then
+      break
     end
   end
   return fname
 end
 
-vim.cmd[[au BufEnter *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()]]
+vim.cmd[[au BufRead *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()]]
 
 local function readFile(name)
   local file = io.open(name)
@@ -48,7 +53,6 @@ function ConfigGotoFile()
     config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
     config.paths = tsconfig.compilerOptions.paths
   end
-  print(vim.inspect(config))
   o.sua = o.sua .. ',.js' .. ',.ts' .. ',.tsx' .. ',.jsx'
   o.isfname = o.isfname .. ',@-@'
   o.includeexpr = 'v:lua.GotoFile()'

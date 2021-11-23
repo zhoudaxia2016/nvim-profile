@@ -10,6 +10,9 @@ local function starts(String, Start)
    return string.sub(String, 1, string.len(Start)) == Start
 end
 local function setBlameMsg()
+  if util.isSpecialBuf() then
+    return
+  end
   local lineNum = unpack(api.nvim_win_get_cursor(0))
   local fileName = vim.fn.expand('%:p')
   if lineNum == currentFileName and fileName == currentFileName then
