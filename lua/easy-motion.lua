@@ -101,7 +101,7 @@ function EasyMotion()
     vim.api.nvim_buf_set_extmark(0, ns, lineNum - 1, col.s - 1, { end_col = col.e, hl_group = colorList[i].hlg })
   end
   vim.defer_fn(function()
-    local key = vim.fn.getcharstr()
+    local key = vim.fn.nr2char(vim.fn.getchar())
     if #words > 0 then
       for i, v in pairs(colorList) do
         if key == v.key then
