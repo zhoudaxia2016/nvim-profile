@@ -47,7 +47,7 @@ function ConfigGotoFile()
   if config == nil then
     local configFile = 'package.json'
     rootDir = vim.fn['utils#findRoot'](configFile)
-    if rootDir == nil then return end
+    if rootDir == vim.NIL then return end
     local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
     config = {}
     config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
