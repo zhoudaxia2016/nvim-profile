@@ -11,16 +11,18 @@ end
 vim.api.nvim_set_keymap('n', '<m-o>', '<Cmd>call v:lua.CopyToSystem()<cr>', { silent = true })
 
 function ConfigFold()
-  if util.isSpecialBuf() then
-    return
-  end
-  if vim.fn.line('$') > 80 then
-    vim.o.foldmethod = 'indent'
-    vim.o.foldlevel = 3
-    vim.o.foldopen = 'jump'
-  else
-    vim.o.foldenable = false
-  end
+  vim.defer_fn(function()
+    if util.isSpecialBuf() then
+      return
+    end
+    if vim.fn.line('$') > 80 then
+      vim.o.foldmethod = 'indent'
+      vim.o.foldlevel = 3
+      vim.o.foldopen = 'jump'
+    else
+      vim.o.foldenable = false
+    end
+  end, 0)
 end
 
-vim.cmd[[au BufEnter * call v:lua.ConfigFold()]]
+vim.cmd[[au BufAdd * call v:lua.ConfigFold()]]
