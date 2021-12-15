@@ -42,3 +42,4 @@ augroup highlight_yank
 augroup END
 
 lua require 'gotofile'
+lua require 'treesitter'
