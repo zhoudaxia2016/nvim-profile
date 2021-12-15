@@ -1,5 +1,6 @@
 local uv = vim.loop
 local function jobstart(script, cb, cwd)
+  script = script .. ' 2>>/tmp/nvim-jobstart.log'
   if cwd == nil then
     cwd = vim.fn.getcwd()
   end
@@ -29,8 +30,6 @@ local function jobstart(script, cb, cwd)
       if cb ~= nil then
         vim.schedule(function() cb(output_buf) end)
       end
-    else
-      print('Error at commond ' .. script)
     end
   end)
 
