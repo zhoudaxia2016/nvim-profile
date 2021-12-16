@@ -3,6 +3,9 @@ local opt = vim.opt
 local lspconfig = require"lspconfig"
 
 local on_attach = function(client, bufnr)
+  if vim.o.diff then
+    vim.diagnostic.disable()
+  end
   local function bindCursorEvent(event, handler)
     cmd('autocmd '.. event ..  ' <buffer> lua vim.lsp.buf.' .. handler .. '()')
   end
