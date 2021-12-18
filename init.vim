@@ -43,3 +43,5 @@ augroup END
 
 lua require 'gotofile'
 lua require 'treesitter'
+lua require 'nvim-luadev'
+lua require 'popfix-config'
