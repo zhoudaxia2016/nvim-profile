@@ -27,6 +27,9 @@ require'nvim-treesitter.configs'.setup {
       scope_incremental = "m",
       node_decremental = "N",
     },
+  },
+  indent = {
+    enable = true
   }
 }
 local ts = require"nvim-treesitter"
