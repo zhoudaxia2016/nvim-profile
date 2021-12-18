@@ -7,13 +7,6 @@ opt.runtimepath:append('~/.nvim/after')
 vim.o.packpath = o.runtimepath
 cmd[[source ~/.vimrc]]
 
-require 'translate'
-require 'git'
-require 'popup'
-require 'chore'
-require 'easy-motion'
-require 'lsp'
-
 opt.inccommand = 'split'
 cmd[[
   augroup highlight_yank
@@ -22,7 +15,6 @@ cmd[[
   augroup END
 ]]
 
-require 'gotofile'
-require 'treesitter'
-require 'nvim-luadev'
-require 'popfix-config'
+require 'base-config'
+require 'plugin-config'
+require 'self-plugin'
