@@ -20,4 +20,12 @@ function module.hasValue(tab, val)
   return false
 end
 
+function module.map(mode, key, command, opt)
+  local options = { noremap = true, silent = true }
+  if opt then
+    options = vim.tbl_extend("force", options, opt)
+  end
+  vim.api.nvim_set_keymap(mode, key, command, options)
+end
+
 return module

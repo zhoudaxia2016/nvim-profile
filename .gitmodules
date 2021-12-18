@@ -1,0 +1,24 @@
+[submodule "pack/extensions/start/indentLine"]
+	path = pack/extensions/start/indentLine
+	url = git@github.com:Yggdroot/indentLine.git
+[submodule "pack/extensions/start/nvim-lspconfig"]
+	path = pack/extensions/start/nvim-lspconfig
+	url = git@github.com:neovim/nvim-lspconfig.git
+[submodule "pack/extensions/start/nord.nvim"]
+	path = pack/extensions/start/nord.nvim
+	url = git@github.com:shaunsingh/nord.nvim.git
+[submodule "pack/extensions/start/nvim-treesitter"]
+	path = pack/extensions/start/nvim-treesitter
+	url = git@github.com:nvim-treesitter/nvim-treesitter.git
+[submodule "pack/extensions/start/playground"]
+	path = pack/extensions/start/playground
+	url = git@github.com:nvim-treesitter/playground.git
+[submodule "pack/extensions/start/nvim-autopairs"]
+	path = pack/extensions/start/nvim-autopairs
+	url = git@github.com:windwp/nvim-autopairs.git
+[submodule "pack/extensions/start/nvim-luadev"]
+	path = pack/extensions/start/nvim-luadev
+	url = git@github.com:bfredl/nvim-luadev.git
+[submodule "pack/extensions/start/plenary.nvim"]
+	path = pack/extensions/start/plenary.nvim
+	url = git@github.com:nvim-lua/plenary.nvim.git 
