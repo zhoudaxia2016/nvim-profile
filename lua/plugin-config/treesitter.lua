@@ -6,7 +6,7 @@ vim.cmd[[hi TSTypeBuiltin guifg=#96C0CE]]
 vim.cmd[[hi TSVariableBuiltin guifg=#518f8b]]
 vim.cmd[[hi TSStringRegex guifg=#B9A7C2]]
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "query"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   highlight = {
     enable = true,              -- false will disable the whole extension
@@ -30,17 +30,37 @@ require'nvim-treesitter.configs'.setup {
   },
   indent = {
     enable = true
-  }
+  },
+  textobjects = {
+    select = {
+      enable = true,
+      keymaps = {
+        -- You can use the capture groups defined in textobjects.scm
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+        ["ip"] = "@parameter.inner",
+        ["ap"] = "@parameter.outer",
+        ["io"] = "@pair.inner",
+        ["ao"] = "@pair.outer",
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true, -- whether to set jumps in the jumplist
+      goto_next_start = {
+        ["]]"] = "@function.outer",
+      },
+      goto_next_end = {
+        ["]["] = "@function.outer",
+      },
+      goto_previous_start = {
+        ["[["] = "@function.outer",
+      },
+      goto_previous_end = {
+        ["[]"] = "@function.outer",
+      },
+    }
+  },
 }
-local ts = require"nvim-treesitter"
-function TreesitterStatusline()
-  local opts = {
-    indicator_size = 200,
-    type_patterns = {'class', 'function', 'method', 'public_field_definition'},
-    transform_fn = function(line) return line:gsub('%s*[%[%(%{]*%s*$', '') end,
-    separator = ' -> '
-  }
-  print(ts.statusline(opts))
-end
-
-vim.api.nvim_set_keymap('n', '<leader>p', ':call v:lua.TreesitterStatusline()<cr>', { silent = true })
