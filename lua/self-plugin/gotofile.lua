@@ -49,9 +49,13 @@ function ConfigGotoFile()
     rootDir = vim.fn['utils#findRoot'](configFile)
     if rootDir == vim.NIL then return end
     local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
-    config = {}
-    config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
-    config.paths = tsconfig.compilerOptions.paths
+    if tsconfig.compilerOptions and tsconfig.compilerOptions.paths then
+      config = { baseUrl = './' }
+      if tsconfig.compilerOptions.baseUrl ~= nil then
+        config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
+      end
+      config.paths = tsconfig.compilerOptions.paths
+    end
   end
   o.sua = o.sua .. ',.js' .. ',.ts' .. ',.tsx' .. ',.jsx'
   o.isfname = o.isfname .. ',@-@'
