@@ -2,6 +2,20 @@
 local ts_utils = require("nvim-treesitter.ts_utils")
 local ts_parsers = require("nvim-treesitter.parsers")
 local ts_queries = require("nvim-treesitter.query")
+local icons = {
+  ["class-name"] = '',
+  ["function-name"] = '',
+  ["method-name"] = '',
+  ["object-name"] = '',
+  ["call-expression-name"] = '北'
+}
+
+local function transform(text, name)
+  if icons[name] then
+    text = icons[name] .. ' ' .. text
+  end
+  return text
+end
 
 function GetCodeLocation()
   local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
@@ -27,7 +41,7 @@ function GetCodeLocation()
           capture_ID, capture_node = iter()
         end
         local capture_name = code_location_query.captures[capture_ID]
-        table.insert(node_text, 1, table.concat(ts_utils.get_node_text(capture_node), ' '))
+        table.insert(node_text, 1, transform(table.concat(ts_utils.get_node_text(capture_node), ' '), capture_name))
 
       end
     end
