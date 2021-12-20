@@ -1,6 +1,7 @@
 local cmd = vim.cmd
 local opt = vim.opt
 local lspconfig = require"lspconfig"
+local map = require"util".map
 
 local on_attach = function(client, bufnr)
   if vim.o.diff then
@@ -19,21 +20,24 @@ local on_attach = function(client, bufnr)
   bindCursorEvent('CursorMoved', 'clear_references')
   bindCursorEvent('CursorMovedI', 'clear_references')
 
-  local function normalKeymap(lhs, rhs)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', { silent = true })
+  local function nmap(lhs, rhs, noprefix)
+    if noprefix then
+      map('n', lhs, '<Cmd>lua ' .. rhs .. '<cr>', { silent = true }, bufnr)
+    else
+      map('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', { silent = true }, bufnr)
+    end
   end
 
-  normalKeymap('<c-d><c-h>', 'buf.hover')
-  normalKeymap('<c-d><c-j>', 'buf.definition')
-  normalKeymap('<c-d><c-n>', 'diagnostic.goto_next')
-  normalKeymap('<c-d><c-p>', 'diagnostic.goto_prev')
-  normalKeymap('<c-d><c-m>', 'buf.rename')
-  normalKeymap('<c-d><c-l>', 'buf.references')
-  normalKeymap('<c-d>f', 'buf.formatting_seq_sync')
-  normalKeymap('<c-d><c-o>', 'buf.code_action')
-  normalKeymap('<c-d><c-y>', 'buf.type_definition')
-  normalKeymap('<c-d><c-u>', 'lua print("diagnostic count: table.getn(vim.diagnostic.get())"')
-  vim.api.nvim_set_keymap('n', '<c-d><c-u>', '<Cmd>lua print("diagnostic count: " .. table.getn(vim.diagnostic.get()))<cr>', { silent = true })
+  nmap('<c-d><c-h>', 'buf.hover')
+  nmap('<c-d><c-j>', 'buf.definition')
+  nmap('<c-d><c-m>', 'buf.rename')
+  nmap('<c-d><c-l>', 'buf.references')
+  nmap('<c-d>f', 'buf.formatting_seq_sync')
+  nmap('<c-d><c-o>', 'buf.code_action')
+  nmap('<c-d><c-y>', 'buf.type_definition')
+  nmap('<c-d><c-u>', 'lua print("diagnostic count: table.getn(vim.diagnostic.get())"')
+  nmap('<c-d><c-n>', 'vim.diagnostic.goto_next({ float = { border = "rounded" }})', true)
+  nmap('<c-d><c-p>', 'vim.diagnostic.goto_prev({ float = { border = "rounded" }})', true)
 end
 
 local eslint = {
@@ -54,6 +58,8 @@ lspconfig.tsserver.setup {
   init_options = { plugins = {{ name = 'ts-plugin-test', location = getPath(os.getenv('NODE_PATH'))} }},
   cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '3' },
   handlers = {
+    ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = 'rounded'}),
+    ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = 'rounded' }),
     ['textDocument/formatting'] = nil
   }
 }
