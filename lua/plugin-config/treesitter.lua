@@ -32,9 +32,13 @@ require'nvim-treesitter.configs'.setup {
     enable = true,
     disable = { 'javascript', 'typescript', 'tsx' }
   },
+  fold = {
+    enable = true,
+  },
   textobjects = {
     select = {
       enable = true,
+      lookahead = true,
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
         ["af"] = "@function.outer",
@@ -45,6 +49,9 @@ require'nvim-treesitter.configs'.setup {
         ["ap"] = "@parameter.outer",
         ["io"] = "@pair.inner",
         ["ao"] = "@pair.outer",
+        ["jn"] = "@jsxattr.property",
+        ["jm"] = "@jsxattr.value",
+        ["jj"] = "@jsxattr.outer",
       },
     },
     move = {
