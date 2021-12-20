@@ -25,3 +25,6 @@
 [submodule "pack/extensions/start/nvim-treesitter-textobjects"]
 	path = pack/extensions/start/nvim-treesitter-textobjects
 	url = git@github.com:nvim-treesitter/nvim-treesitter-textobjects.git
+[submodule "pack/extensions/start/nvim-treesitter-refactor"]
+	path = pack/extensions/start/nvim-treesitter-refactor
+	url = git@github.com:nvim-treesitter/nvim-treesitter-refactor.git
