@@ -49,9 +49,8 @@ require'nvim-treesitter.configs'.setup {
         ["ap"] = "@parameter.outer",
         ["io"] = "@pair.inner",
         ["ao"] = "@pair.outer",
-        ["jn"] = "@jsxattr.property",
-        ["jm"] = "@jsxattr.value",
-        ["jj"] = "@jsxattr.outer",
+        ["ij"] = "@jsxattr.value",
+        ["aj"] = "@jsxattr.outer",
       },
     },
     move = {
