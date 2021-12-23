@@ -59,10 +59,65 @@ end
 function ShowFileFormatFlag()
   return '[' .. o.fileformat .. ']'
 end
+local leftList = {
+  {
+    hlg = hlgs.a,
+    items = ' %f'
+  },
+  {
+    hlg = hlgs.aTob,
+    items = ''
+  },
+  {
+    hlg = hlgs.b,
+    items = ' %l:%c '
+  },
+  {
+    hlg = hlgs.bToc,
+    items = ''
+  },
+  {
+    hlg = hlgs.c,
+    items = ' %{%v:lua.GetLspDiagnostic()%}'
+  },
+}
+local rightList = {
+  {
+    hlg = hlgs.c,
+    items = '%y%{%v:lua.ShowFileFormatFlag()%} '
+  },
+  {
+    hlg = hlgs.bToc,
+    items = ''
+  },
+  {
+    hlg = hlgs.b,
+    items = ' %L '
+  },
+  {
+    hlg = hlgs.aTob,
+    items = ''
+  },
+  {
+    hlg = hlgs.a,
+    items = '%p%% '
+  }
+}
 o.laststatus = 2
-local left = string.format('%%#%s# %%f%%#%s#%%#%s# %%l:%%c %%#%s#%%#%s# %%{%%v:lua.GetLspDiagnostic()%%}%%=', hlgs.a.name, hlgs.aTob.name, hlgs.b.name, hlgs.bToc.name, hlgs.c.name)
-local right = string.format('%%#%s#%%<%%y%%{v:lua.ShowFileFormatFlag()} %%#%s#%%#%s# %%L %%#%s#%%#%s#%%p%%%% ', hlgs.c.name, hlgs.bToc.name, hlgs.b.name, hlgs.aTob.name, hlgs.a.name)
-o.statusline = left .. right
+local statusline = ''
+local function concatStatusline(list)
+  for _, v in pairs(list) do
+    if v.hlg then
+      statusline = statusline .. string.format('%%#%s#%s', v.hlg.name, v.items)
+    else
+      statusline = statusline .. string.format('%s', v.items)
+    end
+  end
+end
+concatStatusline(leftList)
+statusline = statusline .. '%=%<'
+concatStatusline(rightList)
+o.statusline = statusline
 
 local diagnostic = vim.diagnostic
 local diagnostics = {
