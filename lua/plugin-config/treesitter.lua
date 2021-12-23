@@ -28,10 +28,6 @@ require'nvim-treesitter.configs'.setup {
       node_decremental = "N",
     },
   },
-  indent = {
-    enable = true,
-    disable = { 'javascript', 'typescript', 'tsx' }
-  },
   fold = {
     enable = true,
   },
