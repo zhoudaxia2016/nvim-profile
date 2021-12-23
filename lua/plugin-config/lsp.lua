@@ -4,6 +4,7 @@ local lspconfig = require"lspconfig"
 local map = require"util".map
 
 local on_attach = function(client, bufnr)
+  opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
   if vim.o.diff then
     vim.diagnostic.disable()
   end
@@ -130,7 +131,6 @@ require'lspconfig'.sumneko_lua.setup {
 
 
 
-opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
 opt.updatetime = 500
 vim.o.completeopt = 'menu'
 
