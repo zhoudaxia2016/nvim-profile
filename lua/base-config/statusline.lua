@@ -11,19 +11,18 @@ function StatuslineGitSign()
     on_exit = function(j, return_val)
       local result = j:result()
       if return_val == 0 and result[1] ~= nil then
-        print(1)
-        match = string.gmatch(result[1], '%d+')
-        match()
-        local s = ''
-        local addCount = match()
+        local s = {}
+        local addCount = string.match(result[1], '(%d+)%s+%w+%(%+%)')
         if addCount then
-          s = s .. '[+]' .. addCount
+          table.insert(s, '[+]' .. addCount)
         end
-        local deleteCount = match()
+        local deleteCount = string.match(result[1], '(%d+)%s+%w+%(%-%)')
         if deleteCount then
-          s = s .. '[-]' .. deleteCount
+          table.insert(s, '[-]' .. deleteCount)
         end
-        gitsign = s
+        gitsign = table.concat(s, ' ')
+      else
+        gitsign = ''
       end
     end,
   }):start()
