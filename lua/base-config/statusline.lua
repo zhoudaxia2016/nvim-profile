@@ -1,4 +1,34 @@
 local o = vim.o
+local Job = require'plenary.job'
+local gitsign = ''
+function GetStatuslineGitsign()
+  return gitsign .. ' '
+end
+function StatuslineGitSign()
+  Job:new({
+    command = 'git',
+    args = { 'diff', '--shortstat', 'HEAD', vim.fn.expand('%') },
+    on_exit = function(j, return_val)
+      local result = j:result()
+      if return_val == 0 and result[1] ~= nil then
+        print(1)
+        match = string.gmatch(result[1], '%d+')
+        match()
+        local s = ''
+        local addCount = match()
+        if addCount then
+          s = s .. '[+]' .. addCount
+        end
+        local deleteCount = match()
+        if deleteCount then
+          s = s .. '[-]' .. deleteCount
+        end
+        gitsign = s
+      end
+    end,
+  }):start()
+end
+vim.cmd[[au BufEnter,BufWritePost * call v:lua.StatuslineGitSign()]]
 
 local hlgs = {
   a = {
@@ -82,6 +112,10 @@ local leftList = {
   },
 }
 local rightList = {
+  {
+    hlg = hlgs.c,
+    items = '%{%v:lua.GetStatuslineGitsign()%}'
+  },
   {
     hlg = hlgs.c,
     items = '%y%{%v:lua.ShowFileFormatFlag()%} '
