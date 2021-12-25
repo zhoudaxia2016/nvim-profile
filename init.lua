@@ -5,7 +5,13 @@ local o = vim.o
 opt.runtimepath:prepend('~/.nvim')
 opt.runtimepath:append('~/.nvim/after')
 vim.o.packpath = o.runtimepath
-cmd[[source ~/.vimrc]]
+vim.g.mapleader = ' '
+cmd[[
+  filetype indent on
+  filetype plugin on
+  syntax on
+  colors nord
+]]
 
 require 'base-config'
 require 'plugin-config'
