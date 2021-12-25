@@ -7,7 +7,7 @@ function LoadTemplate()
   local args = {filename = vim.fn.expand("%")}
   local tpf = vim.env.HOME .. '/.config/nvim/templates/files/' .. ft .. '.tpl'
 
-  if fn.filereadable(tpf) then
+  if fn.filereadable(tpf) == 1 then
     cmd('r ' .. tpf)
     cmd('1,1delete')
   else
