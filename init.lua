@@ -16,4 +16,3 @@ cmd[[
 require 'base-config'
 require 'plugin-config'
 require 'self-plugin'
-cmd[[au BufEnter /*wpsweb*.{ts,tsx,js} setl shiftwidth=4]]

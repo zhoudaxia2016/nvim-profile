@@ -1,7 +1,7 @@
 vim.api.nvim_set_keymap('n', '<M-l><M-w>', '<Plug>(Luadev-RunWord)', {})
 vim.api.nvim_set_keymap('n', '<M-l><M-l>', '<Plug>(Luadev-RunLine)', {})
 vim.api.nvim_set_keymap('n', '<M-l><M-n>', '<Plug>(Luadev-Run)', {})
-vim.api.nvim_set_keymap('n', '<M-l><M-q>', 'v:lua.LuaDevTestFunc', {})
+vim.api.nvim_set_keymap('n', '<M-l><M-e>', ':call v:lua.LuaDevTestFunc()<cr>', {})
 
 -- 测试lua脚本方式
 -- 新建一个lua文件，执行luadev，然后执行luadev的执行命令映射
