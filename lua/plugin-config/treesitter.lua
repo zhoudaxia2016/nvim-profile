@@ -37,10 +37,7 @@ require'nvim-treesitter.configs'.setup {
       lookahead = true,
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
-        ["af"] = "@function.outer",
-        ["if"] = "@function.inner",
-        ["ac"] = "@class.outer",
-        ["ic"] = "@class.inner",
+        ["ab"] = "@block.outer",
         ["ip"] = "@parameter.inner",
         ["ap"] = "@parameter.outer",
         ["io"] = "@pair.inner",
@@ -52,18 +49,6 @@ require'nvim-treesitter.configs'.setup {
     move = {
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        ["]]"] = "@function.outer",
-      },
-      goto_next_end = {
-        ["]["] = "@function.outer",
-      },
-      goto_previous_start = {
-        ["[["] = "@function.outer",
-      },
-      goto_previous_end = {
-        ["[]"] = "@function.outer",
-      },
     }
   },
   refactor = {

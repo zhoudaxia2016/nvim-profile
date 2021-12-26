@@ -40,7 +40,6 @@ function MyTabLabel(n)
     end
   end
   local modifyMark = api.nvim_buf_get_option(activeBuf, "mod") and '+ ' or ''
-  print(api.nvim_buf_get_option(activeBuf, "mod"))
   return modifyMark .. fn.fnamemodify(api.nvim_buf_get_name(activeBuf), ':t')
 end
 vim.o.tabline='%!v:lua.MyTabLine()'

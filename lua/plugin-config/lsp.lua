@@ -56,7 +56,7 @@ local getPath = function (str)
 end
 lspconfig.tsserver.setup {
   on_attach = on_attach,
-  init_options = { plugins = {{ name = 'ts-plugin-test', location = getPath(os.getenv('NODE_PATH'))} }},
+  init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
   cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '3' },
   handlers = {
     ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = 'rounded'}),
