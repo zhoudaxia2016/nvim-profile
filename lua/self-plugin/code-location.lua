@@ -50,7 +50,6 @@ function GetCodeLocation()
   end
 
   local context = table.concat(node_text, ' > ')
-  print(context)
 end
 
 require('util').map('n', '<leader>p', ':call v:lua.GetCodeLocation()<cr>', { silent = false })

@@ -29,6 +29,7 @@ o.termguicolors = true
 o.mouse = 'n'
 o.undofile = true
 o.undodir='/tmp/nvim/'
+o.swapfile = false
 g.netrw_use_noswf= 0
 g.netrw_browsex_viewer="cmd.exe /C start"
 g.vim_json_conceal=0
