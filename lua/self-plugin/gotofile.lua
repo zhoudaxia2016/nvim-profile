@@ -1,29 +1,58 @@
 local rootDir
 local o = vim.o
 local config
+local exts = {'ts', 'js', 'tsx'}
+
+local function getPath(f)
+  local paths = {}
+
+  if vim.fn.isdirectory(f) == 1 then
+    for _, ext in pairs(exts) do
+      table.insert(paths, f .. 'index.' .. ext)
+    end
+  else
+    for _, ext in pairs(exts) do
+      table.insert(paths, f .. '.' .. ext)
+    end
+  end
+  for _, p in pairs(paths) do
+    if vim.fn.filereadable(p) == 1 then
+      return p
+    end
+  end
+  return nil
+end
 function GotoFile()
   local paths = config.paths
   local fname = vim.v.fname
   local isRelative = fname:find('^%./')
   for key, targets in pairs(paths) do
     key = key:gsub('%*', '(.*)')
-    local finish
+    key = key:gsub('%-', '%%-')
     if fname:match(key) then
       for _, value in ipairs(targets) do
+        if value == '' then
+          key = key:gsub('%.%*', '')
+        end
         value = value:gsub('%*', '%%1')
         fname = fname:gsub(key, value)
+        local p = getPath(fname)
+        if p then
+          return p
+        end
         if isRelative == nil then
           fname = fname:gsub('^%.', config.baseUrl)
         end
-        if vim.fn.filereadable(fname) then
-          finish = true
-          break
+        p = getPath(fname)
+        if p then
+          return p
         end
       end
     end
-    if finish then
-      break
-    end
+  end
+  local p = getPath(fname)
+  if p then
+    return p
   end
   return fname
 end
@@ -58,6 +87,6 @@ function ConfigGotoFile()
     end
   end
   o.sua = o.sua .. ',.js' .. ',.ts' .. ',.tsx' .. ',.jsx'
-  o.isfname = o.isfname .. ',@-@'
+  o.isfname = o.isfname .. ',@-@,!'
   o.includeexpr = 'v:lua.GotoFile()'
 end
