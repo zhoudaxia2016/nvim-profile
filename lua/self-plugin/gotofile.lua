@@ -1,14 +1,18 @@
-local rootDir
-local o = vim.o
+local ts_utils = require('nvim-treesitter.ts_utils')
+local util = require('lspconfig.util')
 local config
 local exts = {'ts', 'js', 'tsx'}
 
-local function getPath(f)
+local function checkPathAndGo(f)
   local paths = {}
 
   if vim.fn.isdirectory(f) == 1 then
+    local slash = '/'
+    if f:match('/$') then
+      slash = ''
+    end
     for _, ext in pairs(exts) do
-      table.insert(paths, f .. 'index.' .. ext)
+      table.insert(paths, f .. slash .. 'index.' .. ext)
     end
   else
     for _, ext in pairs(exts) do
@@ -17,14 +21,20 @@ local function getPath(f)
   end
   for _, p in pairs(paths) do
     if vim.fn.filereadable(p) == 1 then
-      return p
+      vim.cmd('e ' .. p)
+      return true
     end
   end
   return nil
 end
 function GotoFile()
+  ConfigGotoFile()
   local paths = config.paths
-  local fname = vim.v.fname
+  local node = ts_utils.get_node_at_cursor(0)
+  if node:type() ~= 'string_fragment' then
+    return 'gf'
+  end
+  local fname = ts_utils.get_node_text(node)[1]
   local isRelative = fname:find('^%./')
   for key, targets in pairs(paths) do
     key = key:gsub('%*', '(.*)')
@@ -36,28 +46,28 @@ function GotoFile()
         end
         value = value:gsub('%*', '%%1')
         fname = fname:gsub(key, value)
-        local p = getPath(fname)
-        if p then
-          return p
+        if checkPathAndGo(fname) then
+          return
         end
         if isRelative == nil then
           fname = fname:gsub('^%.', config.baseUrl)
         end
-        p = getPath(fname)
-        if p then
-          return p
+        if checkPathAndGo(fname) then
+          return
         end
       end
     end
   end
-  local p = getPath(fname)
-  if p then
-    return p
+  if checkPathAndGo(fname) then
+    return
   end
-  return fname
+  vim.notify('Can not go to file: ' .. fname)
 end
 
-vim.cmd[[au BufRead *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()]]
+vim.cmd[[
+  au VimEnter *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()
+  au BufEnter *.tsx,*.jsx,*.js,*.ts lua require('util').map('n', 'gf', ':call v:lua.GotoFile()<cr>')
+]]
 
 local function readFile(name)
   local file = io.open(name)
@@ -73,20 +83,17 @@ local function readJsonFile(name)
 end
 
 function ConfigGotoFile()
-  if config == nil then
-    local configFile = 'package.json'
-    rootDir = vim.fn['utils#findRoot'](configFile)
-    if rootDir == vim.NIL then return end
-    local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
-    if tsconfig.compilerOptions and tsconfig.compilerOptions.paths then
-      config = { baseUrl = './' }
-      if tsconfig.compilerOptions.baseUrl ~= nil then
-        config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
-      end
-      config.paths = tsconfig.compilerOptions.paths
-    end
+  if config then
+    return
   end
-  o.sua = o.sua .. ',.js' .. ',.ts' .. ',.tsx' .. ',.jsx'
-  o.isfname = o.isfname .. ',@-@,!'
-  o.includeexpr = 'v:lua.GotoFile()'
+  local rootDir = util.find_package_json_ancestor(vim.fn.getcwd())
+  if rootDir == nil then return end
+  local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
+  if tsconfig.compilerOptions and tsconfig.compilerOptions.paths then
+    config = { baseUrl = './' }
+    if tsconfig.compilerOptions.baseUrl ~= nil then
+      config.baseUrl = tsconfig.compilerOptions.baseUrl:gsub('%.', rootDir)
+    end
+    config.paths = tsconfig.compilerOptions.paths
+  end
 end
