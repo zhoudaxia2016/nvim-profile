@@ -17,7 +17,7 @@ local workspace
 local configFile
 local bin
 
-function RunJestTest()
+function RunJestTest(debug)
   if loadedConfig == false then
     if vim.g.jestRunner == nil then return end
     workspace = vim.g.jestRunner.workspace
@@ -34,8 +34,13 @@ function RunJestTest()
   local node = ts_utils.get_node_at_cursor()
   local name = getTestName(node)
   local fn = vim.fn.expand('%:p')
+  local debugArgs = ''
+  if debug == 1 then
+    debugArgs = '--inspect-brk'
+  end
   vim.cmd[[tabnew]]
-  vim.fn.termopen(string.format('node %s %s -c %s -t %s', bin, fn, configFile, name), { cwd = workspace })
+  vim.fn.termopen(string.format('node %s %s %s -c %s -t %s', debugArgs, bin, fn, configFile, name), { cwd = workspace })
 end
 
-require('util').map('n', '<m-t>', ':call v:lua.RunJestTest()<cr>')
+require('util').map('n', '<m-t><m-t>', ':call v:lua.RunJestTest()<cr>')
+require('util').map('n', '<m-t><m-u>', ':call v:lua.RunJestTest(1)<cr>')
