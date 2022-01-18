@@ -39,6 +39,7 @@ local on_attach = function(client, bufnr)
   nmap('<c-d><c-u>', 'lua print("diagnostic count: table.getn(vim.diagnostic.get())"')
   nmap('<c-d><c-n>', 'vim.diagnostic.goto_next({ float = { border = "rounded" }})', true)
   nmap('<c-d><c-p>', 'vim.diagnostic.goto_prev({ float = { border = "rounded" }})', true)
+  map('v', 'f', ':lua vim.lsp.buf.range_formatting()<cr>')
 end
 
 local eslint = {
