@@ -42,6 +42,13 @@ local on_attach = function(client, bufnr)
   map('v', 'f', ':lua vim.lsp.buf.range_formatting()<cr>')
 end
 
+local function on_attachWithCb(cb)
+  return function(client, bufnr)
+    on_attach(client, bufnr)
+    cb(client, bufnr)
+  end
+end
+
 local eslint = {
   lintCommand = "eslint_d --no-error-on-unmatched-pattern --quiet -f unix --stdin --stdin-filename ${INPUT}",
   lintStdin = true,
@@ -56,13 +63,15 @@ local getPath = function (str)
   return str:match("(.*/)")
 end
 lspconfig.tsserver.setup {
-  on_attach = on_attach,
+  on_attach = on_attachWithCb(function(client)
+    client.resolved_capabilities.document_formatting = false
+    client.resolved_capabilities.document_range_formatting = false
+  end),
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
   cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '3' },
   handlers = {
     ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = 'rounded'}),
-    ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = 'rounded' }),
-    ['textDocument/formatting'] = nil
+    ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = 'rounded' })
   }
 }
 
