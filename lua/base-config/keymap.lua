@@ -29,3 +29,5 @@ map('n', '<leader>5', '5gt')
 
 map('n', '<c-e>', '<c-v>')
 map('n', ';', ':', { silent = false })
+
+map('c', '<Tab>', '<C-f>a<Tab>', { noremap = false })
