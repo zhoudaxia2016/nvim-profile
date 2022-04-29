@@ -91,7 +91,7 @@ end
 local leftList = {
   {
     hlg = hlgs.a,
-    items = ' %f'
+    items = ' %F'
   },
   {
     hlg = hlgs.aTob,
@@ -136,7 +136,6 @@ local rightList = {
     items = '%p%% '
   }
 }
-o.laststatus = 2
 local statusline = ''
 local function concatStatusline(list)
   for _, v in pairs(list) do
@@ -151,6 +150,7 @@ concatStatusline(leftList)
 statusline = statusline .. '%=%<'
 concatStatusline(rightList)
 o.statusline = statusline
+o.laststatus = 3
 
 local diagnostic = vim.diagnostic
 local diagnostics = {
