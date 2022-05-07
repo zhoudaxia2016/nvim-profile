@@ -41,7 +41,7 @@ function GetCodeLocation()
           capture_ID, capture_node = iter()
         end
         local capture_name = code_location_query.captures[capture_ID]
-        table.insert(node_text, 1, transform(table.concat(ts_utils.get_node_text(capture_node), ' '), capture_name))
+        table.insert(node_text, 1, transform(table.concat({vim.treesitter.query.get_node_text(capture_node, 0)}, ' '), capture_name))
 
       end
     end
@@ -50,6 +50,7 @@ function GetCodeLocation()
   end
 
   local context = table.concat(node_text, ' > ')
+  print(context)
 end
 
 require('util').map('n', '<leader>p', ':call v:lua.GetCodeLocation()<cr>', { silent = false })
