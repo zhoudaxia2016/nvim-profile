@@ -68,7 +68,7 @@ lspconfig.tsserver.setup {
     client.resolved_capabilities.document_range_formatting = false
   end),
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
-  cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '3' },
+  cmd = { bin_name, '--stdio' },
   handlers = {
     ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = 'rounded'}),
     ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = 'rounded' })
