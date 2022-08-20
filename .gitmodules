@@ -28,3 +28,6 @@
 [submodule "pack/extensions/start/nvim-treesitter-refactor"]
 	path = pack/extensions/start/nvim-treesitter-refactor
 	url = git@github.com:nvim-treesitter/nvim-treesitter-refactor.git
+[submodule "pack/extensions/start/lua-dev.nvim"]
+	path = pack/extensions/start/lua-dev.nvim
+	url = git@github.com:folke/lua-dev.nvim.git
