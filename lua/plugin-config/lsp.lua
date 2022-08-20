@@ -9,7 +9,12 @@ local on_attach = function(client, bufnr)
     vim.diagnostic.disable()
   end
   local function bindCursorEvent(event, handler)
-    cmd('autocmd '.. event ..  ' <buffer> lua vim.lsp.buf.' .. handler .. '()')
+    vim.api.nvim_create_autocmd(event, {
+      callback = function()
+        vim.lsp.buf[handler]()
+      end,
+      buffer = bufnr,
+    })
   end
 
   if client.resolved_capabilities.document_highlight then
@@ -48,6 +53,18 @@ local function on_attachWithCb(cb)
   end
 end
 
+vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
+  vim.lsp.handlers.hover, {
+    border = 'rounded'
+  }
+)
+
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
+  vim.lsp.handlers.signatureHelp, {
+    border = 'rounded'
+  }
+)
+
 local eslint = {
   lintCommand = "eslint_d --no-error-on-unmatched-pattern --quiet -f unix --stdin --stdin-filename ${INPUT}",
   lintStdin = true,
@@ -68,10 +85,6 @@ lspconfig.tsserver.setup {
   end),
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
   cmd = { bin_name, '--stdio' },
-  handlers = {
-    ["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = 'rounded'}),
-    ["textDocument/signatureHelp"] =  vim.lsp.with(vim.lsp.handlers.signature_help, {border = 'rounded' })
-  }
 }
 
 lspconfig.efm.setup {
