@@ -41,8 +41,8 @@ local on_attach = function(client, bufnr)
   nmap('<c-d>f', 'buf.formatting_seq_sync')
   nmap('<c-d><c-o>', 'buf.code_action')
   nmap('<c-d><c-y>', 'buf.type_definition')
-  nmap('<c-d><c-n>', 'vim.diagnostic.goto_next({ float = { border = "rounded" }})', true)
-  nmap('<c-d><c-p>', 'vim.diagnostic.goto_prev({ float = { border = "rounded" }})', true)
+  nmap('<c-d><c-n>', 'vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }})', true)
+  nmap('<c-d><c-p>', 'vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }})', true)
   map('v', 'f', ':lua vim.lsp.buf.range_formatting()<cr>')
 end
 
