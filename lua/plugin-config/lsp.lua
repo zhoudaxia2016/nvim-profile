@@ -85,13 +85,34 @@ local bin_name = 'typescript-language-server'
 local getPath = function (str)
   return str:match("(.*/)")
 end
+local typescriptCommands = {
+  goToSourceDefinition = '_typescript.goToSourceDefinition'
+}
 lspconfig.tsserver.setup {
-  on_attach = on_attachWithCb(function(client)
+  on_attach = on_attachWithCb(function(client, bufnr)
     client.resolved_capabilities.document_formatting = false
     client.resolved_capabilities.document_range_formatting = false
+    map('n', '<c-d><c-j>', function()
+      local pos = vim.lsp.util.make_position_params()
+      vim.lsp.buf.execute_command({
+        command = typescriptCommands.goToSourceDefinition,
+        arguments = {pos.textDocument.uri, pos.position}
+      })
+    end, {}, bufnr)
   end),
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
+  -- cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '4' },
   cmd = { bin_name, '--stdio' },
+  handlers = {
+    ['workspace/executeCommand'] = function(err, result, ctx, config)
+      local command = ctx.params.command
+      if command == typescriptCommands.goToSourceDefinition then
+        if result ~= nil and #result > 0 then
+          vim.lsp.util.jump_to_location(result[1], 'utf-8')
+        end
+      end
+    end
+  }
 }
 
 lspconfig.efm.setup {
