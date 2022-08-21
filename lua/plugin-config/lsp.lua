@@ -2,6 +2,7 @@ local cmd = vim.cmd
 local opt = vim.opt
 local lspconfig = require"lspconfig"
 local map = require"util".map
+local trim = require"util".trim
 
 local on_attach = function(client, bufnr)
   opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
@@ -101,8 +102,12 @@ lspconfig.tsserver.setup {
     end, {}, bufnr)
   end),
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
-  -- cmd = { bin_name, '--stdio', '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '4' },
-  cmd = { bin_name, '--stdio' },
+  cmd = vim.env.debug ~= nil
+    and {
+      'node', '--inspect-brk', trim(vim.fn.system('which typescript-language-server')), '--stdio',
+      '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '4'
+    }
+    or { bin_name, '--stdio' },
   handlers = {
     ['workspace/executeCommand'] = function(err, result, ctx, config)
       local command = ctx.params.command
