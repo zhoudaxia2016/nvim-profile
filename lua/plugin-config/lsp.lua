@@ -104,7 +104,7 @@ lspconfig.tsserver.setup {
   init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
   cmd = vim.env.debug ~= nil
     and {
-      'node', '--inspect-brk', trim(vim.fn.system('which typescript-language-server')), '--stdio',
+      'node', '--inspect', trim(vim.fn.system('which typescript-language-server')), '--stdio',
       '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '4'
     }
     or { bin_name, '--stdio' },
