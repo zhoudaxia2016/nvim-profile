@@ -1,4 +1,4 @@
-function Replace()
+require('util').map('n', '<leader>r', function()
   vim.ui.input({
     prompt = '请输入查找的单词'
   }, function(search)
@@ -10,5 +10,4 @@ function Replace()
       end)
     end
   end)
-end
-require('util').map('n', '<leader>r', ':call v:lua.Replace()<cr>')
+end)

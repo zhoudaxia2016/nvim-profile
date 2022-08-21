@@ -22,14 +22,13 @@ end
 
 function module.map(mode, key, command, opt, bufnr)
   local options = { noremap = true, silent = true }
+  if bufnr ~= nil then
+    options.buffer = bufnr
+  end
   if opt then
     options = vim.tbl_extend("force", options, opt)
   end
-  if bufnr then
-    vim.api.nvim_buf_set_keymap(bufnr, mode, key, command, options)
-  else
-    vim.api.nvim_set_keymap(mode, key, command, options)
-  end
+  vim.keymap.set(mode, key, command, options)
 end
 
 return module

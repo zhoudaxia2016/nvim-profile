@@ -11,7 +11,10 @@ g.netrw_bufsettings = "nonu rnu wrap"
 g.netrw_use_noswf = 0
 o.autochdir = true
 
-function ToggleExplorer()
+local map = require('util').map
+local trim = require('util').trim
+map('n', '<leader>d', function()
+  -- ToggleExplorer
   -- 是否打开目录树buffer
   if t.expl_buf_num ~= nil then
     local expl_win_num = fn.bufwinnr(t.expl_buf_num)
@@ -36,34 +39,28 @@ function ToggleExplorer()
     cmd('Lexplore ' .. fn.expand('%:p:h'))
     t.expl_buf_num = fn.bufnr("%")
   end
-end
-
-local map = require('util').map
-local trim = require('util').trim
-map('n', '<leader>d', ':call v:lua.ToggleExplorer()<cr>', { silent = true })
+end, { silent = true })
 
 o.splitright = true
 
 cmd('autocmd filetype netrw call v:lua.Netrw_mappings()')
 function Netrw_mappings()
   local buf = fn.bufnr('%')
-  map('n', 'f', ':call v:lua.SplitFile()<cr>', {}, buf)
-  map('n', '(', ':call v:lua.CreateFile()<cr>', {}, buf)
+  map('n', 'f', function()
+    -- Split file
+    local fn = GetCursorFile()
+    cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn))
+    cmd('redraw!')
+  end, {}, buf)
+  map('n', '(', function()
+    -- Create file
+    local fn = vim.ui.input({
+      prompt = 'Please enter filename: '
+    }, function(fn)
+      cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn)) 
+    end)
+  end, {}, buf)
   cmd('vertical res 20')
-end
-
-function SplitFile()
-  local fn = GetCursorFile()
-  cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn))
-  cmd('redraw!')
-end
-
-function CreateFile()
-  local fn = vim.ui.input({
-    prompt = 'Please enter filename: '
-  }, function(fn)
-    cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn)) 
-  end)
 end
 
 function GetCursorFile()

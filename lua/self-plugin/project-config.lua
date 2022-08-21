@@ -16,10 +16,8 @@ function InitProjectConfig()
   end
 end
 
-function OpenProjectConfig()
+vim.cmd[[au VimEnter * ++once call v:lua.InitProjectConfig()]]
+require('util').map('n', '<m-c>', function()
   local configFile = getConfigFile()
   vim.cmd('vs ' .. configFile)
-end
-
-vim.cmd[[au VimEnter * ++once call v:lua.InitProjectConfig()]]
-require('util').map('n', '<m-c>', ':call v:lua.OpenProjectConfig()<cr>')
+end)

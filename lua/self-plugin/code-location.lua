@@ -17,7 +17,7 @@ local function transform(text, name)
   return text
 end
 
-function GetCodeLocation()
+require('util').map('n', '<leader>p', function()
   local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
   local code_location_query = ts_queries.get_query(filelang, "code-location")
 
@@ -51,6 +51,4 @@ function GetCodeLocation()
 
   local context = table.concat(node_text, ' > ')
   print(context)
-end
-
-require('util').map('n', '<leader>p', ':call v:lua.GetCodeLocation()<cr>', { silent = false })
+end, { silent = false })

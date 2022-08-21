@@ -27,23 +27,30 @@ local on_attach = function(client, bufnr)
   bindCursorEvent('CursorMovedI', 'clear_references')
 
   local function nmap(lhs, rhs, noprefix)
-    if noprefix then
-      map('n', lhs, '<Cmd>lua ' .. rhs .. '<cr>', { silent = true }, bufnr)
-    else
-      map('n', lhs, '<Cmd>lua vim.lsp.' .. rhs .. '()<cr>', { silent = true }, bufnr)
+    local fn = rhs
+    if type(rhs) == 'string' then
+      fn = function()
+        vim.lsp.buf[rhs]()
+      end
     end
+    map('n', lhs, fn, { silent = true }, bufnr)
   end
 
-  nmap('<c-d><c-h>', 'buf.hover')
-  nmap('<c-d><c-j>', 'buf.definition')
-  nmap('<c-d><c-u>', 'buf.rename')
-  nmap('<c-d><c-l>', 'buf.references')
-  nmap('<c-d>f', 'buf.formatting_seq_sync')
-  nmap('<c-d><c-o>', 'buf.code_action')
-  nmap('<c-d><c-y>', 'buf.type_definition')
-  nmap('<c-d><c-n>', 'vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }})', true)
-  nmap('<c-d><c-p>', 'vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }})', true)
-  map('v', 'f', ':lua vim.lsp.buf.range_formatting()<cr>')
+  nmap('<c-d><c-h>', 'hover')
+  nmap('<c-d><c-j>', 'definition')
+  nmap('<c-d><c-u>', 'rename')
+  nmap('<c-d><c-l>', 'references')
+  nmap('<c-d>f', 'formatting_seq_sync')
+  nmap('<c-d><c-o>', 'code_action')
+  nmap('<c-d><c-y>', 'type_definition')
+  local diagnosticConfig = { severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }}
+  nmap('<c-d><c-n>', function()
+    vim.diagnostic.goto_next(diagnosticConfig)
+  end, true)
+  nmap('<c-d><c-p>', function()
+    vim.diagnostic.goto_prev(diagnosticConfig)
+  end, true)
+  map('v', 'f', vim.lsp.buf.range_formatting)
 end
 
 local function on_attachWithCb(cb)

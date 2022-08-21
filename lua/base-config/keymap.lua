@@ -1,6 +1,5 @@
 local map = require'util'.map
-map('n', '<leader><leader>', ':call v:lua.OpenHelpFile()<cr>')
-function OpenHelpFile()
+map('n', '<leader><leader>', function()
   vim.ui.input({
     prompt = 'Please input the help file name: ',
     completion = 'help'
@@ -9,7 +8,7 @@ function OpenHelpFile()
       vim.cmd('help ' .. input)
     end
   end)
-end
+end)
 
 -- move around window
 map('n', '<c-l>', '<c-w><c-l>')
