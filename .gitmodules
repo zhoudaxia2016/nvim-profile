@@ -31,3 +31,6 @@
 [submodule "pack/extensions/start/lua-dev.nvim"]
 	path = pack/extensions/start/lua-dev.nvim
 	url = git@github.com:folke/lua-dev.nvim.git
+[submodule "pack/extensions/start/indent-blankline.nvim"]
+	path = pack/extensions/start/indent-blankline.nvim
+	url = git@github.com:lukas-reineke/indent-blankline.nvim.git
