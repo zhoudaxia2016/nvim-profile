@@ -1,6 +1,3 @@
-[submodule "pack/extensions/start/indentLine"]
-	path = pack/extensions/start/indentLine
-	url = git@github.com:Yggdroot/indentLine.git
 [submodule "pack/extensions/start/nvim-lspconfig"]
 	path = pack/extensions/start/nvim-lspconfig
 	url = git@github.com:neovim/nvim-lspconfig.git
