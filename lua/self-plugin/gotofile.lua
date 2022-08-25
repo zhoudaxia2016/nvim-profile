@@ -65,7 +65,7 @@ function GotoFile()
 end
 
 vim.cmd[[
-  au VimEnter *.tsx,*.jsx,*.js,*.ts call v:lua.ConfigGotoFile()
+  au VimEnter *.tsx,*.jsx,*.js,*.ts silent! call v:lua.ConfigGotoFile()
   au BufEnter *.tsx,*.jsx,*.js,*.ts lua require('util').map('n', 'gf', ':call v:lua.GotoFile()<cr>')
 ]]
 

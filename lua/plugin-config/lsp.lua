@@ -3,6 +3,47 @@ local opt = vim.opt
 local lspconfig = require"lspconfig"
 local map = require"util".map
 local trim = require"util".trim
+local ts_utils = require('nvim-treesitter.ts_utils')
+
+local function run()
+  local pos = vim.lsp.util.make_position_params()
+  vim.lsp.buf_request(0, 'textDocument/inlayHint', {
+    range = {
+      start = pos.position,
+      ['end'] = { line = pos.position.line, character = pos.position.character + 1 },
+    },
+    textDocument = { uri = pos.textDocument.uri }
+  }, function(err, result, ctx, config)
+    if (result ~= nil and #result > 0) then
+      local label
+      if (#result == 1) then
+        label = result[1].label
+      else
+        local current = ts_utils.get_node_at_cursor()
+        local node = current:parent()
+        while (node and node:type() ~= 'arguments') do
+          current = node
+          node = node:parent()
+        end
+        if node ~= nil then
+          local startLine, startCharacter = ts_utils.get_node_range(current)
+          for _, v in ipairs(result) do
+            if (v.kind == 2) then
+              if v.position.character == startCharacter and v.position.line == startLine then
+                label = v.label
+                break
+              end
+            end
+          end
+        end
+      end
+      if label ~= nil then
+        vim.lsp.util.open_floating_preview({label}, 'typescript', {border = 'rounded'})
+      end
+    end
+  end)
+end
+map('n', '<c-d><c-k>', run, { silent = true }, 0)
 
 local on_attach = function(client, bufnr)
   opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
@@ -101,7 +142,18 @@ lspconfig.tsserver.setup {
       })
     end, {}, bufnr)
   end),
-  init_options = { plugins = {{ location = getPath(os.getenv('NODE_PATH'))} }},
+  init_options = {
+    plugins = {{ location = getPath(os.getenv('NODE_PATH'))} },
+    preferences = {
+          includeInlayEnumMemberValueHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayParameterNameHints = 'all',
+          includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayVariableTypeHints = true,
+    }
+  },
   cmd = vim.env.debug ~= nil
     and {
       'node', '--inspect', trim(vim.fn.system('which typescript-language-server')), '--stdio',
