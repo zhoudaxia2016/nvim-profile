@@ -5,7 +5,7 @@ local map = require"util".map
 local trim = require"util".trim
 local ts_utils = require('nvim-treesitter.ts_utils')
 
-local function run()
+local function showInlayHint()
   local pos = vim.lsp.util.make_position_params()
   vim.lsp.buf_request(0, 'textDocument/inlayHint', {
     range = {
@@ -43,8 +43,6 @@ local function run()
     end
   end)
 end
-map('n', '<c-d><c-k>', run, { silent = true }, 0)
-
 local on_attach = function(client, bufnr)
   opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
   if vim.o.diff then
@@ -134,6 +132,7 @@ lspconfig.tsserver.setup {
   on_attach = on_attachWithCb(function(client, bufnr)
     client.resolved_capabilities.document_formatting = false
     client.resolved_capabilities.document_range_formatting = false
+    map('n', '<c-d><c-k>', showInlayHint, { silent = true }, 0)
     map('n', '<c-d><c-j>', function()
       local pos = vim.lsp.util.make_position_params()
       vim.lsp.buf.execute_command({

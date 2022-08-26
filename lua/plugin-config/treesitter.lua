@@ -6,7 +6,7 @@ vim.cmd[[hi TSTypeBuiltin guifg=#96C0CE]]
 vim.cmd[[hi TSVariableBuiltin guifg=#518f8b]]
 vim.cmd[[hi TSStringRegex guifg=#B9A7C2]]
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "query", "comment"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "query", "comment", "scheme"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   highlight = {
     enable = true,              -- false will disable the whole extension
