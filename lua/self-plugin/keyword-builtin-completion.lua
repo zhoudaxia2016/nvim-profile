@@ -19,9 +19,16 @@ local function dictCollect()
 
     for id, node, metadata in query:iter_captures(tstree[1]:root(), queryContent) do
       local text = queries.get_node_text(node, queryContent)
-      text = string.gsub(text, '^"(.*)"$', '%1')
-      if (dict[captures[id]] ~= nil and #text > 3) then
-        table.insert(dict[captures[id]], text)
+      local capture = captures[id]
+      if (capture == 'match.builtin') then
+        for _ in text:gmatch('%w+') do
+          table.insert(dict.builtin, _)
+        end
+      else
+        text = string.gsub(text, '^"(.*)"$', '%1')
+        if (dict[capture] ~= nil and #text > 3) then
+          table.insert(dict[capture], text)
+        end
       end
     end
   end
@@ -29,6 +36,8 @@ local function dictCollect()
   local file = io.open(basePath .. ft .. '.dict', 'w')
   io.output(file)
   io.write(table.concat(dict.keyword, '\n'))
+  io.write('\n')
+  io.write(table.concat(dict.builtin, '\n'))
   io.close(file)
 end
 

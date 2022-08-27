@@ -28,3 +28,13 @@ delete
 throw
 catch
 finally
+arguments
+module
+console
+window
+document
+require
+this
+super
+null
+undefined

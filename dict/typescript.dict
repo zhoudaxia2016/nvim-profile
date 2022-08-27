@@ -41,3 +41,13 @@ protected
 public
 type
 readonly
+arguments
+module
+console
+window
+document
+require
+this
+super
+null
+undefined
