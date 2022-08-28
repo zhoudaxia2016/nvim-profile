@@ -30,3 +30,15 @@ map('n', '<c-e>', '<c-v>')
 map('n', ';', ':', { silent = false })
 
 map('c', '<m-l>', '<C-f>a<Tab>', { noremap = false })
+
+
+local function cleverTab()
+  local col = vim.fn.col('.')
+  if col == 1 or vim.fn.getline('.'):sub(-1, -1):match('%s') then
+    return "<Tab>"
+  else
+    return "<c-n>"
+  end
+end
+vim.keymap.set('i', '<Tab>', cleverTab, {expr=true})
+vim.opt.cpt:append('k')
