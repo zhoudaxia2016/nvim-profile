@@ -1,6 +1,37 @@
 local o = vim.o
 local Job = require'plenary.job'
 local gitsign = ''
+local fileIcons = {
+  sass =  '',
+  scss =  '',
+  htm = '',
+  html = '',
+  css = '',
+  less = '',
+  md = '',
+  markdown = '',
+  json = '',
+  javascript = '',
+  mjs = '',
+  javascriptreact = '',
+  py = '',
+  conf = '',
+  ini = '',
+  yml = '',
+  yaml = '',
+  cpp = '',
+  c = '',
+  h = '',
+  lua = '',
+  java = '',
+  sh = '',
+  go = '',
+  vim = '',
+  typescript = '',
+  typescriptreact = '',
+  vue = '﵂',
+}
+        
 function GetStatuslineGitsign()
   return gitsign .. ' '
 end
@@ -14,11 +45,11 @@ function StatuslineGitSign()
         local s = {}
         local addCount = string.match(result[1], '(%d+)%s+%w+%(%+%)')
         if addCount then
-          table.insert(s, '[+]' .. addCount)
+          table.insert(s, '++ ' .. addCount)
         end
         local deleteCount = string.match(result[1], '(%d+)%s+%w+%(%-%)')
         if deleteCount then
-          table.insert(s, '[-]' .. deleteCount)
+          table.insert(s, ' ' .. deleteCount)
         end
         gitsign = table.concat(s, ' ')
       else
@@ -85,8 +116,21 @@ for _, v in pairs(hlgs) do
   vim.cmd(string.format([[hi %s guifg=%s guibg=%s]], v.name, v.fg, v.bg))
 end
 
+function ShowFileType()
+  local ft = vim.o.ft
+  if fileIcons[ft] then
+    ft = fileIcons[ft]
+  end
+  return '[' .. ft .. ']'
+end
+
 function ShowFileFormatFlag()
-  return '[' .. o.fileformat .. ']'
+  local icons = {
+    unix = '',
+    mac = '',
+    dos = '',
+  }
+  return ' ' .. icons[o.fileformat]
 end
 local leftList = {
   {
@@ -117,7 +161,7 @@ local rightList = {
   },
   {
     hlg = hlgs.c,
-    items = '%y%{%v:lua.ShowFileFormatFlag()%} '
+    items = '%{%v:lua.ShowFileType()%}%{%v:lua.ShowFileFormatFlag()%} '
   },
   {
     hlg = hlgs.bToc,
