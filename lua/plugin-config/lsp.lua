@@ -253,20 +253,6 @@ end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
-lspconfig.jsonls.setup{
-  on_attach = on_attach,
-  capabilities = capabilities,
-  settings = {
-    json = {
-      schemas = {
-        {
-          fileMatch = { "tsconfig.json", "tsconfig.*.json" },
-          url = "http://json.schemastore.org/tsconfig"
-        }
-      }
-    }
-  }
-}
 
 lspconfig.marksman.setup {
   on_attach = on_attach,
