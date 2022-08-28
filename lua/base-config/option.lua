@@ -34,7 +34,9 @@ o.switchbuf = 'useopen,usetab,newtab'
 o.jumpoptions = 'stack'
 g.netrw_use_noswf= 0
 g.netrw_browsex_viewer="cmd.exe /C start"
-g.vim_json_conceal=0
+g.vim_json_conceal=3
+o.conceallevel = 1
+o.cocu = 'c'
 
 if o.diff then
   o.readonly = false

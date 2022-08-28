@@ -26,11 +26,11 @@ neovim内置了比较有用的功能：
 ## treesitter支持的功能
 > 相比lsp比较轻量，基于文件，提供比较初级的编辑体验，比如缩进，高亮
 
-- highlight
-- textobject
-- code location
-- indent
-- incremental\_selection
+* highlight
+* textobject
+* code location
+* indent
+* incremental\_selection
 
 ## TODO
 - [ ] 将所有配置从vim迁移到neovim

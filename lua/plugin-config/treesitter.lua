@@ -67,3 +67,15 @@ require'nvim-treesitter.configs'.setup {
     },
   },
 }
+vim.cmd[[hi TSMarkdownH1 guibg=#8ea9a4 guifg=#666666]]
+vim.cmd[[hi TSMarkdownH2 guibg=#a0c0ba guifg=#555555]]
+vim.cmd[[hi TSMarkdownH3 guibg=#b7cdce guifg=#444444]]
+vim.cmd[[hi TSMarkdownH4 guibg=#cfdcdd guifg=#333333]]
+vim.cmd[[hi TSMarkdownH5 guibg=#e0e6eb guifg=#222222]]
+require"nvim-treesitter.highlight".set_custom_captures {
+  ["h1"] = "TSMarkdownH1",
+  ["h2"] = "TSMarkdownH2",
+  ["h3"] = "TSMarkdownH3",
+  ["h4"] = "TSMarkdownH4",
+  ["h5"] = "TSMarkdownH5",
+}
