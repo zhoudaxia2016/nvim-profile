@@ -26,6 +26,14 @@ map('n', '<leader>3', '3gt')
 map('n', '<leader>4', '4gt')
 map('n', '<leader>5', '5gt')
 
+map('i', '<c-k>', '<c-x><c-k>')
+map('i', '<c-l>', '<c-x><c-l>')
+map('i', '<c-t>', '<c-x><c-t>')
+map('i', '<c-f>', '<c-x><c-f>')
+map('i', '<c-d>', '<c-x><c-d>')
+map('i', '<c-o>', '<c-x><c-o>')
+map('i', '<c-i>', '<c-x><c-i>')
+
 map('n', '<c-e>', '<c-v>')
 map('n', ';', ':', { silent = false })
 
