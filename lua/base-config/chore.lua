@@ -1,14 +1,4 @@
-local jobstart = require('util.jobstart')
 local util = require('util')
-function CopyToSystem()
-  local temp = vim.fn.tempname()
-  local fd = io.open(temp, 'w')
-  io.output(fd)
-  io.write(vim.fn.getreg('"'))
-  io.close(fd)
-  jobstart('clip.exe < ' .. temp)
-end
-vim.api.nvim_set_keymap('n', '<m-o>', '<Cmd>call v:lua.CopyToSystem()<cr>', { silent = true })
 
 function ConfigFold()
   vim.defer_fn(function()
