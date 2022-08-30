@@ -74,15 +74,25 @@ vim.api.nvim_create_autocmd('BufReadPre', {
     vim.keymap.set('n', '<cr>b', function()
       tmux({cmd = 'fzf', output = true, callback = function(output)
         for _, f in ipairs(output) do
-          local _ = vim.fn.split(f, ' ')
-          vim.cmd(string.format('tabnew +b%s', _[1]))
+          f = vim.fn.split(f, ' ')
+          vim.cmd(string.format('tabnew +b%s', f[2]))
         end
       end, input = function()
         local bfs = vim.api.nvim_list_bufs()
         local input = {}
         for _, b in ipairs(bfs) do
           if vim.api.nvim_buf_is_loaded(b) then
-            table.insert(input, b .. ' ' .. vim.api.nvim_buf_get_name(b))
+            local name = vim.api.nvim_buf_get_name(b)
+            if vim.fn.bufwinid(b) ~= -1 then
+              name = '📝 ' .. name
+            else
+              if vim.fn.getbufinfo(b)[1].hidden == 0 then
+                name = '🙈 ' .. name
+              else
+                name = '   ' .. name
+              end
+            end
+            table.insert(input, name)
           end
         end
         return input
