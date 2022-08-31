@@ -33,6 +33,12 @@ local function tmux(opts)
   })
 end
 
+local function setTmuxKeymap(key, opts)
+  vim.keymap.set('n', key, function()
+    tmux(opts)
+  end, { buffer = 0 })
+end
+
 local function frgCb(output)
   for i, line in ipairs(output) do
     local _ = vim.fn.split(line, ':')
@@ -55,50 +61,40 @@ vim.api.nvim_create_autocmd('BufReadPre', {
     end
 
     -- 搜索文件内容
-    vim.keymap.set('n', '<cr>f', function()
-      tmux({cmd = '_frg', output = true, callback = frgCb, root = true})
-    end)
-    vim.keymap.set('n', '<cr>F', function()
-      tmux({cmd = '_frg', output = true, callback = frgCb})
-    end)
+    setTmuxKeymap('<cr>f', {cmd = '_frg', output = true, callback = frgCb, root = true})
+    setTmuxKeymap('<cr>F', {cmd = '_frg', output = true, callback = frgCb})
 
     -- 搜索文件名
-    vim.keymap.set('n', '<cr>e', function()
-      tmux({cmd = '_fe', output = true, callback = fzfCb, root = true})
-    end)
-    vim.keymap.set('n', '<cr>E', function()
-      tmux({cmd = '_fe', output = true, callback = fzfCb})
-    end)
+    setTmuxKeymap('<cr>e', {cmd = '_fe', output = true, callback = fzfCb, root = true})
+    setTmuxKeymap('<cr>E', {cmd = '_fe', output = true, callback = fzfCb})
 
     -- 搜索buffers
-    vim.keymap.set('n', '<cr>b', function()
-      tmux({cmd = 'fzf', output = true, callback = function(output)
-        for _, f in ipairs(output) do
-          f = vim.fn.split(f, '\\s\\+')
-          print(vim.inspect(f))
-          vim.cmd(string.format('tabnew +b%s', f[2]))
-        end
-      end, input = function()
-        local bfs = vim.api.nvim_list_bufs()
-        local input = {}
-        for _, b in ipairs(bfs) do
-          if vim.api.nvim_buf_is_loaded(b) then
-            local name = vim.api.nvim_buf_get_name(b)
-            if vim.fn.bufwinid(b) ~= -1 then
-              name = '📝 ' .. name
+    setTmuxKeymap('<cr>b', {cmd = 'fzf', output = true, callback = function(output)
+      for _, f in ipairs(output) do
+        f = vim.fn.split(f, '\\s\\+')
+        print(vim.inspect(f))
+        vim.cmd(string.format('tabnew +b%s', f[2]))
+      end
+    end, input = function()
+      local bfs = vim.api.nvim_list_bufs()
+      local input = {}
+      for _, b in ipairs(bfs) do
+        if vim.api.nvim_buf_is_loaded(b) then
+          local name = vim.api.nvim_buf_get_name(b)
+          if vim.fn.bufwinid(b) ~= -1 then
+            name = '📝 ' .. name
+          else
+            if vim.fn.getbufinfo(b)[1].hidden == 0 then
+              name = '🙈 ' .. name
             else
-              if vim.fn.getbufinfo(b)[1].hidden == 0 then
-                name = '🙈 ' .. name
-              else
-                name = 'h  ' .. name
-              end
+              name = 'h  ' .. name
             end
-            table.insert(input, name)
           end
+          table.insert(input, name)
         end
-        return input
-      end})
-    end)
+      end
+      return input
+    end})
 
     vim.keymap.set('n', '<cr>s', ':set hls!<cr>', {buffer = 0})
   end
