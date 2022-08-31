@@ -16,7 +16,7 @@ local function tmux(opts)
           return
         end
       end
-      vim.fn.timer_start(500, onExit)
+      vim.fn.timer_start(100, onExit)
     end
   end
   if opts.root then
