@@ -4,9 +4,10 @@
 
 [旧vim配置](https://github.com/zhoudaxia2016/vim-profile)
 
-neovim内置了比较有用的功能：
-- lsp
-- treesitter
+neovim内置了代码编辑器重要特性：
+- [lsp](https://langserver.org/)
+- [treesitter](https://tree-sitter.github.io/tree-sitter/)
+
 
 ## lsp支持的功能
 > 相比treesitter比较重量级，基于整个项目，支持比较完整的语法分析，对标ide的编译器
@@ -31,6 +32,14 @@ neovim内置了比较有用的功能：
 * code location
 * indent
 * incremental\_selection
+
+## 原则
+1. 尽量不引入插件
+2. 适当搭配其他工具（fzf，tmux）
+
+## 插件管理
+用vim自带的插件管理器，插件直接放在pack目录下即可
+另外，这些插件用git submodule进行管理
 
 ## TODO
 - [ ] 将所有配置从vim迁移到neovim
