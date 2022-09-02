@@ -42,7 +42,8 @@ map('c', '<m-l>', '<C-f>a<Tab>', { noremap = false })
 
 local function cleverTab()
   local col = vim.fn.col('.')
-  if col == 1 or vim.fn.getline('.'):sub(-1, -1):match('%s') then
+  print(vim.fn.getline('.'):sub(col, col))
+  if col == 1 or vim.fn.getline('.'):sub(col-1, col-1):match('%s') then
     return "<Tab>"
   else
     return "<c-n>"
