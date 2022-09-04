@@ -42,7 +42,7 @@ local function dictCollect()
 end
 
 vim.api.nvim_create_user_command('DictCollect', dictCollect, {})
-vim.api.nvim_create_autocmd('BufReadPost', {
+vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',
   callback = function()
     local ft = vim.o.ft
