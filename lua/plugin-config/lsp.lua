@@ -61,9 +61,7 @@ local on_attach = function(client, bufnr)
   if client.resolved_capabilities.document_highlight then
     bindCursorEvent('CursorHold', 'document_highlight')
   end
-  if client.resolved_capabilities.signatureHelp then
-    bindCursorEvent('CursorHoldI', 'signature_help')
-  end
+  bindCursorEvent('CursorHoldI', 'signature_help')
   bindCursorEvent('CursorMoved', 'clear_references')
   bindCursorEvent('CursorMovedI', 'clear_references')
 
@@ -108,7 +106,7 @@ vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
 )
 
 vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
-  vim.lsp.handlers.signatureHelp, {
+  vim.lsp.handlers.signature_help, {
     border = 'rounded'
   }
 )
