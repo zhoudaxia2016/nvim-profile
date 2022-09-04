@@ -1,6 +1,7 @@
 local cmd = vim.cmd
 local opt = vim.opt
 local lspconfig = require"lspconfig"
+local util = require"lspconfig.util"
 local map = require"util".map
 local trim = require"util".trim
 local ts_utils = require('nvim-treesitter.ts_utils')
@@ -128,7 +129,15 @@ end
 local typescriptCommands = {
   goToSourceDefinition = '_typescript.goToSourceDefinition'
 }
+lspconfig.flow.setup {}
 lspconfig.tsserver.setup {
+  root_dir = function(fname)
+    if (util.root_pattern('.flowconfig')(fname)) then
+      return nil
+    end
+    return util.root_pattern 'tsconfig.json'(fname)
+    or util.root_pattern('package.json', 'jsconfig.json', '.git')(fname)
+  end,
   on_attach = on_attachWithCb(function(client, bufnr)
     client.resolved_capabilities.document_formatting = false
     client.resolved_capabilities.document_range_formatting = false
