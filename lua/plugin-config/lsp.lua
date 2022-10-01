@@ -61,7 +61,6 @@ local on_attach = function(client, bufnr)
   if client.resolved_capabilities.document_highlight then
     bindCursorEvent('CursorHold', 'document_highlight')
   end
-  bindCursorEvent('CursorHoldI', 'signature_help')
   bindCursorEvent('CursorMoved', 'clear_references')
   bindCursorEvent('CursorMovedI', 'clear_references')
 
