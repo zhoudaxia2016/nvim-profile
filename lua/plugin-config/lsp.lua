@@ -45,7 +45,6 @@ local function showInlayHint()
   end)
 end
 local on_attach = function(client, bufnr)
-  opt.omnifunc = 'v:lua.vim.lsp.omnifunc'
   if vim.o.diff then
     vim.diagnostic.disable()
   end
@@ -149,6 +148,7 @@ lspconfig.tsserver.setup {
   end),
   init_options = {
     plugins = {{ location = getPath(os.getenv('NODE_PATH'))} },
+    maxTsServerMemory = 999999,
     preferences = {
           includeInlayEnumMemberValueHints = true,
           includeInlayFunctionLikeReturnTypeHints = true,
