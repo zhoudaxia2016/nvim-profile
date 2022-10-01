@@ -58,10 +58,12 @@ vim.api.nvim_set_hl(0, 'WinBar', {
 
 require('util').map('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', { silent = false })
 if vim.version().minor == 8 then
-  vim.api.nvim_create_autocmd('FileType', {
+  vim.api.nvim_create_autocmd('BufEnter', {
     callback = function()
       if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
         vim.o.winbar = '%!v:lua.CodeLocation()'
+      else
+        vim.o.winbar = ''
       end
     end
   })
