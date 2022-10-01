@@ -58,7 +58,7 @@ local on_attach = function(client, bufnr)
     })
   end
 
-  if client.resolved_capabilities.document_highlight then
+  if client.server_capabilities.document_highlight then
     bindCursorEvent('CursorHold', 'document_highlight')
   end
   bindCursorEvent('CursorMoved', 'clear_references')
@@ -136,8 +136,8 @@ lspconfig.tsserver.setup {
     or util.root_pattern('package.json', 'jsconfig.json', '.git')(fname)
   end,
   on_attach = on_attachWithCb(function(client, bufnr)
-    client.resolved_capabilities.document_formatting = false
-    client.resolved_capabilities.document_range_formatting = false
+    client.server_capabilities.document_formatting = false
+    client.server_capabilities.document_range_formatting = false
     map('n', '<c-d><c-k>', showInlayHint, { silent = true }, 0)
     map('n', '<c-d><c-j>', function()
       local pos = vim.lsp.util.make_position_params()
