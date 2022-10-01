@@ -17,7 +17,7 @@ local function transform(text, name)
   return text
 end
 
-require('util').map('n', '<leader>p', function()
+function CodeLocation()
   local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
   local code_location_query = ts_queries.get_query(filelang, "code-location")
 
@@ -49,6 +49,20 @@ require('util').map('n', '<leader>p', function()
     node = node:parent()
   end
 
-  local context = table.concat(node_text, ' > ')
-  print(context)
-end, { silent = false })
+  return table.concat(node_text, ' > ')
+end
+
+vim.api.nvim_set_hl(0, 'WinBar', {
+  bg = '#4C566A'
+})
+
+require('util').map('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', { silent = false })
+if vim.version().minor == 8 then
+  vim.api.nvim_create_autocmd('FileType', {
+    callback = function()
+      if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
+        vim.o.winbar = '%!v:lua.CodeLocation()'
+      end
+    end
+  })
+end
