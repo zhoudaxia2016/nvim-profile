@@ -22,7 +22,7 @@ function CodeLocation()
   local code_location_query = ts_queries.get_query(filelang, "code-location")
 
   if not code_location_query then
-    return "error"
+    return ''
   end
 
   local current_node = ts_utils.get_node_at_cursor()
@@ -61,9 +61,7 @@ if vim.version().minor == 8 then
   vim.api.nvim_create_autocmd('BufEnter', {
     callback = function()
       if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
-        vim.o.winbar = '%!v:lua.CodeLocation()'
-      else
-        vim.o.winbar = ''
+        vim.opt_local.winbar = '%!v:lua.CodeLocation()'
       end
     end
   })
