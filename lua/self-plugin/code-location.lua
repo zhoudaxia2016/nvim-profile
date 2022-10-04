@@ -17,6 +17,8 @@ local function transform(text, name)
   return text
 end
 
+HandleWinbarClick = function (i) end
+
 function CodeLocation()
   local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
   local code_location_query = ts_queries.get_query(filelang, "code-location")
@@ -27,7 +29,7 @@ function CodeLocation()
 
   local current_node = ts_utils.get_node_at_cursor()
 
-  local node_text = {}
+  local captures = {}
   local node = current_node
 
   while node do
@@ -41,15 +43,23 @@ function CodeLocation()
           capture_ID, capture_node = iter()
         end
         local capture_name = code_location_query.captures[capture_ID]
-        table.insert(node_text, 1, transform(table.concat({vim.treesitter.query.get_node_text(capture_node, 0)}, ' '), capture_name))
-
+        table.insert(captures, 1, { node = capture_node, name = capture_name })
       end
     end
 
     node = node:parent()
   end
 
-  return table.concat(node_text, ' > ')
+  HandleWinbarClick = function(i)
+    local r, c = captures[i].node:start()
+    vim.cmd(string.format([[normal %sG%s|]], r + 1, c + 1))
+  end
+
+  local i = 0
+  return table.concat(vim.tbl_map(function(_)
+    i = i + 1
+    return string.format([[%%%s@v:lua.HandleWinbarClick@%s%%X]], i, transform(table.concat({vim.treesitter.query.get_node_text(_.node, 0)}, ' '), _.name))
+  end, captures), ' > ')
 end
 
 vim.api.nvim_set_hl(0, 'WinBar', {
