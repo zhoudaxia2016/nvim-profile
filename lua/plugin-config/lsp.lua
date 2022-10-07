@@ -263,3 +263,7 @@ capabilities.textDocument.completion.completionItem.snippetSupport = true
 lspconfig.marksman.setup {
   on_attach = on_attach,
 }
+
+lspconfig.ccls.setup {
+  on_attach = on_attach,
+}
