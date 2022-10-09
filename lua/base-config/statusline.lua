@@ -132,10 +132,25 @@ function ShowFileFormatFlag()
   }
   return ' ' .. icons[o.fileformat]
 end
+StatusbarHandlers = {
+  file = function(_, _, button, modifier)
+    local fn = '%:p'
+    modifier = vim.fn.trim(modifier)
+    if modifier == '' then
+      local lspClients = vim.lsp.get_active_clients()
+      if #lspClients > 0 then
+        fn = fn .. string.format(':s?%s/??', lspClients[1].config.root_dir)
+      end
+    elseif modifier == 'c' then
+      fn = '%'
+    end
+    require('util').copy(vim.fn.expand(fn))
+  end
+}
 local leftList = {
   {
     hlg = hlgs.a,
-    items = ' %F'
+    items = ' %@v:lua.StatusbarHandlers.file@%F%X'
   },
   {
     hlg = hlgs.aTob,
