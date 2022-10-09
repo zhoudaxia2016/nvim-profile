@@ -20,6 +20,15 @@ function module.hasValue(tab, val)
   return false
 end
 
+function module.copy(text)
+  local temp = vim.fn.tempname()
+  local fd = io.open(temp, 'w')
+  io.output(fd)
+  io.write(text)
+  io.close(fd)
+  vim.fn.jobstart('clip.exe < ' .. temp)
+end
+
 function module.map(mode, key, command, opt, bufnr)
   local options = { noremap = true, silent = true }
   if bufnr ~= nil then
