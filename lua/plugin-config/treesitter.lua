@@ -1,10 +1,10 @@
 vim.cmd[[au BufAdd * call v:lua.ConfigFold()]]
 
-vim.cmd[[hi TSConstructor guifg=#bbded6]]
-vim.cmd[[hi TSConditional guifg=#ecd6c7]]
-vim.cmd[[hi TSTypeBuiltin guifg=#96C0CE]]
-vim.cmd[[hi TSVariableBuiltin guifg=#518f8b]]
-vim.cmd[[hi TSStringRegex guifg=#B9A7C2]]
+vim.cmd[[hi @Constructor guifg=#bbded6]]
+vim.cmd[[hi @Conditional guifg=#ecd6c7]]
+vim.cmd[[hi @type.builtin guifg=#96C0CE]]
+vim.cmd[[hi @variable.builtin guifg=#518f8b]]
+vim.cmd[[hi @string.regex guifg=#B9A7C2]]
 require'nvim-treesitter.configs'.setup {
   ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "query", "comment", "scheme", "markdown", "markdown_inline"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
@@ -67,15 +67,8 @@ require'nvim-treesitter.configs'.setup {
     },
   },
 }
-vim.cmd[[hi TSMarkdownH1 guibg=#8ea9a4 guifg=#666666]]
-vim.cmd[[hi TSMarkdownH2 guibg=#a0c0ba guifg=#555555]]
-vim.cmd[[hi TSMarkdownH3 guibg=#b7cdce guifg=#444444]]
-vim.cmd[[hi TSMarkdownH4 guibg=#cfdcdd guifg=#333333]]
-vim.cmd[[hi TSMarkdownH5 guibg=#e0e6eb guifg=#222222]]
-require"nvim-treesitter.highlight".set_custom_captures {
-  ["h1"] = "TSMarkdownH1",
-  ["h2"] = "TSMarkdownH2",
-  ["h3"] = "TSMarkdownH3",
-  ["h4"] = "TSMarkdownH4",
-  ["h5"] = "TSMarkdownH5",
-}
+vim.cmd[[hi @h1 guibg=#8ea9a4 guifg=#666666]]
+vim.cmd[[hi @h2 guibg=#a0c0ba guifg=#555555]]
+vim.cmd[[hi @h3 guibg=#b7cdce guifg=#444444]]
+vim.cmd[[hi @h4 guibg=#cfdcdd guifg=#333333]]
+vim.cmd[[hi @h5 guibg=#e0e6eb guifg=#222222]]

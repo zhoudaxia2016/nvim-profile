@@ -6,7 +6,7 @@
 	url = git@github.com:shaunsingh/nord.nvim.git
 [submodule "pack/extensions/start/nvim-treesitter"]
 	path = pack/extensions/start/nvim-treesitter
-	url = git@github.com:nvim-treesitter/nvim-treesitter.git
+	url = https://github.com/nvim-treesitter/nvim-treesitter.git
 [submodule "pack/extensions/start/playground"]
 	path = pack/extensions/start/playground
 	url = git@github.com:nvim-treesitter/playground.git
