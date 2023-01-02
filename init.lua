@@ -1,6 +1,8 @@
 local opt = vim.opt
 local cmd = vim.cmd
 local o = vim.o
+vim.g.nord_italic = false
+
 vim.g.workspace = require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd()) or vim.fn.getcwd()
 
 opt.runtimepath:prepend('~/.nvim')
