@@ -35,6 +35,7 @@ o.jumpoptions = 'stack'
 g.netrw_use_noswf= 0
 g.netrw_browsex_viewer="cmd.exe /C start"
 o.conceallevel = 1
+o.fixendofline = false
 
 if o.diff then
   o.readonly = false
