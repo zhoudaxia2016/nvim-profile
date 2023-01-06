@@ -147,7 +147,11 @@ lspconfig.tsserver.setup {
     end, {}, bufnr)
   end),
   init_options = {
-    plugins = {{ location = getPath(os.getenv('NODE_PATH'))} },
+    plugins = vim.env.tsserverPlugins
+      and vim.tbl_map(function(_)
+          return { location = getPath(os.getenv('NODE_PATH')), name = _}
+        end, vim.split(vim.env.tsserverPlugins, ' '))
+      or {},
     maxTsServerMemory = 999999,
     preferences = {
           includeInlayEnumMemberValueHints = true,
@@ -157,12 +161,15 @@ lspconfig.tsserver.setup {
           includeInlayParameterNameHintsWhenArgumentMatchesName = true,
           includeInlayPropertyDeclarationTypeHints = true,
           includeInlayVariableTypeHints = true,
+    },
+    tsserver = {
+      logDirectory = '/tmp',
+      logVerbosity = vim.env.debug ~= nil and 'verbose' or 'off'
     }
   },
   cmd = vim.env.debug ~= nil
     and {
-      'node', '--inspect', trim(vim.fn.system('which typescript-language-server')), '--stdio',
-      '--tsserver-log-file', os.getenv('HOME')..'/tsserver.log', '--log-level', '4'
+      'node', '--inspect-brk', trim(vim.fn.system('which typescript-language-server')), '--stdio'
     }
     or { bin_name, '--stdio' },
   handlers = {
@@ -256,9 +263,6 @@ for type, icon in pairs(signs) do
   local hl = "DiagnosticSign" .. type
   vim.fn.sign_define(hl, { text = icon, texthl = hl })
 end
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 lspconfig.marksman.setup {
   on_attach = on_attach,
