@@ -15,6 +15,16 @@ vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
   }
 )
 
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'LspProgressUpdate',
+  callback = function()
+    local msgs = vim.lsp.util.get_progress_messages()
+    for _, msg in ipairs(msgs) do
+      vim.notify(msg.name .. ': ' .. msg.title)
+    end
+  end
+})
+
 opt.updatetime = 500
 vim.o.completeopt = 'menu'
 
