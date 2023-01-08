@@ -17,7 +17,7 @@ local function newOperator(key, fn)
     -- TODO use lua function: vim.o.operatorfunc = fn
     vim.o.operatorfunc = 'v:lua.OperatorFunc'
     return 'g@'
-  end, { expr = true, silent = ture, noremap = true })
+  end, { expr = true, silent = true, noremap = true })
 end
 
 local function getRange()
@@ -25,16 +25,6 @@ local function getRange()
   local stop = vim.fn.line("']'")
   return start, stop
 end
-
-newOperator(prefix('o'), function(type)
-  vim.cmd "normal `[v`]y"
-  local temp = vim.fn.tempname()
-  local fd = io.open(temp, 'w')
-  io.output(fd)
-  io.write(vim.fn.getreg('"'))
-  io.close(fd)
-  jobstart('clip.exe < ' .. temp)
-end)
 
 newOperator('<m-u><m-w>', function()
   local getLine = vim.fn.line
