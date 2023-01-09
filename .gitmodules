@@ -1,6 +1,6 @@
 [submodule "pack/extensions/start/nvim-lspconfig"]
 	path = pack/extensions/start/nvim-lspconfig
-	url = git@github.com:neovim/nvim-lspconfig.git
+	url = https://github.com/neovim/nvim-lspconfig.git
 [submodule "pack/extensions/start/nord.nvim"]
 	path = pack/extensions/start/nord.nvim
 	url = https://github.com/shaunsingh/nord.nvim.git
@@ -27,7 +27,7 @@
 	url = git@github.com:nvim-treesitter/nvim-treesitter-refactor.git
 [submodule "pack/extensions/start/lua-dev.nvim"]
 	path = pack/extensions/start/lua-dev.nvim
-	url = git@github.com:folke/lua-dev.nvim.git
+	url = https://github.com/folke/lua-dev.nvim.git
   branch = main
 [submodule "pack/extensions/start/indent-blankline.nvim"]
 	path = pack/extensions/start/indent-blankline.nvim
