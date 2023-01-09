@@ -44,7 +44,7 @@ local on_attach = function(client, bufnr)
   nmap('<c-d><c-p>', function()
     vim.diagnostic.goto_prev(diagnosticConfig)
   end, true)
-  map('v', 'f', vim.lsp.buf.range_formatting)
+  map('v', 'f', 'format')
 end
 
 M.on_attach = on_attach
