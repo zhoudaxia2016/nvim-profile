@@ -1,4 +1,5 @@
 local map = require"util".map
+local debounce = require'util.debounce'
 
 M = {}
 local on_attach = function(client, bufnr)
@@ -45,6 +46,14 @@ local on_attach = function(client, bufnr)
     vim.diagnostic.goto_prev(diagnosticConfig)
   end, true)
   map('v', 'f', 'format')
+
+  if (client.server_capabilities.signatureHelpProvider) then
+    vim.api.nvim_create_autocmd('CursorMovedI', {
+      callback = debounce(function()
+        vim.lsp.buf.signature_help()
+      end, 300)
+    })
+  end
 end
 
 M.on_attach = on_attach
