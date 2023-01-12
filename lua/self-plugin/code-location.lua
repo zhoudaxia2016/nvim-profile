@@ -67,17 +67,15 @@ vim.api.nvim_set_hl(0, 'WinBar', {
 })
 
 require('util').map('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', { silent = false })
-if vim.version().minor == 8 then
-  vim.api.nvim_create_autocmd('BufLeave', {
-    callback = function()
-      vim.opt_local.winbar = ''
+vim.api.nvim_create_autocmd('BufLeave', {
+  callback = function()
+    vim.opt_local.winbar = ''
+  end
+})
+vim.api.nvim_create_autocmd('BufEnter', {
+  callback = function()
+    if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
+      vim.opt_local.winbar = '%!v:lua.CodeLocation()'
     end
-  })
-  vim.api.nvim_create_autocmd('BufEnter', {
-    callback = function()
-      if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
-        vim.opt_local.winbar = '%!v:lua.CodeLocation()'
-      end
-    end
-  })
-end
+  end
+})

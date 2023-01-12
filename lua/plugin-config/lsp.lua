@@ -14,6 +14,7 @@ vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
     border = 'rounded',
     silent = true,
     focusable = false,
+    max_height = vim.o.lines / 2 - 2,
   }
 )
 
