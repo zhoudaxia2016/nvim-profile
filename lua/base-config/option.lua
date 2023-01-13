@@ -17,6 +17,8 @@ o.foldlevel = 3
 o.ffs = 'unix,dos'
 o.hidden = true
 opt.foldopen:append('jump')
+opt.foldopen:append('search')
+opt.foldopen:append('hor')
 opt.shortmess:remove('S')
 o.ignorecase = true
 o.cursorline = true
