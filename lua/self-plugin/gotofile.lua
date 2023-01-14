@@ -1,7 +1,24 @@
 local ts_utils = require('nvim-treesitter.ts_utils')
 local util = require('lspconfig.util')
 local config
-local exts = {'ts', 'js', 'tsx'}
+local exts = {'ts', 'js', 'tsx', 'jsx'}
+local pattern = vim.tbl_map(function(ext)
+  return '*.' .. ext
+end, exts)
+
+local function readFile(name)
+  local file = io.open(name)
+  local json = file:read('*a')
+  file:close()
+  return json
+end
+
+local function readJsonFile(name)
+  local json = readFile(name)
+  json = json:gsub('%s*//[^\n]*\n', '')
+  json = json:gsub(',(%s*\n%s])', '%1')
+  return vim.fn.json_decode(json)
+end
 
 local function checkPathAndGo(f)
   local paths = {}
@@ -27,63 +44,8 @@ local function checkPathAndGo(f)
   end
   return nil
 end
-function GotoFile()
-  ConfigGotoFile()
-  local paths = config.paths
-  local node = ts_utils.get_node_at_cursor(0)
-  if node:type() ~= 'string_fragment' then
-    return 'gf'
-  end
-  local fname = ts_utils.get_node_text(node)[1]
-  local isRelative = fname:find('^%./')
-  for key, targets in pairs(paths) do
-    key = key:gsub('%*', '(.*)')
-    key = key:gsub('%-', '%%-')
-    if fname:match(key) then
-      for _, value in ipairs(targets) do
-        if value == '' then
-          key = key:gsub('%.%*', '')
-        end
-        value = value:gsub('%*', '%%1')
-        fname = fname:gsub(key, value)
-        if checkPathAndGo(fname) then
-          return
-        end
-        if isRelative == nil then
-          fname = fname:gsub('^%.', config.baseUrl)
-        end
-        if checkPathAndGo(fname) then
-          return
-        end
-      end
-    end
-  end
-  if checkPathAndGo(fname) then
-    return
-  end
-  vim.notify('Can not go to file: ' .. fname)
-end
 
-vim.cmd[[
-  au VimEnter *.tsx,*.jsx,*.js,*.ts silent! call v:lua.ConfigGotoFile()
-  au BufEnter *.tsx,*.jsx,*.js,*.ts lua require('util').map('n', 'gf', ':call v:lua.GotoFile()<cr>')
-]]
-
-local function readFile(name)
-  local file = io.open(name)
-  local json = file:read('*a')
-  file:close()
-  return json
-end
-
-local function readJsonFile(name)
-  local json = readFile(name)
-  json = json:gsub('%s*//[^\n]*\n', '')
-  json = json:gsub(',(%s*\n%s])', '%1')
-  return vim.fn.json_decode(json)
-end
-
-function ConfigGotoFile()
+local function init()
   if config then
     return
   end
@@ -107,3 +69,55 @@ function ConfigGotoFile()
     }
   end
 end
+
+local function gotoFile()
+  init()
+  local paths = config.paths
+  local node = ts_utils.get_node_at_cursor(0)
+  if node:type() ~= 'string_fragment' then
+    return 'gf'
+  end
+  local fname = vim.treesitter.query.get_node_text(node, 0)
+  local isRelative = fname:find('^%./')
+  for key, targets in pairs(paths) do
+    key = key:gsub('%*', '(.*)')
+    key = key:gsub('%-', '%%-')
+    if fname:match(key) then
+      for _, value in ipairs(targets) do
+        if value == '' then
+          key = key:gsub('%.%*', '')
+        end
+        value = value:gsub('%*', '%%1')
+        fname = fname:gsub(key, value)
+        if checkPathAndGo(fname) then
+          return
+        end
+        if isRelative == nil then
+          fname = fname:gsub('^%.?', config.baseUrl)
+        end
+        if checkPathAndGo(fname) then
+          return
+        end
+      end
+    end
+  end
+  if checkPathAndGo(fname) then
+    return
+  end
+  vim.notify('Can not go to file: ' .. fname)
+end
+
+vim.api.nvim_create_autocmd('BufEnter', {
+  pattern = pattern,
+  callback = function()
+    vim.keymap.set('n', 'gf', gotoFile)
+  end
+})
+
+vim.api.nvim_create_autocmd('VimEnter', {
+  pattern = pattern,
+  callback = function()
+    init()
+  end
+})
+
