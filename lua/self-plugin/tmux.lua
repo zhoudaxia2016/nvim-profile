@@ -103,7 +103,8 @@ vim.api.nvim_create_autocmd('BufReadPre', {
 vim.api.nvim_create_autocmd('VimEnter', {
   pattern = '*',
   callback = function()
-    if #vim.v.argv == 1 then
+    -- TODO: 因为参数是[nvim, --embed]，所以长度为2。需优化判断
+    if #vim.v.argv == 2 then
       tmux({cmd = 'fzf', output = true, input = function()
         return vim.v.oldfiles
       end, callback = function(output)

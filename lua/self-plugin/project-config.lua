@@ -21,3 +21,8 @@ require('util').map('n', '<m-c>', function()
   local configFile = getConfigFile()
   vim.cmd('vs ' .. configFile)
 end)
+
+local userConfig = vim.env.HOME .. '/.config/nvim/projects-config/user.lua'
+if vim.fn.filereadable(userConfig) == 1 then
+  vim.cmd('luafile ' .. userConfig)
+end

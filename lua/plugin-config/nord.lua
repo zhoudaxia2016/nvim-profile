@@ -14,6 +14,10 @@ local themes = {
   ['@variable.builtin'] = { fg = palettes.darkGreen },
   ['@string.regex'] = { fg = palettes.purple },
 
+  -- popup
+  ['Pmenu'] = { bg = palettes.dark_gray, fg = palettes.teal },
+  ['PmenuSel'] = { bg = palettes.lightGreen, fg = palettes.dark_gray },
+
   -- markdown
   ['@h1'] = { bg = '#8ea9a4 ', fg = '#666666' },
   ['@h2'] = { bg = '#a0c0ba ', fg = '#555555' },
