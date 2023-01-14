@@ -16,13 +16,17 @@ end
 local function readJsonFile(name)
   local json = readFile(name)
   json = json:gsub('%s*//[^\n]*\n', '')
-  json = json:gsub(',(%s*\n%s])', '%1')
+  json = json:gsub(',(%s*\n%s*[%]}])', '%1')
   return vim.fn.json_decode(json)
 end
 
 local function checkPathAndGo(f)
   local paths = {}
 
+  if (vim.fn.filereadable(f) == 1) then
+    vim.cmd('e ' .. f)
+    return true
+  end
   if vim.fn.isdirectory(f) == 1 then
     local slash = '/'
     if f:match('/$') then
@@ -52,6 +56,9 @@ local function init()
   local rootDir = util.find_package_json_ancestor(vim.fn.getcwd())
   if rootDir == nil then return end
   local tsconfigFile = rootDir .. '/tsconfig.json'
+  config = {
+    paths = {}
+  }
   if vim.fn.filereadable(tsconfigFile) == 1 then
     local tsconfig = readJsonFile(rootDir .. '/tsconfig.json')
     if tsconfig.compilerOptions and tsconfig.compilerOptions.paths then
@@ -61,12 +68,6 @@ local function init()
       end
       config.paths = tsconfig.compilerOptions.paths
     end
-  else
-    config = {
-      compilerOptions = {
-        paths = {}
-      }
-    }
   end
 end
 
