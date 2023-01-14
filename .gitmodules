@@ -13,9 +13,6 @@
 [submodule "pack/extensions/start/nvim-autopairs"]
 	path = pack/extensions/start/nvim-autopairs
 	url = git@github.com:windwp/nvim-autopairs.git
-[submodule "pack/extensions/start/nvim-luadev"]
-	path = pack/extensions/start/nvim-luadev
-	url = git@github.com:bfredl/nvim-luadev.git
 [submodule "pack/extensions/start/plenary.nvim"]
 	path = pack/extensions/start/plenary.nvim
 	url = git@github.com:nvim-lua/plenary.nvim.git 
