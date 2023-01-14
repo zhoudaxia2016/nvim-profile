@@ -74,7 +74,7 @@ vim.api.nvim_create_autocmd('BufLeave', {
 })
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
-    if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact'}, vim.o.filetype) then
+    if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'lua'}, vim.o.filetype) then
       vim.opt_local.winbar = '%!v:lua.CodeLocation()'
     end
   end
