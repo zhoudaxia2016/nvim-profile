@@ -9,10 +9,6 @@
   name: (type_identifier) @class-name
   body: (object_type)) @scope-root)
 
-; Function
-((function_declaration
-  name: (identifier) @function-name
-  body: (statement_block)) @scope-root)
 
 ; Anonymous function
 ((variable_declarator
@@ -20,10 +16,6 @@
   value: (function
     body: (statement_block))) @scope-root)
 
-; Method
-((method_definition
-  name: (property_identifier) @method-name
-  body: (statement_block)) @scope-root)
 
 ; Arrow function
 ((variable_declarator
