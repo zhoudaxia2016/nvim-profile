@@ -10,7 +10,8 @@ local getPath = function (str)
   return str:match("(.*/)")
 end
 local typescriptCommands = {
-  goToSourceDefinition = '_typescript.goToSourceDefinition'
+  goToSourceDefinition = '_typescript.goToSourceDefinition',
+  renameFile = '_typescript.applyRenameFile',
 }
 
 local function showInlayHint()
@@ -72,6 +73,22 @@ lspconfig.tsserver.setup {
         arguments = {pos.textDocument.uri, pos.position}
       })
     end, {}, bufnr)
+    vim.api.nvim_create_user_command('RenameFile',
+      function(opts)
+        local sourceUri = vim.uri_from_bufnr(0)
+        local targetUri = sourceUri:gsub('([^/]+)$', opts.fargs[1])
+        local sourceName = vim.uri_to_fname(sourceUri)
+        local targetName = vim.uri_to_fname(targetUri)
+        vim.lsp.util.rename(sourceName, targetName, {})
+        vim.lsp.buf.execute_command({
+          command = typescriptCommands.renameFile,
+          arguments = {{sourceUri = sourceUri, targetUri = targetUri}}
+        })
+      end,
+      {
+        nargs = 1,
+      }
+    )
   end),
   init_options = {
     plugins = vim.env.tsserverPlugins
