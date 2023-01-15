@@ -2,19 +2,21 @@
 local ts_utils = require("nvim-treesitter.ts_utils")
 local ts_parsers = require("nvim-treesitter.parsers")
 local ts_queries = require("nvim-treesitter.query")
-local icons = {
-  ["class-name"] = '',
-  ["function-name"] = '',
-  ["method-name"] = '',
-  ["object-name"] = '',
-  ["call-expression-name"] = '北'
+local config = {
+  ["class-name"] = { icon = '', hl = '@class' },
+  ["function-name"] = { icon = '', hl = '@function' },
+  ["method-name"] = { icon = '', hl = '@method' },
+  ["object-name"] = { icon = '', hl = '@variable' },
+  ["call-expression-name"] = { icon = '北', hl = '@function.call' }
 }
 
 local function transform(text, name)
-  if icons[name] then
-    text = icons[name] .. ' ' .. text
+  if config[name] then
+    local icon = config[name].icon and config[name].icon .. ' ' or ''
+    local hl = config[name].hl or ''
+    text = string.format('%%#%s#%s%s', hl, icon, text)
   end
-  return text
+  return '%#@variable#' .. text
 end
 
 HandleWinbarClick = function (i) end
@@ -59,7 +61,7 @@ function CodeLocation()
   return table.concat(vim.tbl_map(function(_)
     i = i + 1
     return string.format([[%%%s@v:lua.HandleWinbarClick@%s%%X]], i, transform(table.concat({vim.treesitter.query.get_node_text(_.node, 0)}, ' '), _.name))
-  end, captures), ' > ')
+  end, captures), '%#NonText# > ')
 end
 
 vim.api.nvim_set_hl(0, 'WinBar', {
