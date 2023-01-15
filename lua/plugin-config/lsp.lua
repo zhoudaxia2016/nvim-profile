@@ -3,6 +3,8 @@ local opt = vim.opt
 local lspconfig = require"lspconfig"
 local myutil = require"plugin-config.lsp.util"
 
+local msgFilter = {'tsserver'}
+
 vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
   vim.lsp.handlers.hover, {
     border = 'rounded'
@@ -22,6 +24,9 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'LspProgressUpdate',
   callback = function()
     local msgs = vim.lsp.util.get_progress_messages()
+    msgs = vim.tbl_filter(function(v)
+      return vim.tbl_contains(msgFilter, v.name)
+    end, msgs)
     for _, msg in ipairs(msgs) do
       vim.notify(msg.name .. ': ' .. msg.title)
     end
