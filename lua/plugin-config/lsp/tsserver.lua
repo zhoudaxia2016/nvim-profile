@@ -79,7 +79,13 @@ lspconfig.tsserver.setup {
         local targetUri = sourceUri:gsub('([^/]+)$', opts.fargs[1])
         local sourceName = vim.uri_to_fname(sourceUri)
         local targetName = vim.uri_to_fname(targetUri)
+        if (vim.fn.filereadable(targetName) == 1) then
+          vim.notify('Rename target already exists. Skipping rename.', vim.log.levels.WARN)
+          return
+        end
+        local alternateFile = vim.fn.getreg('#')
         vim.lsp.util.rename(sourceName, targetName, {})
+        vim.fn.setreg('#', alternateFile)
         vim.lsp.buf.execute_command({
           command = typescriptCommands.renameFile,
           arguments = {{sourceUri = sourceUri, targetUri = targetUri}}
