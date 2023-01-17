@@ -3,7 +3,8 @@ gitsign.setup()
 
 function StatusColumn()
   local filetype = vim.o.filetype
-  if (filetype == 'help') then
+  local emptyFileType = {'help', 'gitcommit'}
+  if (vim.tbl_contains(emptyFileType, filetype)) then
     return ''
   end
   local cursorLnum = vim.fn.line('.')

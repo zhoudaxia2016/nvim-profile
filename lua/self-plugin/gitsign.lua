@@ -54,8 +54,6 @@ m.setup = function()
           end
         end
       end
-      vim.pretty_print(gitsign_data[buf])
-      vim.pretty_print(diff)
     end
   })
 end
