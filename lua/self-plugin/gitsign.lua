@@ -4,10 +4,19 @@ local gitsign_config = {
   db = { hl = 'diffRemoved', icon = '‾'},
   dn = { hl = 'diffRemoved', icon = '_' },
   c = { hl = 'diffChanged', icon = '│' },
+  cd = { hl = 'diffChanged', icon = '~' },
 }
 
 local function isInsideGitWorkTree()
   return vim.trim(vim.fn.system('git rev-parse --is-inside-work-tree')) == 'true'
+end
+
+local function getDiff()
+  local originFile = vim.fn.system('git show --no-color HEAD:./' .. vim.fn.expand('%'))
+  return vim.diff(originFile,
+    vim.fn.join(vim.api.nvim_buf_get_lines(0, 0, -1, true), '\n'),
+    {linematch = true, result_type = 'indices', ignore_whitespace_change_at_eol= true}
+  )
 end
 
 local m = {}
@@ -28,11 +37,7 @@ m.setup = function()
       if (isInsideGitWorkTree() == false or vim.o.filetype == 'netrw') then
         return
       end
-      local originFile = vim.fn.system('git show --no-color HEAD:./' .. vim.fn.expand('%'))
-      local diff = vim.diff(originFile,
-        vim.fn.join(vim.api.nvim_buf_get_lines(0, 0, -1, true), '\n'),
-        {linematch = true, result_type = 'indices', ignore_whitespace_change_at_eol= true}
-      )
+      local diff = getDiff()
       local buf = vim.api.nvim_get_current_buf()
       gitsign_data[buf] = {}
       for _, chunk in ipairs(diff) do
@@ -45,9 +50,11 @@ m.setup = function()
           status = 'dn'
         end
         if (status == 'dn') then
-          gitsign_data[buf][chunk[3]] = status
+          local oldStatus = gitsign_data[buf][chunk[3]]
+          gitsign_data[buf][chunk[3]] = oldStatus == 'c' and 'cd' or status
         elseif (status == 'db') then
-          gitsign_data[buf][1] = status
+          local oldStatus = gitsign_data[buf][chunk[1]]
+          gitsign_data[buf][chunk[1]] = oldStatus == 'c' and 'cd' or status
         else
           for i = chunk[3], chunk[3] + chunk[4] - 1 do
             gitsign_data[buf][i] = status
