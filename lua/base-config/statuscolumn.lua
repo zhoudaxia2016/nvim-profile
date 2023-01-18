@@ -3,9 +3,13 @@ gitsign.setup()
 
 function StatusColumn()
   local filetype = vim.o.filetype
-  local emptyFileType = {'help', 'gitcommit'}
+  local emptyFileType = {'help', 'gitcommit', 'man'}
   if (vim.tbl_contains(emptyFileType, filetype)) then
     return ''
+  end
+  local onlyLineNrFileType = {'qf'}
+  if (vim.tbl_contains(onlyLineNrFileType, filetype)) then
+    return '%l'
   end
   local cursorLnum = vim.fn.line('.')
   local lnum = vim.v.lnum
@@ -16,7 +20,7 @@ function StatusColumn()
   if (filetype == 'netrw') then
     return lineNumInfo
   end
-  return string.format('%s%%s %s ', gitsign.sign(), lineNumInfo)
+  return string.format('%s%%s%s', gitsign.sign(), lineNumInfo)
 end
 
 vim.o.stc = '%{%v:lua.StatusColumn()%}'
