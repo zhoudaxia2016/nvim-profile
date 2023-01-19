@@ -8,12 +8,22 @@ local gitsign_config = {
   cd = { hl = 'diffChanged', icon = '~' },
 }
 
+local function executeShell(cmd, useBuf)
+  local dir = vim.fs.dirname(vim.fn.expand('%:p'))
+  local fn = useBuf and vim.fn.expand('%:t') or ''
+  return vim.trim(vim.fn.system(string.format('cd %s;%s%s', dir, cmd, fn)))
+end
+
 local isInsideGitWorkTree = memoize_by_buf_tick(function()
-  return vim.trim(vim.fn.system('git rev-parse --is-inside-work-tree')) == 'true'
+  local res = executeShell('git rev-parse --is-inside-work-tree') == 'true'
+  if (res == true) then
+    return executeShell('git check-ignore ', true) == ''
+  end
+  return res
 end)
 
 local function getDiff()
-  local originFile = vim.fn.system('git show --no-color HEAD:./' .. vim.fn.expand('%'))
+  local originFile = executeShell('git show --no-color :./', true)
   return vim.diff(originFile,
     vim.fn.join(vim.api.nvim_buf_get_lines(0, 0, -1, true), '\n'),
     {linematch = true, result_type = 'indices', ignore_whitespace_change_at_eol= true}
