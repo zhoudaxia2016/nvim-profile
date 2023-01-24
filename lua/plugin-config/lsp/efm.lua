@@ -1,5 +1,6 @@
 local myutil = require"plugin-config.lsp.util"
 local lspconfig = require"lspconfig"
+local util = require 'lspconfig.util'
 
 local eslint = {
   lintCommand = "eslint_d --no-error-on-unmatched-pattern --quiet -f unix --stdin --stdin-filename ${INPUT}",
@@ -13,11 +14,10 @@ local eslint = {
 lspconfig.efm.setup {
   on_attach = myutil.on_attach,
   init_options = {
-    documentFormatting = true
+    documentFormatting = true,
+    codeAction = true,
   },
-  root_dir = function()
-    return vim.fn.getcwd()
-  end,
+  root_dir = util.root_pattern('.eslintrc.*', '.git'),
   settings = {
     languages = {
       javascript = {eslint},
