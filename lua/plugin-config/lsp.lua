@@ -51,7 +51,7 @@ end
 lspconfig.marksman.setup {
   on_attach = myutil.on_attach,
 }
-lspconfig.ccls.setup {
+lspconfig.clangd.setup {
   on_attach = myutil.on_attach,
 }
 lspconfig.flow.setup {
