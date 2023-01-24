@@ -1,5 +1,6 @@
 local map = require"util".map
 local debounce = require'util.debounce'
+local api = vim.api
 
 M = {}
 local on_attach = function(client, bufnr)
@@ -36,7 +37,42 @@ local on_attach = function(client, bufnr)
   nmap('<c-d><c-u>', 'rename')
   nmap('<c-d><c-l>', 'references')
   nmap('<c-d>f', 'formatting_seq_sync')
-  nmap('<c-d><c-o>', 'code_action')
+  nmap('<c-d><c-o>', function()
+    -- TODO: wait for be fixed by up stream
+    local function get_diagnostic_at_cursor()
+      local cur_buf = api.nvim_get_current_buf()
+      local line, col = unpack(api.nvim_win_get_cursor(0))
+      local entrys = vim.diagnostic.get(cur_buf, { lnum = line - 1 })
+      local res = {}
+      for _, v in pairs(entrys) do
+        if v.col <= col and v.end_col >= col then
+          table.insert(res, {
+            code = v.code,
+            message = v.message,
+            range = {
+              ['start'] = {
+                character = v.col,
+                line = v.lnum,
+              },
+              ['end'] = {
+                character = v.end_col,
+                line = v.end_lnum,
+              },
+            },
+            severity = v.severity,
+            source = v.source or nil,
+          })
+        end
+      end
+      return res
+    end
+
+    vim.lsp.buf.code_action({
+      context = {
+        diagnostics = get_diagnostic_at_cursor()
+      }
+    })
+  end)
   nmap('<c-d><c-y>', 'type_definition')
   nmap('<c-d><c-d>', function()
     vim.diagnostic.open_float({border = 'rounded'})
