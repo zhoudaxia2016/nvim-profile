@@ -4,6 +4,11 @@ local api = vim.api
 
 M = {}
 local on_attach = function(client, bufnr)
+  local capabilities = client.server_capabilities
+  -- TODO: remove that after #21001 fixed
+  if capabilities.completionProvider then
+    vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
+  end
   if vim.o.diff then
     vim.diagnostic.disable()
   end
