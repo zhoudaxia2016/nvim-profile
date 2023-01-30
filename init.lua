@@ -8,3 +8,8 @@ vim.g.mapleader = ' '
 require 'base-config'
 require 'plugin-config'
 require 'self-plugin'
+
+-- TODO: will be fixed after #21771 close
+vim.cmd[[
+autocmd DirChanged * call chansend(v:stderr, printf("\033]7;%s\033", v:event.cwd))
+]]
