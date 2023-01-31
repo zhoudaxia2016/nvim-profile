@@ -16,6 +16,7 @@ local function transform(text, name)
     local hl = config[name].hl or ''
     text = string.format('%%#%s#%s%s', hl, icon, text)
   end
+  text = text:gsub('\n%s*', '')
   return '%#@variable#' .. text
 end
 
