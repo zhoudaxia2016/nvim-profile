@@ -5,10 +5,15 @@ local debounce = require'util.debounce'
 local util = require('util')
 local currentFileName
 local currentLineNum
-vim.cmd[[ hi GitBlameLen guifg=#616E88 guibg=#3B4252]]
+vim.cmd[[ hi GitBlameLen guifg=#616E88]]
+
 local function starts(String, Start)
    return string.sub(String, 1, string.len(Start)) == Start
 end
+local makeExtmarkOptions = function(text)
+  return {virt_text_pos = 'eol', virt_text = {{text, 'GitBlameLen'}}, hl_mode = 'combine'}
+end
+
 local function setBlameMsg()
   if util.isSpecialBuf() then
     return
@@ -25,14 +30,14 @@ local function setBlameMsg()
       function(msg)
         msg = util.trim(msg)
         if starts(msg, '00000000') then
-          api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, {virt_text_pos = 'eol', virt_text = {{'Not commit yet', 'GitBlameLen'}}})
+          api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, makeExtmarkOptions('Not commit yet'))
         else
           local commitId = string.match(msg, "^%^?(%w+)")
           cmd = 'git log ' .. commitId .. " --pretty=format:'<%an>%ar->%h %s' | awk 'NR==1 {print; exit}'"
           jobstart(cmd,
             function(m)
               m = util.trim(m)
-              api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, {virt_text_pos = 'eol', virt_text = {{m, 'GitBlameLen'}}})
+              api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, makeExtmarkOptions(m))
             end)
         end
       end
