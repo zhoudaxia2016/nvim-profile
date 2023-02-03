@@ -79,7 +79,7 @@ vim.api.nvim_create_autocmd('BufReadPre', {
       local bfs = vim.api.nvim_list_bufs()
       local input = {}
       for _, b in ipairs(bfs) do
-        if vim.api.nvim_buf_is_loaded(b) then
+        if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_name(b) ~= '' then
           local name = vim.api.nvim_buf_get_name(b)
           if vim.fn.bufwinid(b) ~= -1 then
             name = '📝 ' .. name
