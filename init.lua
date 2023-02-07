@@ -3,6 +3,10 @@ vim.g.workspace = require('lspconfig.util').root_pattern('package.json', '.git')
 vim.g.nord_borders = true
 vim.g.nord_italic = false
 require('nord').set()
+if (vim.env.clean) then
+  require 'clean'
+  return
+end
 
 vim.g.mapleader = ' '
 require 'base-config'
