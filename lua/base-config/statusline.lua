@@ -1,3 +1,4 @@
+local find_git_ancestor = require('lspconfig.util').find_git_ancestor
 local o = vim.o
 local Job = require'plenary.job'
 local gitsign = ''
@@ -31,7 +32,7 @@ local fileIcons = {
   typescriptreact = '',
   vue = '﵂',
 }
-        
+
 function GetStatuslineGitsign()
   return gitsign .. ' '
 end
@@ -137,9 +138,11 @@ StatusbarHandlers = {
     local fn = '%:p'
     modifier = vim.fn.trim(modifier)
     if modifier == '' then
+      local gitroot = find_git_ancestor(vim.fn.expand('%:p'))
       local lspClients = vim.lsp.get_active_clients()
-      if #lspClients > 0 then
-        fn = fn .. string.format(':s?%s/??', lspClients[1].config.root_dir)
+      local root = lspClients and lspClients[1].config.root_dir or gitroot
+      if root then
+        fn = fn .. string.format(':s?%s/??', root)
       end
     elseif modifier == 'c' then
       fn = '%'
@@ -150,7 +153,7 @@ StatusbarHandlers = {
 local leftList = {
   {
     hlg = hlgs.a,
-    items = ' %@v:lua.StatusbarHandlers.file@%F%X'
+    items = ' %@v:lua.StatusbarHandlers.file@%-0.100F%X'
   },
   {
     hlg = hlgs.aTob,

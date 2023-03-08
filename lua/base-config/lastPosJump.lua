@@ -1,4 +1,4 @@
-vim.api.nvim_create_autocmd('BufReadPost', {
+vim.api.nvim_create_autocmd('FileType', {
   pattern = '*',
   callback = function()
     if vim.o.filetype:match('commit') == nil then
