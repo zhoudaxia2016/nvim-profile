@@ -9,10 +9,19 @@ palettes = vim.tbl_extend('error', palettes, {
 
 local themes = {
   ['@parameter'] = { fg = palettes.greyBlue },
+  ['@lsp.type.parameter'] = { fg = palettes.greyBlue },
+  ['@lsp.type.typeParameter'] = { fg = palettes.greyBlue },
   ['@constructor'] = { fg = palettes.lightGreen },
+  ['@lsp.type.class'] = { fg = palettes.lightGreen },
+  ['@lsp.type.property'] = { fg = palettes.blue },
   ['@conditional'] = { fg = palettes.skin },
   ['@variable.builtin'] = { fg = palettes.darkGreen },
   ['@string.regex'] = { fg = palettes.purple },
+  ['@lsp.type.enumMember'] = { fg = palettes.yellow },
+  ['@lsp.mod.defaultLibrary'] = { fg = palettes.darkGreen },
+  ['@lsp.typemod.variable.local'] = { fg = palettes.darkest_white },
+  ['@lsp.type.variable'] = { fg = palettes.white },
+  ['@variable'] = { fg = palettes.darkest_white },
 
   -- popup
   ['Pmenu'] = { bg = palettes.dark_gray, fg = palettes.teal },
