@@ -14,6 +14,12 @@ local typescriptCommands = {
   renameFile = '_typescript.applyRenameFile',
 }
 
+local settings = {
+  format = {
+    insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces = false,
+  }
+}
+
 local function showInlayHint()
   local pos = vim.lsp.util.make_position_params()
   vim.lsp.buf_request(0, 'textDocument/inlayHint', {
@@ -104,18 +110,27 @@ lspconfig.tsserver.setup {
       or {},
     maxTsServerMemory = 999999,
     preferences = {
-          includeInlayEnumMemberValueHints = true,
-          includeInlayFunctionLikeReturnTypeHints = true,
-          includeInlayFunctionParameterTypeHints = true,
-          includeInlayParameterNameHints = 'all',
-          includeInlayParameterNameHintsWhenArgumentMatchesName = true,
-          includeInlayPropertyDeclarationTypeHints = true,
-          includeInlayVariableTypeHints = true,
+      includeInlayEnumMemberValueHints = true,
+      includeInlayFunctionLikeReturnTypeHints = true,
+      includeInlayFunctionParameterTypeHints = true,
+      includeInlayParameterNameHints = 'all',
+      includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+      includeInlayPropertyDeclarationTypeHints = true,
+      includeInlayVariableTypeHints = true,
+      insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets = false,
     },
     tsserver = {
       logDirectory = '/tmp',
       logVerbosity = vim.env.debug ~= nil and 'verbose' or 'off'
     }
+  },
+  settings = {
+    javascript = settings,
+    typescript = settings,
+    javascriptreact = settings,
+    typescriptreact = settings,
+    ["javascript.jsx"] = settings,
+    ["typescript.tsx"] = settings,
   },
   cmd = vim.env.debug ~= nil
     and {

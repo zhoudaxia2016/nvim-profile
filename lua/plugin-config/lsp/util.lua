@@ -92,10 +92,20 @@ local on_attach = function(client, bufnr)
   map('v', 'f', 'format')
 
   if (client.server_capabilities.signatureHelpProvider) then
-    vim.api.nvim_create_autocmd('CursorMovedI', {
-      callback = debounce(function()
-        vim.lsp.buf.signature_help()
-      end, 300)
+    local function bindEvent()
+      local id = vim.api.nvim_create_augroup("MyGroup", {
+        clear = true
+      })
+      vim.api.nvim_create_autocmd('CursorMovedI', {
+        group = id,
+        callback = debounce(function()
+          vim.lsp.buf.signature_help()
+        end, 300)
+      })
+    end
+    bindEvent()
+    vim.api.nvim_create_autocmd('InsertLeave', {
+      callback = bindEvent
     })
   end
 end
