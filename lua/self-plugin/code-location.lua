@@ -61,7 +61,7 @@ function CodeLocation()
   local i = 0
   return table.concat(vim.tbl_map(function(_)
     i = i + 1
-    return string.format([[%%%s@v:lua.HandleWinbarClick@%s%%X]], i, transform(table.concat({vim.treesitter.query.get_node_text(_.node, 0)}, ' '), _.name))
+    return string.format([[%%%s@v:lua.HandleWinbarClick@%s%%X]], i, transform(table.concat({vim.treesitter.get_node_text(_.node, 0)}, ' '), _.name))
   end, captures), '%#NonText# > ')
 end
 

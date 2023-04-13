@@ -19,7 +19,6 @@ vim.api.nvim_create_autocmd('TabClosed', {
     if (curtab == 1) then
       return
     end
-    print(curtab, lastClosedTab)
     if (curtab == lastClosedTab) then
       local tabonleft = curtab - 1
       vim.cmd(tabonleft .. 'tabnext')
