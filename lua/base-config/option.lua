@@ -19,6 +19,7 @@ o.hidden = true
 opt.foldopen:append('jump')
 opt.foldopen:append('search')
 opt.foldopen:append('hor')
+opt.diffopt:append('followwrap')
 opt.shortmess:remove('S')
 o.ignorecase = true
 o.cursorline = true

@@ -14,7 +14,7 @@ local makeExtmarkOptions = function(text)
   return {virt_text_pos = 'eol', virt_text = {{text, 'GitBlameLen'}}, hl_mode = 'combine'}
 end
 
-local function setBlameMsg()
+local function setBlameMsg(useFloat)
   if util.isSpecialBuf() then
     return
   end
@@ -37,7 +37,11 @@ local function setBlameMsg()
           jobstart(cmd,
             function(m)
               m = util.trim(m)
-              api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, makeExtmarkOptions(m))
+              if useFloat then
+                vim.lsp.util.open_floating_preview({m}, '', {border = 'single'})
+              else
+                api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, makeExtmarkOptions(m))
+              end
             end)
         end
       end
@@ -53,4 +57,6 @@ jobstart('git rev-parse --is-inside-work-tree', function(isGitWorkTree)
   end
 end)
 
-vim.api.nvim_set_keymap('n', '<leader>b', ':call v:lua.DebounceSetBlmeMsg()<cr>', {})
+vim.keymap.set('n', '<leader>b', function()
+  setBlameMsg(true)
+end, {})
