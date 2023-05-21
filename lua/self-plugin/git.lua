@@ -33,6 +33,17 @@ local function getMergeFileType()
   return  ''
 end
 
+local function getCurrentPath(f)
+  local content = vim.fn.readfile(f)
+  for _, line in ipairs(content) do
+    local current = string.match(line, '<<<<<<< HEAD:(.*)')
+    if current then
+      return vim.trim(vim.fn.system('git rev-parse --show-toplevel')) .. '/' .. current
+    end
+  end
+  return f
+end
+
 local function setBlameMsg(useFloat)
   if util.isSpecialBuf() then
     return
@@ -49,9 +60,13 @@ local function setBlameMsg(useFloat)
     local mergeType = getMergeFileType()
     if mergeType ~= '' then
       fn = mergeType == MERGE_FILE_TYPE.LOCAL and fn:gsub(localPattern, '') or fn:gsub(remotePattern, '')
+      if mergeType == MERGE_FILE_TYPE.LOCAL then
+        fn = getCurrentPath(fn)
+      end
       local ver = mergeType == MERGE_FILE_TYPE.LOCAL and 'HEAD' or 'MERGE_HEAD'
       cmd = 'git blame' .. ' -L' .. lineNum .. ',' .. lineNum .. ' ' .. ver .. ' ' .. fn
     end
+    print(cmd)
     jobstart(cmd,
       function(msg)
         msg = util.trim(msg)
