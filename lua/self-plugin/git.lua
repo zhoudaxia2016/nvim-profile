@@ -14,6 +14,25 @@ local makeExtmarkOptions = function(text)
   return {virt_text_pos = 'eol', virt_text = {{text, 'GitBlameLen'}}, hl_mode = 'combine'}
 end
 
+local MERGE_FILE_TYPE = {
+  LOCAL = 'LOCAL',
+  REMOTE = 'REMOTE',
+}
+
+local localPattern = '_LOCAL_%d+'
+local remotePattern = '_REMOTE_%d+'
+
+local function getMergeFileType()
+  local f = vim.fn.expand('%')
+  if string.match(f, localPattern) then
+    return MERGE_FILE_TYPE.LOCAL
+  end
+  if string.match(f, remotePattern) then
+    return MERGE_FILE_TYPE.REMOTE
+  end
+  return  ''
+end
+
 local function setBlameMsg(useFloat)
   if util.isSpecialBuf() then
     return
@@ -25,7 +44,14 @@ local function setBlameMsg(useFloat)
   end
   api.nvim_buf_clear_namespace(0, ns, 0, -1)
   if pcall(api.nvim_buf_get_extmarks, 0, ns, lineNum, lineNum, {}) == false then
-    local cmd = 'git blame ' .. vim.fn.expand('%') .. ' -L' .. lineNum .. ',' .. lineNum
+    local fn = vim.fn.expand('%')
+    local cmd = 'git blame ' .. fn .. ' -L' .. lineNum .. ',' .. lineNum
+    local mergeType = getMergeFileType()
+    if mergeType ~= '' then
+      fn = mergeType == MERGE_FILE_TYPE.LOCAL and fn:gsub(localPattern, '') or fn:gsub(remotePattern, '')
+      local ver = mergeType == MERGE_FILE_TYPE.LOCAL and 'HEAD' or 'MERGE_HEAD'
+      cmd = 'git blame' .. ' -L' .. lineNum .. ',' .. lineNum .. ' ' .. ver .. ' ' .. fn
+    end
     jobstart(cmd,
       function(msg)
         msg = util.trim(msg)
