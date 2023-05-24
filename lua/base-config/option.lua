@@ -73,3 +73,5 @@ g.clipboard =  {
   },
   cache_enabled = 1,
 }
+vim.keymap.set({'n', 'v'}, 'c', '"-c')
+vim.keymap.set({'n', 'v'}, 'd', '"-d')
