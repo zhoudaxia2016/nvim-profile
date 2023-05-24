@@ -66,7 +66,6 @@ local function setBlameMsg(useFloat)
       local ver = mergeType == MERGE_FILE_TYPE.LOCAL and 'HEAD' or 'MERGE_HEAD'
       cmd = 'git blame' .. ' -L' .. lineNum .. ',' .. lineNum .. ' ' .. ver .. ' ' .. fn
     end
-    print(cmd)
     jobstart(cmd,
       function(msg)
         msg = util.trim(msg)
