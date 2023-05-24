@@ -18,11 +18,12 @@ end, {})
 vim.api.nvim_create_user_command('Diff', function(params)
   local args = params.args
   local tmpPatchFile = vim.fn.tempname()
+  local currentFile = vim.fn.expand('%')
   local cmd = 'git diff --no-color '
   if args == '' then
-    cmd = cmd .. '-R '
+    cmd = cmd .. '-R ' .. currentFile
   else
-    cmd = cmd .. '..' .. args .. ' -- ' .. vim.fn.expand('%')
+    cmd = cmd .. '..' .. args .. ' -- ' .. currentFile
   end
   cmd = cmd .. ' > ' .. tmpPatchFile
   vim.fn.system(cmd)
