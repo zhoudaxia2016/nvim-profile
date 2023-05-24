@@ -1,13 +1,18 @@
 -- refer to https://github.com/whiteinge/diffconflicts
+
+local beginMark = '^<<<<<<<'
+local operatorMark = '^======='
+local endMark = '^>>>>>>>'
+
 vim.api.nvim_create_user_command('MergeTool', function()
-  vim.cmd[[
-        silent execute "g/^=======\\r\\?$/,/^>>>>>>> /d"
-        silent execute "g/^<<<<<<< /d"
+  vim.cmd(string.format([[
+        silent execute "g/%s\\r\\?$/,/%s /d"
+        silent execute "g/%s /d"
         diffthis
         vsplit
         b REMOTE
         diffthis
-  ]]
+  ]], operatorMark, endMark, beginMark))
 end, {})
 
 vim.api.nvim_create_user_command('Diff', function(params)
