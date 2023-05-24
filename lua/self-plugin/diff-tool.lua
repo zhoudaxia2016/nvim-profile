@@ -29,4 +29,11 @@ vim.api.nvim_create_user_command('Diff', function(params)
   vim.fn.system(cmd)
   vim.cmd('silent vert diffpatch ' .. tmpPatchFile)
   vim.o.bufhidden = 'delete'
-end, {nargs = '?'})
+end, {
+    nargs = '?',
+    complete = function(leading)
+      local branchs = vim.split(vim.trim(vim.fn.system("git for-each-ref --format='%(refname:short)' --sort=committerdate")), '%s+')
+      branchs = vim.tbl_filter(function(v) return v:lower():match(leading:lower()) end, branchs)
+      return branchs
+    end
+  })
