@@ -52,6 +52,27 @@ local function fzfCb(output)
   end
 end
 
+local function listBuffers()
+  local bfs = vim.api.nvim_list_bufs()
+  local input = {}
+  for _, b in ipairs(bfs) do
+    if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_name(b) ~= '' then
+      local name = vim.api.nvim_buf_get_name(b)
+      if vim.fn.bufwinid(b) ~= -1 then
+        name = '📝 ' .. name
+      else
+        if vim.fn.getbufinfo(b)[1].hidden == 0 then
+          name = '🙈 ' .. name
+        else
+          name = 'h  ' .. name
+        end
+      end
+      table.insert(input, name)
+    end
+  end
+  return input
+end
+
 vim.api.nvim_create_autocmd('BufReadPre', {
   pattern = '*',
   callback = function()
@@ -72,29 +93,24 @@ vim.api.nvim_create_autocmd('BufReadPre', {
     setTmuxKeymap('<cr>b', {cmd = 'fzf', output = true, callback = function(output)
       for _, f in ipairs(output) do
         f = vim.fn.split(f, '\\s\\+')
-        print(vim.inspect(f))
         vim.cmd(string.format('tabnew +b%s', f[2]))
       end
-    end, input = function()
-      local bfs = vim.api.nvim_list_bufs()
-      local input = {}
-      for _, b in ipairs(bfs) do
-        if vim.api.nvim_buf_is_loaded(b) and vim.api.nvim_buf_get_name(b) ~= '' then
-          local name = vim.api.nvim_buf_get_name(b)
-          if vim.fn.bufwinid(b) ~= -1 then
-            name = '📝 ' .. name
-          else
-            if vim.fn.getbufinfo(b)[1].hidden == 0 then
-              name = '🙈 ' .. name
-            else
-              name = 'h  ' .. name
-            end
-          end
-          table.insert(input, name)
-        end
+    end, input = listBuffers})
+
+    setTmuxKeymap('<cr>c', {cmd = 'fzf -m', output = true, callback = function(output)
+      local buffers = vim.api.nvim_list_bufs()
+      local selectedBuffers = {}
+      for _, f in ipairs(output) do
+        f = vim.fn.split(f, '\\s\\+')
+        table.insert(selectedBuffers, vim.fn.bufnr(f[2]))
       end
-      return input
-    end})
+      buffers = vim.tbl_filter(function(b)
+        return vim.tbl_contains(selectedBuffers, b) == false
+      end, buffers)
+      vim.tbl_map(function(b)
+        vim.api.nvim_buf_delete(b, {})
+      end, buffers)
+    end, input = listBuffers})
 
     vim.keymap.set('n', '<cr>s', ':set hls!<cr>', {buffer = 0})
   end
