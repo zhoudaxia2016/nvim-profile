@@ -59,6 +59,17 @@ local function showInlayHint()
   end)
 end
 
+local function renameFile(sourceUri, newName)
+  local targetUri = sourceUri:gsub('([^/]+)$', newName)
+  local sourceName = vim.uri_to_fname(sourceUri)
+  local targetName = vim.uri_to_fname(targetUri)
+  vim.lsp.buf.execute_command({
+    command = typescriptCommands.renameFile,
+    arguments = {{sourceUri = sourceUri, targetUri = targetUri}}
+  })
+  vim.lsp.util.rename(sourceName, targetName, {})
+end
+
 
 lspconfig.tsserver.setup {
   root_dir = function(fname)
@@ -79,23 +90,21 @@ lspconfig.tsserver.setup {
         arguments = {pos.textDocument.uri, pos.position}
       })
     end, {}, bufnr)
+    vim.api.nvim_create_user_command('RenameDir',
+      function(opts)
+        local sourceUri = vim.fs.dirname(vim.uri_from_bufnr(0))
+        renameFile(sourceUri, opts.fargs[1])
+      end,
+      {
+        nargs = 1,
+      }
+    )
     vim.api.nvim_create_user_command('RenameFile',
       function(opts)
         local sourceUri = vim.uri_from_bufnr(0)
-        local targetUri = sourceUri:gsub('([^/]+)$', opts.fargs[1])
-        local sourceName = vim.uri_to_fname(sourceUri)
-        local targetName = vim.uri_to_fname(targetUri)
-        if (vim.fn.filereadable(targetName) == 1) then
-          vim.notify('Rename target already exists. Skipping rename.', vim.log.levels.WARN)
-          return
-        end
         local alternateFile = vim.fn.getreg('#')
-        vim.lsp.util.rename(sourceName, targetName, {})
+        renameFile(sourceUri, opts.fargs[1])
         vim.fn.setreg('#', alternateFile)
-        vim.lsp.buf.execute_command({
-          command = typescriptCommands.renameFile,
-          arguments = {{sourceUri = sourceUri, targetUri = targetUri}}
-        })
       end,
       {
         nargs = 1,
