@@ -33,6 +33,12 @@ local themes = {
   ['@h3'] = { bg = '#b7cdce ', fg = '#444444' },
   ['@h4'] = { bg = '#cfdcdd ', fg = '#333333' },
   ['@h5'] = { bg = '#e0e6eb ', fg = '#222222' },
+
+  -- diff
+  ['DiffAdd'] = { bg = '#516059' },
+  ['DiffDelete'] = { bg = '#582a33' },
+  ['DiffChange'] = { bg = '#474E68' },
+  ['DiffText'] = { bg = '#604464' },
 }
 
 loadColorSet(themes)
