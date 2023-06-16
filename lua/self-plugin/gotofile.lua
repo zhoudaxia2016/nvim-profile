@@ -78,7 +78,7 @@ local function gotoFile()
   if node:type() ~= 'string_fragment' then
     return 'gf'
   end
-  local fname = vim.treesitter.query.get_node_text(node, 0)
+  local fname = vim.treesitter.get_node_text(node, 0)
   local isRelative = fname:find('^%./')
   for key, targets in pairs(paths) do
     key = key:gsub('%*', '(.*)')
