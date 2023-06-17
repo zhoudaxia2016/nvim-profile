@@ -41,8 +41,8 @@ newOperator('s', function()
 end)
 
 newOperator('b', function()
-  local startLine = getLine("'[") - 1
-  local stopLine = getLine("']") - 1
-  local cmd = string.format('git log -L %d,%d:%s', startLine, stopLine, vim.fn.expand('%'))
-  vim.print(vim.fn.system(cmd))
+  local startLine = getLine("'[")
+  local stopLine = getLine("']")
+  local cmd = string.format('tmux new-window "git log -L %d,%d:%s | less -R"', startLine, stopLine, vim.fn.expand('%'))
+  vim.fn.system(cmd)
 end)
