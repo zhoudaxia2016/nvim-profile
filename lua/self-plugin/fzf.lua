@@ -21,7 +21,9 @@ local options = {
   ['preview-window'] = 'right,0',
 }
 
-local function fzfRun(params)
+local m = {}
+
+local run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
@@ -85,15 +87,25 @@ local function fzfRun(params)
   end, 0)
 end
 
+local previewFilter = {'png', 'jpg'}
 vim.keymap.set('n', '<leader>fo', function()
   local cwd = vim.fn.getcwd()
-  fzfRun({
+  run({
     previewCb = function(args)
       local fn = string.gsub(args, "'(.+)'", "%1")
-      vim.cmd(string.format('edit %s/%s', cwd, fn))
+      fn = string.format('%s/%s', cwd, fn)
+      if #vim.tbl_filter(function(p)
+        return string.match(fn, p)
+      end, previewFilter) > 0 then
+        return
+      end
+      vim.cmd(string.format('edit %s', fn))
     end,
     acceptCb = function(args)
       vim.cmd(string.format('tabnew %s/%s', cwd, args))
     end
   })
 end, {})
+
+m.run = run
+return m
