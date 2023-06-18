@@ -1,11 +1,13 @@
 local screenH = vim.o.lines
 local screenW = vim.o.columns
 local selectWinW = math.floor(screenW * 0.3)
-local winH = math.floor(screenH * 0.5)
+local winH = math.floor(screenH * 0.8)
 local previewWinW = math.floor(screenW * 0.5)
-local top = math.floor((screenH - winH) * 0.5)
-local selectWinleft = math.floor((screenW - selectWinW - previewWinW) * 0.5)
-local previewWinLeft = selectWinleft + selectWinW + 2
+-- local top = math.floor((screenH - winH) * 0.5)
+local top = 0
+-- local selectWinleft = math.floor((screenW - selectWinW - previewWinW) * 0.5)
+local selectWinleft = screenW - selectWinW - previewWinW - 3
+local previewWinLeft = screenW - previewWinW
 local debounce = require('util.debounce')
 
 local function remoteCmd(cmd)
@@ -38,12 +40,12 @@ local run = function(params)
   end)
 
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
-    {relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH, border = 'single', title = ' results ', title_pos = 'center', style = 'minimal'}
+    {relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH, border = 'rounded', title = ' results ', title_pos = 'center', style = 'minimal'}
   )
 
   local previewBuf = vim.api.nvim_create_buf(false, false)
   local previewWinId = vim.api.nvim_open_win(previewBuf, true,
-    {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'single', title = ' preview ', title_pos = 'center', style = 'minimal'}
+    {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
   )
 
   vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
