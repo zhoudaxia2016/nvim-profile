@@ -33,7 +33,7 @@ local run = function(params)
     for k, v in pairs(options) do
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
-    cmd = cmd .. string.format(' | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
+    cmd = cmd .. string.format(' | xargs echo | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
     vim.fn.termopen(cmd)
   end)
 
@@ -91,6 +91,7 @@ local previewFilter = {'png', 'jpg'}
 vim.keymap.set('n', '<leader>fo', function()
   local cwd = vim.fn.getcwd()
   run({
+    cmd = 'fzf -m',
     previewCb = function(args)
       local fn = string.gsub(args, "'(.+)'", "%1")
       fn = string.format('%s/%s', cwd, fn)
@@ -102,7 +103,10 @@ vim.keymap.set('n', '<leader>fo', function()
       vim.cmd(string.format('edit %s', fn))
     end,
     acceptCb = function(args)
-      vim.cmd(string.format('tabnew %s/%s', cwd, args))
+      args = vim.split(args, ' ')
+      for _, f in ipairs(args) do
+        vim.cmd(string.format('tabnew %s/%s', cwd, f))
+      end
     end
   })
 end, {})
