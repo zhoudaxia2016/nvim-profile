@@ -1,8 +1,40 @@
 local map = require"util".map
 local debounce = require'util.debounce'
 local api = vim.api
+local fzf = require('self-plugin.fzf')
 
 M = {}
+
+vim.lsp.handlers['textDocument/references'] = function(_, result, ctx, config)
+  if not result or vim.tbl_isempty(result) then
+    vim.notify('No references found')
+    return
+  end
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  config = config or {}
+  local items = vim.lsp.util.locations_to_items(result, client.offset_encoding)
+  items = vim.tbl_map(function(item)
+    return string.format('%s:%s | %s %s', item.lnum, item.col, item.text, item.filename)
+  end, items)
+  fzf.run({
+    cmd = 'fzf --with-nth ..-2',
+    input = items,
+    previewCb = function(_, index, ns)
+      local item = result[index]
+      local startRange = item.range.start
+      local endRange = item.range['end']
+      local fn = vim.uri_to_fname(item.uri)
+      vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
+      vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
+    end,
+    acceptCb = function(args)
+      local line = string.match(args, '^%d+')
+      local fn = string.match(args, '%S+$')
+      vim.cmd(string.format('tabnew +%s %s', line, fn))
+    end,
+  })
+end
+
 local on_attach = function(client, bufnr)
   local capabilities = client.server_capabilities
   -- TODO: remove that after #21001 fixed

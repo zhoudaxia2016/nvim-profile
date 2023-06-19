@@ -16,19 +16,27 @@ end
 
 local fzfPreview = 'FzfPreview'
 local fzfAccept = 'FzfAccept'
+local fzfInput = 'fzfInput'
 local options = {
   border = 'none',
   color = 'bg:-1',
-  preview = remoteCmd(fzfPreview .. ' {1}'),
+  preview = remoteCmd(fzfPreview .. ' {n} {}'),
   ['preview-window'] = 'right,0',
 }
 
 local m = {}
+local ns = vim.api.nvim_create_namespace('fzf')
 
 local run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
+  local input = params.input
+  local env = {[fzfInput] = ''}
+  if input then
+    env[fzfInput] = vim.fn.join(input, '\\n')
+    cmd = string.format('echo -e $%s | %s', fzfInput, cmd)
+  end
 
   local selectBuf = vim.api.nvim_create_buf(false, false)
   vim.api.nvim_buf_call(selectBuf, function()
@@ -36,7 +44,7 @@ local run = function(params)
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
     cmd = cmd .. string.format(' | xargs echo | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
-    vim.fn.termopen(cmd)
+    vim.fn.termopen(cmd, {env = env})
   end)
 
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
@@ -49,15 +57,21 @@ local run = function(params)
   )
 
   vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
+  vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
 
   vim.api.nvim_create_user_command(fzfPreview, debounce(function(args)
     vim.api.nvim_win_call(previewWinId, function()
-      previewCb(args.args)
+      local index = tonumber(string.match(args.args, '^%d+'))
+      local content = string.match(args.args, '^%d+%s+(.*)')
+      vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+      previewCb(content, index + 1, ns)
       vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
+      vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
     end)
   end, 300), {nargs = 1})
 
   local function quit()
+    vim.api.nvim_buf_clear_namespace(vim.fn.winbufnr(previewWinId), ns, 0, -1)
     vim.api.nvim_win_call(selectWinId, function()
       vim.cmd('quit')
     end)
