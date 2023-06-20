@@ -22,6 +22,7 @@ local themes = {
   ['@lsp.typemod.variable.local'] = { fg = palettes.darkest_white },
   ['@lsp.type.variable'] = { fg = palettes.white },
   ['@variable'] = { fg = palettes.darkest_white },
+  ['LspInlayHint'] = { fg = '#616e88' },
 
   -- popup
   ['Pmenu'] = { bg = palettes.dark_gray, fg = palettes.teal },
