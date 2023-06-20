@@ -60,6 +60,9 @@ local run = function(params)
   vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
 
   vim.api.nvim_create_user_command(fzfPreview, debounce(function(args)
+    if vim.api.nvim_win_is_valid(previewWinId) == false then
+      return
+    end
     vim.api.nvim_win_call(previewWinId, function()
       local index = tonumber(string.match(args.args, '^%d+'))
       local content = string.match(args.args, '^%d+%s+(.*)')
