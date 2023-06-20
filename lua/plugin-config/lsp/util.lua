@@ -26,6 +26,7 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, ctx, config)
       local fn = vim.uri_to_fname(item.uri)
       vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
       vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
+      vim.wo.winbar = fn
     end,
     acceptCb = function(args)
       local line = string.match(args, '^%d+')
