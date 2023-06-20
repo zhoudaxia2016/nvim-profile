@@ -2,36 +2,42 @@ local map = require"util".map
 local debounce = require'util.debounce'
 local api = vim.api
 local fzf = require('self-plugin.fzf')
+local _util = require('plugin-config.lsp._util')
 
 M = {}
 
-vim.lsp.handlers['textDocument/references'] = function(_, result, ctx, config)
+vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
   if not result or vim.tbl_isempty(result) then
     vim.notify('No references found')
     return
   end
-  local client = vim.lsp.get_client_by_id(ctx.client_id)
-  config = config or {}
-  local items = vim.lsp.util.locations_to_items(result, client.offset_encoding)
-  items = vim.tbl_map(function(item)
-    return string.format('%s:%s | %s %s', item.lnum, item.col, item.text, item.filename)
-  end, items)
+  for _, item in pairs(result) do
+    local start = item.range.start
+    item.text = _util.get_line(vim.uri_to_bufnr(item.uri), start.line)
+    item.filename = vim.uri_to_fname(item.uri)
+  end
+  vim.print(result)
+  local input = vim.tbl_map(function(item)
+    local start = item.range.start
+    return string.format('%s:%s | %s %s', start.line + 1, start.character + 1, item.text, item.filename)
+  end, result)
   fzf.run({
     cmd = 'fzf --with-nth ..-2',
-    input = items,
+    input = input,
     previewCb = function(_, index, ns)
       local item = result[index]
       local startRange = item.range.start
       local endRange = item.range['end']
-      local fn = vim.uri_to_fname(item.uri)
+      local fn = item.filename
       vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
       vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
       vim.wo.winbar = fn
     end,
     acceptCb = function(args)
       local line = string.match(args, '^%d+')
+      local col = string.match(args, '^%d+:(%d+)')
       local fn = string.match(args, '%S+$')
-      vim.cmd(string.format('tabnew +%s %s', line, fn))
+      vim.cmd(string.format('tabnew +%s %s | normal %sl', line, fn, col - 1))
     end,
   })
 end
