@@ -17,6 +17,7 @@ end
 local fzfPreview = 'FzfPreview'
 local fzfAccept = 'FzfAccept'
 local fzfInput = 'fzfInput'
+local fzfBind = 'FzfBind'
 local options = {
   border = 'none',
   color = 'bg:-1',
@@ -37,10 +38,19 @@ local run = function(params)
     env[fzfInput] = vim.fn.join(input, '\\n')
     cmd = string.format('echo -e $%s | %s', fzfInput, cmd)
   end
+  local bind = params.bind or {}
+
+  local o = vim.deepcopy(options)
+  local bindOption = vim.fn.join(vim.tbl_map(function(key)
+    return string.format('%s:execute(%s)', key, remoteCmd(string.format('%s %s', fzfBind, key)))
+  end, vim.tbl_keys(bind)), ',')
+  if bindOption ~= '' then
+    o.bind = bindOption
+  end
 
   local selectBuf = vim.api.nvim_create_buf(false, false)
   vim.api.nvim_buf_call(selectBuf, function()
-    for k, v in pairs(options) do
+    for k, v in pairs(o) do
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
     cmd = cmd .. string.format(' | xargs echo | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
@@ -56,9 +66,6 @@ local run = function(params)
     {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
   )
 
-  vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
-  vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
-
   vim.api.nvim_create_user_command(fzfPreview, debounce(function(args)
     if vim.api.nvim_win_is_valid(previewWinId) == false then
       return
@@ -72,6 +79,13 @@ local run = function(params)
       vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
     end)
   end, 300), {nargs = 1})
+
+  vim.api.nvim_create_user_command(fzfBind, function(args)
+    local cb = bind[args.args]
+    if cb then
+      cb()
+    end
+  end, {nargs = 1})
 
   local function quit()
     vim.api.nvim_buf_clear_namespace(vim.fn.winbufnr(previewWinId), ns, 0, -1)
