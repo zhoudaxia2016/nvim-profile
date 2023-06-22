@@ -16,28 +16,26 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
     item.text = _util.get_line(vim.uri_to_bufnr(item.uri), start.line)
     item.filename = vim.uri_to_fname(item.uri)
   end
-  vim.print(result)
-  local input = vim.tbl_map(function(item)
-    local start = item.range.start
-    return string.format('%s:%s | %s %s', start.line + 1, start.character + 1, item.text, item.filename)
-  end, result)
   fzf.run({
-    cmd = 'fzf --with-nth ..-2',
-    input = input,
-    previewCb = function(_, index, ns)
-      local item = result[index]
-      local startRange = item.range.start
-      local endRange = item.range['end']
-      local fn = item.filename
+    input = result,
+    transform = function(item)
+      local start = item.range.start
+      return string.format('%s:%s | %s', start.line + 1, start.character + 1, item.text)
+    end,
+    previewCb = function(args, ns)
+      local startRange = args.range.start
+      local endRange = args.range['end']
+      local fn = args.filename
       vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
       vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
       vim.wo.winbar = fn
     end,
     acceptCb = function(args)
-      local line = string.match(args, '^%d+')
-      local col = string.match(args, '^%d+:(%d+)')
-      local fn = string.match(args, '%S+$')
-      vim.cmd(string.format('tabnew +%s %s | normal %sl', line, fn, col - 1))
+      local start = args.range.start
+      local line = start.line + 1
+      local col = start.character
+      local fn = args.filename
+      vim.cmd(string.format('tabnew +%s %s | normal %sl', line, fn, col))
     end,
   })
 end
