@@ -16,12 +16,12 @@ end
 
 local fzfPreview = 'FzfPreview'
 local fzfAccept = 'FzfAccept'
-local fzfInput = 'fzfInput'
+local fzfInputKey = 'fzfInput'
 local fzfBind = 'FzfBind'
 local options = {
   border = 'none',
   color = 'bg:-1',
-  preview = remoteCmd(fzfPreview .. ' {n} {}'),
+  preview = remoteCmd(fzfPreview .. ' {}'),
   ['preview-window'] = 'right,0',
 }
 
@@ -33,10 +33,35 @@ local run = function(params)
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
   local input = params.input
-  local env = {[fzfInput] = ''}
-  if input then
-    env[fzfInput] = vim.fn.join(input, '\\n')
-    cmd = string.format('echo -e $%s | %s', fzfInput, cmd)
+  local transform = params.transform
+  local fzfInput
+
+  -- Generate fzf input
+  if transform then
+    if input == nil then
+      vim.notify('缺少input参数')
+      return
+    end
+    fzfInput = {}
+    for i, item in pairs(input) do
+      table.insert(fzfInput, string.format('%s %s', i, transform(item)))
+    end
+  else
+    fzfInput = input
+  end
+  local env = {[fzfInputKey] = ''}
+  if fzfInput then
+    env[fzfInputKey] = vim.fn.join(fzfInput, '\\n')
+    cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
+  end
+  local function getValue(fzfValue)
+    fzfValue = string.gsub(fzfValue, "'(.+)'", "%1")
+    if transform then
+      local index = tonumber(string.match(fzfValue, '^%d+'))
+      return input[index]
+    else
+      return fzfValue
+    end
   end
   local bind = params.bind or {}
 
@@ -71,10 +96,8 @@ local run = function(params)
       return
     end
     vim.api.nvim_win_call(previewWinId, function()
-      local index = tonumber(string.match(args.args, '^%d+'))
-      local content = string.match(args.args, '^%d+%s+(.*)')
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-      previewCb(content, index + 1, ns)
+      previewCb(getValue(args.args), ns)
       vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
       vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
     end)
@@ -99,7 +122,7 @@ local run = function(params)
 
   vim.api.nvim_create_user_command(fzfAccept, function(args)
     quit()
-    acceptCb(args.args)
+    acceptCb(getValue(args.args))
     vim.api.nvim_del_user_command(fzfPreview)
     vim.api.nvim_del_user_command(fzfAccept)
   end, {nargs = 1})
@@ -126,8 +149,7 @@ vim.keymap.set('n', '<leader>fo', function()
   run({
     cmd = 'fzf -m',
     previewCb = function(args)
-      local fn = string.gsub(args, "'(.+)'", "%1")
-      fn = string.format('%s/%s', cwd, fn)
+      local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
         return string.match(fn, p)
       end, previewFilter) > 0 then
