@@ -157,6 +157,7 @@ local function findFile(cwd)
         return
       end
       vim.cmd(string.format('edit %s', fn))
+      vim.wo.winbar = fn
     end,
     acceptCb = function(args)
       args = vim.split(args, ' ')
