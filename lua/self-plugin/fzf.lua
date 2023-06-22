@@ -32,6 +32,7 @@ local run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
+  local cwd = params.cwd
   local input = params.input
   local transform = params.transform
   local fzfInput
@@ -79,7 +80,7 @@ local run = function(params)
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
     cmd = cmd .. string.format(' | xargs echo | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
-    vim.fn.termopen(cmd, {env = env})
+    vim.fn.termopen(cmd, {env = env, cwd = cwd})
   end)
 
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
@@ -144,9 +145,9 @@ local run = function(params)
 end
 
 local previewFilter = {'png', 'jpg'}
-vim.keymap.set('n', '<leader>fo', function()
-  local cwd = vim.fn.getcwd()
+local function findFile(cwd)
   run({
+    cwd = cwd,
     cmd = 'fzf -m',
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
@@ -164,6 +165,12 @@ vim.keymap.set('n', '<leader>fo', function()
       end
     end
   })
+end
+vim.keymap.set('n', '<c-f>O', function()
+  findFile(vim.fn.getcwd())
+end, {})
+vim.keymap.set('n', '<c-f>o', function()
+  findFile(require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd()))
 end, {})
 
 m.run = run
