@@ -16,19 +16,16 @@ vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
     border = 'rounded',
     silent = true,
     focusable = false,
-    max_height = vim.o.lines / 2 - 2,
+    max_height = math.ceil(vim.o.lines / 2) - 2,
   }
 )
 
-vim.api.nvim_create_autocmd('User', {
-  pattern = 'LspProgressUpdate',
-  callback = function()
-    local msgs = vim.lsp.util.get_progress_messages()
-    msgs = vim.tbl_filter(function(v)
-      return vim.tbl_contains(msgFilter, v.name)
-    end, msgs)
-    for _, msg in ipairs(msgs) do
-      vim.notify(msg.name .. ': ' .. msg.title)
+vim.api.nvim_create_autocmd('LspProgress', {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if client and vim.tbl_contains(msgFilter, client.name, {}) then
+      local value = args.data.result.value
+      vim.notify(string.format('[%s] %s', value.kind == 'begin' and '...' or 'Done', value.title))
     end
   end
 })
