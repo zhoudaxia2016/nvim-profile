@@ -14,6 +14,10 @@ local function remoteCmd(cmd)
   return string.format('node ~/.config/nvim/remote-cmd/index.js "%s"', cmd)
 end
 
+local function getRoot()
+  return require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd())
+end
+
 local fzfPreview = 'FzfPreview'
 local fzfAccept = 'FzfAccept'
 local fzfInputKey = 'fzfInput'
@@ -33,9 +37,14 @@ local run = function(params)
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
   local cwd = params.cwd
+  local multi = params.multi
   local input = params.input
   local transform = params.transform
   local fzfInput
+
+  if multi then
+    cmd = string.format('%s -m', cmd)
+  end
 
   -- Generate fzf input
   if transform then
@@ -56,7 +65,7 @@ local run = function(params)
     cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
   end
   local function getValue(fzfValue)
-    fzfValue = string.gsub(fzfValue, "'(.+)'", "%1")
+    fzfValue = string.gsub(fzfValue, "^'?(.+)'$", "%1")
     if transform then
       local index = tonumber(string.match(fzfValue, '^%d+'))
       return input[index]
@@ -79,8 +88,12 @@ local run = function(params)
     for k, v in pairs(o) do
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
-    cmd = cmd .. string.format(' | xargs echo | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
-    vim.fn.termopen(cmd, {env = env, cwd = cwd})
+    cmd = cmd .. string.format(' | tr "\n" "\t" | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
+    local termOptions = {env = env, cwd = cwd}
+    if params.debug then
+      termOptions.on_stdout = function(...) vim.print(...) end
+    end
+    vim.fn.termopen(cmd, termOptions)
   end)
 
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
@@ -123,7 +136,11 @@ local run = function(params)
 
   vim.api.nvim_create_user_command(fzfAccept, function(args)
     quit()
-    acceptCb(getValue(args.args))
+    local value = getValue(args.args)
+    if multi then
+      value = vim.split(value, '\t', {trimempty = true})
+    end
+    acceptCb(value)
     vim.api.nvim_del_user_command(fzfPreview)
     vim.api.nvim_del_user_command(fzfAccept)
   end, {nargs = 1})
@@ -148,7 +165,7 @@ local previewFilter = {'png', 'jpg'}
 local function findFile(cwd)
   run({
     cwd = cwd,
-    cmd = 'fzf -m',
+    multi = true,
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
@@ -160,7 +177,6 @@ local function findFile(cwd)
       vim.wo.winbar = fn
     end,
     acceptCb = function(args)
-      args = vim.split(args, ' ')
       for _, f in ipairs(args) do
         vim.cmd(string.format('tabnew %s/%s', cwd, f))
       end
@@ -171,8 +187,41 @@ vim.keymap.set('n', '<c-f>O', function()
   findFile(vim.fn.getcwd())
 end, {})
 vim.keymap.set('n', '<c-f>o', function()
-  findFile(require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd()))
+  findFile(getRoot())
 end, {})
+
+local function rgSearch(cwd)
+  local RG_PREFIX="rg --column --line-number --no-heading --color=always -S --type-add 'tsx:*.tsx' --type-add 'test:*.test.*'"
+  local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --history="$HOME/.fzf/history/frg" --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
+  local function getValue(args)
+    local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
+    fn = string.format('%s/%s', cwd, fn)
+    return fn, row, col
+  end
+  run({
+    cmd = cmd,
+    cwd = cwd,
+    multi = true,
+    previewCb = function(args)
+      local fn, row, col = getValue(args)
+      vim.cmd(string.format('edit +%s %s', row, fn))
+      vim.wo.winbar = fn
+    end,
+    acceptCb = function(args)
+      for _, f in ipairs(args) do
+        local fn, row, col = getValue(f)
+        vim.cmd(string.format('tabnew +%s %s | normal %sl', row, fn, col - 1))
+      end
+    end
+  })
+end
+
+vim.keymap.set('n', '<c-f><c-F>', function()
+  rgSearch(vim.fn.getcwd())
+end)
+vim.keymap.set('n', '<c-f><c-f>', function()
+  rgSearch(getRoot())
+end)
 
 m.run = run
 return m
