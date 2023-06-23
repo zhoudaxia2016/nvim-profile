@@ -1,17 +1,17 @@
-module = {}
-function module.starts(s, start)
+local M = {}
+function M.starts(s, start)
   return string.sub(s, 1, string.len(start)) == start
 end
 
-function module.trim(s)
+function M.trim(s)
   return string.gsub(s, "^%s*(.-)%s*$", "%1")
 end
 
-function module.isSpecialBuf()
-  return module.hasValue({'qf', 'netrw', 'help', ''}, vim.o.filetype)
+function M.isSpecialBuf()
+  return M.hasValue({'qf', 'netrw', 'help', ''}, vim.o.filetype)
 end
 
-function module.hasValue(tab, val)
+function M.hasValue(tab, val)
   for _, value in ipairs(tab) do
     if value == val then
       return true
@@ -20,7 +20,7 @@ function module.hasValue(tab, val)
   return false
 end
 
-function module.copy(text)
+function M.copy(text)
   local temp = vim.fn.tempname()
   local fd = io.open(temp, 'w')
   io.output(fd)
@@ -29,7 +29,7 @@ function module.copy(text)
   vim.fn.jobstart('clip.exe < ' .. temp)
 end
 
-function module.map(mode, key, command, opt, bufnr)
+function M.map(mode, key, command, opt, bufnr)
   local options = { noremap = true, silent = true }
   if bufnr ~= nil then
     options.buffer = bufnr
@@ -40,4 +40,8 @@ function module.map(mode, key, command, opt, bufnr)
   vim.keymap.set(mode, key, command, options)
 end
 
-return module
+M.getRoot = function ()
+  return require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd())
+end
+
+return M

@@ -5,7 +5,6 @@ local function rpc_nvim_exec_lua(nvim_server, cmd)
   for i = 1, c do
     table.insert(fzf_args, vim.fn.argv(i - 1))
   end
-  vim.print(fzf_args)
 
   vim.rpcrequest(chan_id, "nvim_exec_lua", [[
     local luaargs = {...}
