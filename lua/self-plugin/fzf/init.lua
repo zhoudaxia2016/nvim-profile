@@ -9,7 +9,6 @@ local top = 0
 local selectWinleft = screenW - selectWinW - previewWinW - 3
 local previewWinLeft = screenW - previewWinW
 local debounce = require('util.debounce')
-local previewer = require('self-plugin.fzf.previewer')
 
 FzfPreviewCb = nil
 
@@ -18,12 +17,9 @@ local function remoteCmd(cmd)
 end
 
 local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/shell_helper.lua'
+
 local function rpcCmd(cmd)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
-end
-
-local function getRoot()
-  return require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd())
 end
 
 local fzfPreview = 'FzfPreview'
@@ -37,10 +33,10 @@ local options = {
   ['preview-window'] = 'right,0',
 }
 
-local m = {}
+local M = {}
 local ns = vim.api.nvim_create_namespace('fzf')
 
-local run = function(params)
+M.run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb
@@ -118,6 +114,9 @@ local run = function(params)
     if vim.api.nvim_win_is_valid(previewWinId) == false then
       return
     end
+    if #args < 3 then
+      return
+    end
     local selection = {}
     local l = #args
     local index = args[l]
@@ -178,67 +177,4 @@ local run = function(params)
   end, 0)
 end
 
-local previewFilter = {'png', 'jpg'}
-local function findFile(cwd)
-  run({
-    cwd = cwd,
-    multi = true,
-    previewCb = function(args)
-      local fn = string.format('%s/%s', cwd, args)
-      if #vim.tbl_filter(function(p)
-        return string.match(fn, p)
-      end, previewFilter) > 0 then
-        return
-      end
-      vim.cmd(string.format('edit %s', fn))
-      vim.wo.winbar = fn
-    end,
-    acceptCb = function(args)
-      for _, f in ipairs(args) do
-        vim.cmd(string.format('tabnew %s/%s', cwd, f))
-      end
-    end
-  })
-end
-vim.keymap.set('n', '<c-f>O', function()
-  findFile(vim.fn.getcwd())
-end, {})
-vim.keymap.set('n', '<c-f>o', function()
-  findFile(getRoot())
-end, {})
-
-local function rgSearch(cwd)
-  local RG_PREFIX="rg --column --line-number --no-heading --color=always -S --type-add 'tsx:*.tsx' --type-add 'test:*.test.*'"
-  local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --history="$HOME/.fzf/history/frg" --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
-  local function getValue(args)
-    local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
-    fn = string.format('%s/%s', cwd, fn)
-    return fn, row - 1, col - 1
-  end
-  run({
-    cmd = cmd,
-    cwd = cwd,
-    multi = true,
-    previewCb = function(args, ns, query)
-      local fn, row, col = getValue(args)
-      previewer.file({fn = fn, row = row, col = col})
-      vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + #query}, {priority = 9999})
-    end,
-    acceptCb = function(args)
-      for _, f in ipairs(args) do
-        local fn, row, col = getValue(f)
-        vim.cmd(string.format('tabnew +%s %s | normal %sl', row + 1, fn, col))
-      end
-    end
-  })
-end
-
-vim.keymap.set('n', '<c-f><c-F>', function()
-  rgSearch(vim.fn.getcwd())
-end)
-vim.keymap.set('n', '<c-f><c-f>', function()
-  rgSearch(getRoot())
-end)
-
-m.run = run
-return m
+return M
