@@ -1,13 +1,7 @@
 local screenH = vim.o.lines
 local screenW = vim.o.columns
-local selectWinW = math.floor(screenW * 0.3)
-local winH = math.floor(screenH * 0.8)
-local previewWinW = math.floor(screenW * 0.5)
--- local top = math.floor((screenH - winH) * 0.5)
+local scale = 0.8
 local top = 0
--- local selectWinleft = math.floor((screenW - selectWinW - previewWinW) * 0.5)
-local selectWinleft = screenW - selectWinW - previewWinW - 3
-local previewWinLeft = screenW - previewWinW
 local debounce = require('util.debounce')
 
 FzfPreviewCb = nil
@@ -16,6 +10,33 @@ local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/she
 
 local function rpcCmd(cmd)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
+end
+
+local function getLayout(s)
+  local selectWinPercent = 0.4 * s
+  local heightPercent = 1 * s
+  local previewWinPercent = 0.6 * s
+  local selectWinW = math.floor(screenW * selectWinPercent)
+  local winH = math.floor(screenH * heightPercent)
+  local previewWinW = math.floor(screenW * previewWinPercent)
+  local selectWinleft = screenW - selectWinW - previewWinW - 4
+  local previewWinLeft = screenW - previewWinW
+  return winH, selectWinleft, selectWinW, previewWinLeft, previewWinW
+end
+
+local maxScale = 0.9
+local minScale = 0.5
+local function resize(s, selectWinId, previewWinId)
+  if s > 0 and scale >= maxScale then
+    return
+  end
+  if s < 0 and scale <= minScale then
+    return
+  end
+  scale = scale + s
+  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale)
+  vim.api.nvim_win_set_config(selectWinId, { relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH })
+  vim.api.nvim_win_set_config(previewWinId, { relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH })
 end
 
 local fzfInputKey = 'fzfInput'
@@ -38,6 +59,7 @@ M.run = function(params)
   local input = params.input
   local transform = params.transform
   local fzfInput
+  scale = params.scale or 0.8
 
   if multi then
     cmd = cmd .. ' -m'
@@ -78,6 +100,7 @@ M.run = function(params)
     vim.fn.termopen(cmd, termOptions)
   end)
 
+  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale)
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
     {relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH, border = 'rounded', title = ' results ', title_pos = 'center', style = 'minimal'}
   )
@@ -86,6 +109,14 @@ M.run = function(params)
   local previewWinId = vim.api.nvim_open_win(previewBuf, true,
     {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
   )
+
+  vim.keymap.set('t', '<c-c>', function()
+    resize(0.1, selectWinId, previewWinId)
+  end, {buffer = selectBuf})
+
+  vim.keymap.set('t', '<c-q>', function()
+    resize(-0.1, selectWinId, previewWinId)
+  end, {buffer = selectBuf})
 
   FzfPreviewCb = debounce(function(args)
     if vim.api.nvim_win_is_valid(previewWinId) == false then
