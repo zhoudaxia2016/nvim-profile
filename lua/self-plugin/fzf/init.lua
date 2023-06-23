@@ -12,20 +12,13 @@ local debounce = require('util.debounce')
 
 FzfPreviewCb = nil
 
-local function remoteCmd(cmd)
-  return string.format('node ~/.config/nvim/remote-cmd/index.js "%s"', cmd)
-end
-
 local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/shell_helper.lua'
 
 local function rpcCmd(cmd)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
 end
 
-local fzfPreview = 'FzfPreview'
-local fzfAccept = 'FzfAccept'
 local fzfInputKey = 'fzfInput'
-local fzfBind = 'FzfBind'
 local options = {
   border = 'none',
   color = 'bg:-1',
@@ -68,36 +61,20 @@ M.run = function(params)
     env[fzfInputKey] = vim.fn.join(fzfInput, '\\n')
     cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
   end
-  local function getValue(fzfValue)
-    fzfValue = string.gsub(fzfValue, "^'", "")
-    fzfValue = string.gsub(fzfValue, "'$", "")
-    if transform then
-      local index = tonumber(string.match(fzfValue, '^%d+'))
-      return input[index]
-    else
-      return fzfValue
-    end
-  end
-  local bind = params.bind or {}
 
+  local tmpfile = vim.fn.tempname()
   local o = vim.deepcopy(options)
-  local bindOption = vim.fn.join(vim.tbl_map(function(key)
-    return string.format('%s:execute(%s)', key, remoteCmd(string.format('%s %s', fzfBind, key)))
-  end, vim.tbl_keys(bind)), ',')
-  if bindOption ~= '' then
-    o.bind = bindOption
-  end
-
   local selectBuf = vim.api.nvim_create_buf(false, false)
   vim.api.nvim_buf_call(selectBuf, function()
     for k, v in pairs(o) do
       cmd = cmd .. string.format(" --%s='%s'", k, v)
     end
-    cmd = cmd .. string.format(' | tr "\n" "\t" | xargs -I{} %s', remoteCmd(fzfAccept .. ' {}'))
     local termOptions = {env = env, cwd = cwd}
     if params.debug then
       termOptions.on_stdout = function(...) vim.print(...) end
     end
+    cmd = ('%s > %s'):format(cmd, tmpfile)
+    vim.print(cmd)
     vim.fn.termopen(cmd, termOptions)
   end)
 
@@ -133,13 +110,6 @@ M.run = function(params)
     end)
   end, 300)
 
-  vim.api.nvim_create_user_command(fzfBind, function(args)
-    local cb = bind[args.args]
-    if cb then
-      cb()
-    end
-  end, {nargs = 1})
-
   local function quit()
     vim.api.nvim_buf_clear_namespace(vim.fn.winbufnr(previewWinId), ns, 0, -1)
     vim.api.nvim_win_call(selectWinId, function()
@@ -148,18 +118,13 @@ M.run = function(params)
     vim.api.nvim_win_call(previewWinId, function()
       vim.cmd('quit')
     end)
-  end
-
-  vim.api.nvim_create_user_command(fzfAccept, function(args)
-    quit()
-    local value = getValue(args.args)
-    if multi then
-      value = vim.split(value, '\t', {trimempty = true})
+    local results = vim.fn.readfile(tmpfile)
+    if #results ~= 0 then
+      vim.defer_fn(function()
+        acceptCb(results)
+      end, 0)
     end
-    acceptCb(value)
-    vim.api.nvim_del_user_command(fzfPreview)
-    vim.api.nvim_del_user_command(fzfAccept)
-  end, {nargs = 1})
+  end
 
   vim.api.nvim_create_autocmd('termclose', {
     callback = function()
