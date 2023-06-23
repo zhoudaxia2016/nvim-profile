@@ -9,9 +9,17 @@ local top = 0
 local selectWinleft = screenW - selectWinW - previewWinW - 3
 local previewWinLeft = screenW - previewWinW
 local debounce = require('util.debounce')
+local previewer = require('self-plugin.fzf.previewer')
+
+FzfPreviewCb = nil
 
 local function remoteCmd(cmd)
   return string.format('node ~/.config/nvim/remote-cmd/index.js "%s"', cmd)
+end
+
+local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/shell_helper.lua'
+local function rpcCmd(cmd)
+  return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
 end
 
 local function getRoot()
@@ -25,7 +33,7 @@ local fzfBind = 'FzfBind'
 local options = {
   border = 'none',
   color = 'bg:-1',
-  preview = remoteCmd(fzfPreview .. ' {}'),
+  preview = rpcCmd('preview'),
   ['preview-window'] = 'right,0',
 }
 
@@ -43,7 +51,7 @@ local run = function(params)
   local fzfInput
 
   if multi then
-    cmd = string.format('%s -m', cmd)
+    cmd = cmd .. ' -m'
   end
 
   -- Generate fzf input
@@ -65,7 +73,8 @@ local run = function(params)
     cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
   end
   local function getValue(fzfValue)
-    fzfValue = string.gsub(fzfValue, "^'?(.+)'$", "%1")
+    fzfValue = string.gsub(fzfValue, "^'", "")
+    fzfValue = string.gsub(fzfValue, "'$", "")
     if transform then
       local index = tonumber(string.match(fzfValue, '^%d+'))
       return input[index]
@@ -105,17 +114,25 @@ local run = function(params)
     {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
   )
 
-  vim.api.nvim_create_user_command(fzfPreview, debounce(function(args)
+  FzfPreviewCb = debounce(function(args)
     if vim.api.nvim_win_is_valid(previewWinId) == false then
       return
     end
+    local selection = {}
+    local l = #args
+    local index = args[l]
+    local query = args[l - 1]
+    for i = 1, l - 2 do
+      table.insert(selection, args[i])
+    end
     vim.api.nvim_win_call(previewWinId, function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-      previewCb(getValue(args.args), ns)
+      local value = transform and input[index + 1] or selection[1]
+      previewCb(value, ns, query)
       vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
       vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
     end)
-  end, 300), {nargs = 1})
+  end, 300)
 
   vim.api.nvim_create_user_command(fzfBind, function(args)
     local cb = bind[args.args]
@@ -196,21 +213,21 @@ local function rgSearch(cwd)
   local function getValue(args)
     local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
     fn = string.format('%s/%s', cwd, fn)
-    return fn, row, col
+    return fn, row - 1, col - 1
   end
   run({
     cmd = cmd,
     cwd = cwd,
     multi = true,
-    previewCb = function(args)
+    previewCb = function(args, ns, query)
       local fn, row, col = getValue(args)
-      vim.cmd(string.format('edit +%s %s', row, fn))
-      vim.wo.winbar = fn
+      previewer.file({fn = fn, row = row, col = col})
+      vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + #query}, {priority = 9999})
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
         local fn, row, col = getValue(f)
-        vim.cmd(string.format('tabnew +%s %s | normal %sl', row, fn, col - 1))
+        vim.cmd(string.format('tabnew +%s %s | normal %sl', row + 1, fn, col))
       end
     end
   })
