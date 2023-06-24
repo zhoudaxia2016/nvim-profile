@@ -5,7 +5,7 @@ M.file = function(params)
   local col = params.col
   local selection = params.selection
   local ns = params.ns
-  local cmd = string.format('editj %s', fn)
+  local cmd = string.format('edit %s', fn)
   if row then
     cmd = string.format('edit +%s %s', row, fn)
     if col then
