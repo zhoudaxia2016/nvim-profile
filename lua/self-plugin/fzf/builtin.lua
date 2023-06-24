@@ -52,4 +52,25 @@ M.rgSearch = function(cwd)
   })
 end
 
+M.searchLines = function()
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+  local buf = vim.api.nvim_get_current_buf()
+  local input = {}
+  for i, line in pairs(lines) do
+    table.insert(input, ('%s %s'):format(i, line))
+  end
+  run({
+    input = input,
+    hidePreview = true,
+    scale = 0.5,
+    previewCb = function(args)
+      local row = tonumber(args:match('^%d+'))
+      vim.api.nvim_buf_call(buf, function()
+        vim.fn.cursor({row, 1})
+        vim.cmd('redraw')
+      end)
+    end
+  })
+end
+
 return M
