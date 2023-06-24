@@ -73,4 +73,18 @@ M.searchLines = function()
   })
 end
 
+M.oldFiles = function()
+  run({
+    input = vim.tbl_filter(function(f) return f:match('^term:') == nil end, vim.v.oldfiles),
+    scale = 0.9,
+    previewCb = function(args)
+      previewer.file({fn = args})
+    end,
+    acceptCb = function(args)
+      vim.print(args)
+      vim.cmd(('tabnew %s'):format(args[1]))
+    end
+  })
+end
+
 return M

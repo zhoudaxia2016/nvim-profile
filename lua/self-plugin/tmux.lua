@@ -115,19 +115,3 @@ vim.api.nvim_create_autocmd('BufReadPre', {
     vim.keymap.set('n', '<cr>s', ':set hls!<cr>', {buffer = 0})
   end
 })
-
-vim.api.nvim_create_autocmd('VimEnter', {
-  pattern = '*',
-  callback = function()
-    -- TODO: 因为参数是[nvim, --embed]，所以长度为2。需优化判断
-    if #vim.v.argv == 2 then
-      tmux({cmd = 'fzf', output = true, input = function()
-        return vim.v.oldfiles
-      end, callback = function(output)
-        for _, f in ipairs(output) do
-          vim.cmd(string.format('e %s', f))
-        end
-      end})
-    end
-  end
-})

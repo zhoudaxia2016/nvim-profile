@@ -60,7 +60,9 @@ function Netrw_mappings()
       cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn)) 
     end)
   end, {}, buf)
-  cmd('vertical res 20')
+  if vim.api.nvim_win_get_config(0).relative == '' then
+    cmd('vertical res 20')
+  end
 end
 
 function GetCursorFile()
