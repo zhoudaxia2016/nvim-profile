@@ -27,7 +27,7 @@ M.findFile = function (cwd)
 end
 
 M.rgSearch = function(cwd)
-  local RG_PREFIX="rg --column --line-number --no-heading --color=always -S --type-add 'tsx:*.tsx' --type-add 'test:*.test.*'"
+  local RG_PREFIX="rg"
   local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --history="$HOME/.fzf/history/frg" --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
   local function getValue(args)
     local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
