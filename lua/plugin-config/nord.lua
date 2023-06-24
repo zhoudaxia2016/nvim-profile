@@ -42,4 +42,8 @@ local themes = {
   ['DiffText'] = { bg = '#604464' },
 }
 
+vim.cmd[[
+  hi CursorLine gui=underline
+]]
+
 loadColorSet(themes)
