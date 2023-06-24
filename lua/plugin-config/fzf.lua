@@ -14,3 +14,7 @@ end)
 vim.keymap.set('n', '<c-f><c-f>', function()
   fzfBuiltins.rgSearch(getRoot())
 end)
+
+vim.keymap.set('n', '<c-f>l', function()
+  fzfBuiltins.searchLines()
+end)

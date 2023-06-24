@@ -12,21 +12,25 @@ local function rpcCmd(cmd)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
 end
 
-local function getLayout(s)
-  local selectWinPercent = 0.4 * s
+local function getLayout(s, hidePreview)
+  local previewWinW = 0
+  local previewWinLeft
+  local selectWinPercent = hidePreview and s or 0.4 * s
   local heightPercent = 1 * s
-  local previewWinPercent = 0.6 * s
   local selectWinW = math.floor(screenW * selectWinPercent)
   local winH = math.floor(screenH * heightPercent)
-  local previewWinW = math.floor(screenW * previewWinPercent)
+  if hidePreview == false then
+    local previewWinPercent = 0.6 * s
+    previewWinW = math.floor(screenW * previewWinPercent)
+    previewWinLeft = screenW - previewWinW
+  end
   local selectWinleft = screenW - selectWinW - previewWinW - 4
-  local previewWinLeft = screenW - previewWinW
   return winH, selectWinleft, selectWinW, previewWinLeft, previewWinW
 end
 
 local maxScale = 0.9
 local minScale = 0.5
-local function resize(s, selectWinId, previewWinId)
+local function resize(s, selectWinId, previewWinId, hidePreview)
   if s > 0 and scale >= maxScale then
     return
   end
@@ -34,7 +38,7 @@ local function resize(s, selectWinId, previewWinId)
     return
   end
   scale = scale + s
-  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale)
+  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale, hidePreview)
   vim.api.nvim_win_set_config(selectWinId, { relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH })
   vim.api.nvim_win_set_config(previewWinId, { relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH })
 end
@@ -53,12 +57,14 @@ local ns = vim.api.nvim_create_namespace('fzf')
 M.run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
-  local acceptCb = params.acceptCb
+  local acceptCb = params.acceptCb or function() end
   local cwd = params.cwd
   local multi = params.multi
   local input = params.input
   local transform = params.transform
+  local hidePreview = params.hidePreview or false
   local fzfInput
+  local quitCb = params.quitCb
   scale = params.scale or 0.8
 
   if multi then
@@ -96,30 +102,32 @@ M.run = function(params)
       termOptions.on_stdout = function(...) vim.print(...) end
     end
     cmd = ('%s > %s'):format(cmd, tmpfile)
-    vim.print(cmd)
     vim.fn.termopen(cmd, termOptions)
   end)
 
-  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale)
+  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale, hidePreview)
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
     {relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH, border = 'rounded', title = ' results ', title_pos = 'center', style = 'minimal'}
   )
 
-  local previewBuf = vim.api.nvim_create_buf(false, false)
-  local previewWinId = vim.api.nvim_open_win(previewBuf, true,
-    {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
-  )
+  local previewBuf, previewWinId
+  if hidePreview == false then
+    previewBuf = vim.api.nvim_create_buf(false, false)
+    previewWinId = vim.api.nvim_open_win(previewBuf, true,
+      {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
+    )
+  end
 
   vim.keymap.set('t', '<c-c>', function()
-    resize(0.1, selectWinId, previewWinId)
+    resize(0.1, selectWinId, previewWinId, hidePreview)
   end, {buffer = selectBuf})
 
   vim.keymap.set('t', '<c-q>', function()
-    resize(-0.1, selectWinId, previewWinId)
+    resize(-0.1, selectWinId, previewWinId, hidePreview)
   end, {buffer = selectBuf})
 
   FzfPreviewCb = debounce(function(args)
-    if vim.api.nvim_win_is_valid(previewWinId) == false then
+    if hidePreview == false and vim.api.nvim_win_is_valid(previewWinId) == false then
       return
     end
     if #args < 3 then
@@ -132,13 +140,21 @@ M.run = function(params)
     for i = 1, l - 2 do
       table.insert(selection, args[i])
     end
-    vim.api.nvim_win_call(previewWinId, function()
+    local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
       local value = transform and input[index + 1] or selection[1]
       previewCb(value, ns, query)
-      vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
-      vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
-    end)
+      if hidePreview == false then
+        vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
+        vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
+        vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
+      end
+    end
+    if hidePreview then
+      cb()
+    else
+      vim.api.nvim_win_call(previewWinId, cb)
+    end
   end, 300)
 
   local function quit()
@@ -146,14 +162,19 @@ M.run = function(params)
     vim.api.nvim_win_call(selectWinId, function()
       vim.cmd('quit')
     end)
-    vim.api.nvim_win_call(previewWinId, function()
-      vim.cmd('quit')
-    end)
+    if hidePreview == false then
+      vim.api.nvim_win_call(previewWinId, function()
+        vim.cmd('quit')
+      end)
+    end
     local results = vim.fn.readfile(tmpfile)
     if #results ~= 0 then
       vim.defer_fn(function()
         acceptCb(results)
       end, 0)
+    end
+    if quitCb then
+      quitCb(ns)
     end
   end
 
