@@ -54,6 +54,27 @@ lspconfig.clangd.setup {
 lspconfig.flow.setup {
   on_attach = myutil.on_attach,
 }
+lspconfig.rust_analyzer.setup({
+    on_attach= myutil.on_attach,
+    settings = {
+        ["rust-analyzer"] = {
+            imports = {
+                granularity = {
+                    group = "module",
+                },
+                prefix = "self",
+            },
+            cargo = {
+                buildScripts = {
+                    enable = true,
+                },
+            },
+            procMacro = {
+                enable = true
+            },
+        }
+    }
+})
 
 require('plugin-config.lsp.tsserver')
 require('plugin-config.lsp.efm')
