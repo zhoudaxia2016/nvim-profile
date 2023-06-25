@@ -38,10 +38,9 @@ M.rgSearch = function(cwd)
     cmd = cmd,
     cwd = cwd,
     multi = true,
-    previewCb = function(args, ns, query)
+    previewCb = function(args, ns)
       local fn, row, col = getValue(args)
-      previewer.file({fn = fn, row = row, col = col})
-      vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + #query}, {priority = 9999})
+      previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true})
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
