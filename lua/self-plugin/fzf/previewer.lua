@@ -6,16 +6,22 @@ M.file = function(params)
   local selection = params.selection
   local ns = params.ns
   local hlCol = params.hlCol
+  local hlRow = params.hlRow
   vim.cmd('edit ' .. fn)
   vim.fn.cursor({row, col})
   vim.cmd('redraw')
-  if hlCol and ns then
-    vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + 1}, {priority = 9999})
-  end
-  if selection and ns then
-    local startRange = selection.startRange
-    local endRange = selection.endRange
-    vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
+  if ns then
+    if hlCol then
+      vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + 1}, {priority = 9999})
+    end
+    if selection then
+      local startRange = selection.startRange
+      local endRange = selection.endRange
+      vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
+    end
+    if hlRow then
+      vim.highlight.range(0, ns, 'CursorLine', {row, 0}, {row, 200}, {priority = 9999})
+    end
   end
   vim.wo.winbar = fn
 end

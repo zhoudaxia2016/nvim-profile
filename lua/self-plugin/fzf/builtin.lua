@@ -40,7 +40,7 @@ M.rgSearch = function(cwd)
     multi = true,
     previewCb = function(args, ns)
       local fn, row, col = getValue(args)
-      previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true})
+      previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true, hlRow = true})
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
