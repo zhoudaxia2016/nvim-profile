@@ -91,6 +91,10 @@ M.run = function(params)
     cmd = cmd .. ' -m'
   end
 
+  if params.history then
+    cmd = cmd .. (' --history="$HOME/.fzf/history/%s"'):format(params.history)
+  end
+
   -- Generate fzf input
   if transform then
     if input == nil then

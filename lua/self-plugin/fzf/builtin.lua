@@ -9,6 +9,7 @@ M.findFile = function (cwd)
     cwd = cwd,
     multi = true,
     isVert = false,
+    history = 'fe',
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
@@ -29,7 +30,7 @@ end
 
 M.rgSearch = function(cwd)
   local RG_PREFIX="rg"
-  local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --history="$HOME/.fzf/history/frg" --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
+  local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
   local function getValue(args)
     local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
     fn = string.format('%s/%s', cwd, fn)
@@ -40,6 +41,7 @@ M.rgSearch = function(cwd)
     cwd = cwd,
     isVert = false,
     multi = true,
+    history = 'frg',
     previewCb = function(args, ns)
       local fn, row, col = getValue(args)
       previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true, hlRow = true})
