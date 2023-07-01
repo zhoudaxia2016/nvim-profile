@@ -28,6 +28,11 @@ local function getLayout(s, hidePreview)
   return winH, selectWinleft, selectWinW, previewWinLeft, previewWinW
 end
 
+local floatOpts = {relative = 'editor', border = 'rounded', title_pos = 'center', style = 'minimal'}
+local function makeFloatOpts(opts)
+  return vim.tbl_extend('force', floatOpts, opts)
+end
+
 local maxScale = 0.9
 local minScale = 0.5
 local function resize(s, selectWinId, previewWinId, hidePreview)
@@ -107,15 +112,19 @@ M.run = function(params)
 
   local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale, hidePreview)
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
-    {relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH, border = 'rounded', title = ' results ', title_pos = 'center', style = 'minimal'}
+    makeFloatOpts({row = top, col = selectWinleft, width = selectWinW, height = winH, title = ' results '})
   )
+
+  local statusline = (' FZF://%s'):format(params.cmd or 'fzf')
+  vim.wo[selectWinId].statusline = statusline
 
   local previewBuf, previewWinId
   if hidePreview == false then
     previewBuf = vim.api.nvim_create_buf(false, false)
     previewWinId = vim.api.nvim_open_win(previewBuf, true,
-      {relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH, border = 'rounded', title = ' preview ', title_pos = 'center', style = 'minimal'}
+      makeFloatOpts({row = top, col = previewWinLeft, width = previewWinW, height = winH, title = ' preview '})
     )
+    vim.wo[previewWinId].statusline = statusline
   end
 
   vim.keymap.set('t', '<c-c>', function()
@@ -148,6 +157,9 @@ M.run = function(params)
         vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
+        -- after preview cb，may go to another file， need to update statusline option
+        vim.wo[previewWinId].statusline = statusline
+        vim.cmd('redraw')
       end
     end
     if hidePreview then
