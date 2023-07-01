@@ -12,20 +12,34 @@ local function rpcCmd(cmd)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
 end
 
-local function getLayout(s, hidePreview)
-  local previewWinW = 0
-  local previewWinLeft
-  local selectWinPercent = hidePreview and s or 0.4 * s
-  local heightPercent = 1 * s
-  local selectWinW = math.floor(screenW * selectWinPercent)
-  local winH = math.floor(screenH * heightPercent)
-  if hidePreview == false then
-    local previewWinPercent = 0.6 * s
-    previewWinW = math.floor(screenW * previewWinPercent)
-    previewWinLeft = screenW - previewWinW
+local function getLayout(s, hidePreview, isVert)
+  if isVert then
+    local previewWinW = 0
+    local previewWinLeft
+    local selectWinPercent = hidePreview and s or 0.4 * s
+    local heightPercent = 1 * s
+    local selectWinW = math.floor(screenW * selectWinPercent)
+    local winH = math.floor(screenH * heightPercent)
+    if hidePreview == false then
+      local previewWinPercent = 0.6 * s
+      previewWinW = math.floor(screenW * previewWinPercent)
+      previewWinLeft = screenW - previewWinW
+    end
+    local selectWinleft = screenW - selectWinW - previewWinW - 4
+    return {h = winH, l = selectWinleft, t = 0, w = selectWinW}, {h = winH, l = previewWinLeft, t = 0, w = previewWinW}
+  else
+    local previewWinH = 0
+    local w = math.floor(screenW * scale)
+    local selectWinH = math.floor(screenH * scale)
+    local l = math.floor(screenW * (1 - s))
+    local previewWinT
+    if hidePreview == false then
+      selectWinH = math.floor(screenH * scale * 0.5)
+      previewWinT = selectWinH + 2
+      previewWinH = selectWinH
+    end
+    return {h = selectWinH, w = w, l = l, t = 0}, {h = previewWinH, w = w, l = l, t = previewWinT}
   end
-  local selectWinleft = screenW - selectWinW - previewWinW - 4
-  return winH, selectWinleft, selectWinW, previewWinLeft, previewWinW
 end
 
 local floatOpts = {relative = 'editor', border = 'rounded', title_pos = 'center', style = 'minimal'}
@@ -35,7 +49,7 @@ end
 
 local maxScale = 0.9
 local minScale = 0.5
-local function resize(s, selectWinId, previewWinId, hidePreview)
+local function resize(s, selectWinId, previewWinId, hidePreview, isVert)
   if s > 0 and scale >= maxScale then
     return
   end
@@ -43,9 +57,9 @@ local function resize(s, selectWinId, previewWinId, hidePreview)
     return
   end
   scale = scale + s
-  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale, hidePreview)
-  vim.api.nvim_win_set_config(selectWinId, { relative = 'editor', row = top, col = selectWinleft, width = selectWinW, height = winH })
-  vim.api.nvim_win_set_config(previewWinId, { relative = 'editor', row = top, col = previewWinLeft, width = previewWinW, height = winH })
+  local selectLayout, previewLayout = getLayout(scale, hidePreview, isVert)
+  vim.api.nvim_win_set_config(selectWinId, { relative = 'editor', row = selectLayout.t, col = selectLayout.l, width = selectLayout.w, height = selectLayout.h })
+  vim.api.nvim_win_set_config(previewWinId, { relative = 'editor', row = previewLayout.t, col = previewLayout.l, width = previewLayout.w, height = previewLayout.h })
 end
 
 local fzfInputKey = 'fzfInput'
@@ -70,6 +84,7 @@ M.run = function(params)
   local hidePreview = params.hidePreview or false
   local fzfInput
   local quitCb = params.quitCb
+  local isVert = params.isVert ~= false
   scale = params.scale or 0.8
 
   if multi then
@@ -110,9 +125,9 @@ M.run = function(params)
     vim.fn.termopen(cmd, termOptions)
   end)
 
-  local winH, selectWinleft, selectWinW, previewWinLeft, previewWinW = getLayout(scale, hidePreview)
+  local selectLayout, previewLayout = getLayout(scale, hidePreview, isVert)
   local selectWinId = vim.api.nvim_open_win(selectBuf, true,
-    makeFloatOpts({row = top, col = selectWinleft, width = selectWinW, height = winH, title = ' results '})
+    makeFloatOpts({row = selectLayout.t, col = selectLayout.l, width = selectLayout.w, height = selectLayout.h, title = ' results '})
   )
 
   local statusline = (' FZF://%s'):format(params.cmd or 'fzf')
@@ -122,17 +137,17 @@ M.run = function(params)
   if hidePreview == false then
     previewBuf = vim.api.nvim_create_buf(false, false)
     previewWinId = vim.api.nvim_open_win(previewBuf, true,
-      makeFloatOpts({row = top, col = previewWinLeft, width = previewWinW, height = winH, title = ' preview '})
+      makeFloatOpts({row = previewLayout.t, col = previewLayout.l, width = previewLayout.w, height = previewLayout.h, title = ' preview '})
     )
     vim.wo[previewWinId].statusline = statusline
   end
 
   vim.keymap.set('t', '<c-c>', function()
-    resize(0.1, selectWinId, previewWinId, hidePreview)
+    resize(0.1, selectWinId, previewWinId, hidePreview, isVert)
   end, {buffer = selectBuf})
 
   vim.keymap.set('t', '<c-q>', function()
-    resize(-0.1, selectWinId, previewWinId, hidePreview)
+    resize(-0.1, selectWinId, previewWinId, hidePreview, isVert)
   end, {buffer = selectBuf})
 
   FzfPreviewCb = debounce(function(args)

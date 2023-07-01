@@ -8,6 +8,7 @@ M.findFile = function (cwd)
   run({
     cwd = cwd,
     multi = true,
+    isVert = false,
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
@@ -37,6 +38,7 @@ M.rgSearch = function(cwd)
   run({
     cmd = cmd,
     cwd = cwd,
+    isVert = false,
     multi = true,
     previewCb = function(args, ns)
       local fn, row, col = getValue(args)
@@ -80,7 +82,6 @@ M.oldFiles = function()
       previewer.file({fn = args})
     end,
     acceptCb = function(args)
-      vim.print(args)
       vim.cmd(('tabnew %s'):format(args[1]))
     end
   })
