@@ -3,17 +3,17 @@ local getRoot = require('util').getRoot
 local run = require('self-plugin.fzf').run
 local previewer = require('self-plugin.fzf.previewer')
 
-vim.keymap.set('n', '<c-f>O', function()
+vim.keymap.set('n', '<cr>E', function()
   fzfBuiltins.findFile(vim.fn.getcwd())
 end, {})
-vim.keymap.set('n', '<c-f>o', function()
+vim.keymap.set('n', '<cr>e', function()
   fzfBuiltins.findFile(getRoot())
 end, {})
 
-vim.keymap.set('n', '<c-f><c-F>', function()
+vim.keymap.set('n', '<cr>F', function()
   fzfBuiltins.rgSearch(vim.fn.getcwd())
 end)
-vim.keymap.set('n', '<c-f><c-f>', function()
+vim.keymap.set('n', '<cr>f', function()
   fzfBuiltins.rgSearch(getRoot())
 end)
 
