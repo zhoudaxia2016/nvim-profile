@@ -81,14 +81,6 @@ vim.api.nvim_create_autocmd('BufReadPre', {
       if v == ft then return end
     end
 
-    -- 搜索文件内容
-    setTmuxKeymap('<cr>f', {cmd = '_frg', output = true, callback = frgCb, root = true})
-    setTmuxKeymap('<cr>F', {cmd = '_frg', output = true, callback = frgCb})
-
-    -- 搜索文件名
-    setTmuxKeymap('<cr>e', {cmd = '_fe', output = true, callback = fzfCb, root = true})
-    setTmuxKeymap('<cr>E', {cmd = '_fe', output = true, callback = fzfCb})
-
     -- 搜索buffers
     setTmuxKeymap('<cr>b', {cmd = 'fzf', output = true, callback = function(output)
       for _, f in ipairs(output) do
