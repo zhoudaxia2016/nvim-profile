@@ -7,7 +7,9 @@ M.file = function(params)
   local ns = params.ns
   local hlCol = params.hlCol
   local hlRow = params.hlRow
-  vim.cmd('edit ' .. fn)
+  if fn ~= vim.fn.expand('%:p') then
+    vim.cmd('edit ' .. fn)
+  end
   if row then
     vim.fn.cursor({row, col})
   end
