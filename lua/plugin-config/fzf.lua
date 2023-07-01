@@ -33,3 +33,11 @@ vim.api.nvim_create_autocmd('VimEnter', {
 vim.keymap.set('n', '<c-f>r', function()
   fzfBuiltins.oldFiles()
 end)
+
+vim.keymap.set('n', '<cr>b', function()
+  fzfBuiltins.buffers()
+end)
+
+vim.keymap.set('n', '<cr>c', function()
+  fzfBuiltins.clearBuffer()
+end)
