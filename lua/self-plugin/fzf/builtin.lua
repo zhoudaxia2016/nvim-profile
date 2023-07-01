@@ -78,11 +78,18 @@ M.oldFiles = function()
   run({
     input = vim.tbl_filter(function(f) return f:match('^term:') == nil end, vim.v.oldfiles),
     scale = 0.9,
+    isVert = false,
+    multi = true,
     previewCb = function(args)
       previewer.file({fn = args})
     end,
     acceptCb = function(args)
-      vim.cmd(('tabnew %s'):format(args[1]))
+      vim.cmd(('edit %s'):format(args[1]))
+      if #args > 1 then
+        for i = 2, #args do
+          vim.cmd(('tabnew %s'):format(args[i]))
+        end
+      end
     end
   })
 end
