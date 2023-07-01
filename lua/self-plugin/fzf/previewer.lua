@@ -8,7 +8,9 @@ M.file = function(params)
   local hlCol = params.hlCol
   local hlRow = params.hlRow
   vim.cmd('edit ' .. fn)
-  vim.fn.cursor({row, col})
+  if row then
+    vim.fn.cursor({row, col})
+  end
   vim.cmd('redraw')
   if ns then
     if hlCol then
