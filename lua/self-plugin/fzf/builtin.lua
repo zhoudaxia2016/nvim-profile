@@ -1,4 +1,4 @@
-local run = require('self-plugin.fzf.init').run
+local run = require('self-plugin.fzf').run
 local previewer = require('self-plugin.fzf.previewer')
 
 local previewFilter = {'png', 'jpg'}
