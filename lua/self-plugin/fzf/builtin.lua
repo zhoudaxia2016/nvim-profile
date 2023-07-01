@@ -94,4 +94,60 @@ M.oldFiles = function()
   })
 end
 
+local listBuffers = function(cb)
+  local bfs = vim.api.nvim_list_bufs()
+  local input = {}
+  for _, b in ipairs(bfs) do
+    local name = vim.api.nvim_buf_get_name(b)
+    if vim.api.nvim_buf_is_loaded(b) and name ~= '' and name:match('^term://') == nil then
+      if vim.fn.bufwinid(b) ~= -1 then
+        name = '📝 ' .. name
+      else
+        if vim.fn.getbufinfo(b)[1].hidden == 0 then
+          name = '🙈 ' .. name
+        else
+          name = 'h  ' .. name
+        end
+      end
+      table.insert(input, name)
+    end
+  end
+  run({
+    input = input,
+    multi = true,
+    previewCb = function(args)
+      previewer.file({fn = vim.split(args, '%s')[2]})
+    end,
+    acceptCb = cb
+  })
+end
+
+M.buffers = function()
+  listBuffers(function(args)
+    args = vim.tbl_map(function(_)
+      return vim.split(_, '%s')[2]
+    end, args)
+    for _, f in pairs(args) do
+      vim.cmd(('tabnew %s'):format(f))
+    end
+  end)
+end
+
+M.clearBuffer = function()
+  listBuffers(function(args)
+    local buffers = vim.api.nvim_list_bufs()
+    local selectedBuffers = {}
+    for _, f in ipairs(args) do
+      f = vim.fn.split(f, '\\s\\+')
+      table.insert(selectedBuffers, vim.fn.bufnr(f[2]))
+    end
+    buffers = vim.tbl_filter(function(b)
+      return vim.tbl_contains(selectedBuffers, b) == false
+    end, buffers)
+    vim.tbl_map(function(b)
+      vim.api.nvim_buf_delete(b, {})
+    end, buffers)
+  end)
+end
+
 return M

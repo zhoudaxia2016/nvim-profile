@@ -39,7 +39,6 @@ map('n', ';', ':', { silent = false })
 
 map('c', '<m-l>', '<C-f>a<Tab>', { noremap = false })
 
-
 local function cleverTab()
   local col = vim.fn.col('.')
   if col == 1 or vim.fn.getline('.'):sub(col-1, col-1):match('%s') then
@@ -50,3 +49,15 @@ local function cleverTab()
 end
 vim.keymap.set('i', '<Tab>', cleverTab, {expr=true})
 vim.opt.cpt:append('k')
+
+local ignoreFileTypes = {'qf', 'netrw'}
+vim.api.nvim_create_autocmd('BufReadPre', {
+  pattern = '*',
+  callback = function()
+    local ft = vim.o.ft
+    for _, v in pairs(ignoreFileTypes) do
+      if v == ft then return end
+    end
+    vim.keymap.set('n', '<cr>s', ':set hls!<cr>', {buffer = 0})
+  end
+})
