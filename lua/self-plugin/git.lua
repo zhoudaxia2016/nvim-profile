@@ -54,6 +54,7 @@ local function setBlameMsg(useFloat)
     return
   end
   api.nvim_buf_clear_namespace(0, ns, 0, -1)
+  local buf = vim.api.nvim_get_current_buf()
   if pcall(api.nvim_buf_get_extmarks, 0, ns, lineNum, lineNum, {}) == false then
     local fn = vim.fn.expand('%')
     local cmd = 'git blame ' .. fn .. ' -L' .. lineNum .. ',' .. lineNum
@@ -68,6 +69,9 @@ local function setBlameMsg(useFloat)
     end
     jobstart(cmd,
       function(msg)
+        if vim.api.nvim_get_current_buf() ~= buf then
+          return
+        end
         msg = util.trim(msg)
         if starts(msg, '00000000') then
           api.nvim_buf_set_extmark(0, ns, lineNum - 1, -1, makeExtmarkOptions('Not commit yet'))
@@ -76,6 +80,9 @@ local function setBlameMsg(useFloat)
           cmd = 'git log ' .. commitId .. " --pretty=format:'<%an>%ar->%h %s' | awk 'NR==1 {print; exit}'"
           jobstart(cmd,
             function(m)
+              if vim.api.nvim_get_current_buf() ~= buf then
+                return
+              end
               m = util.trim(m)
               if useFloat then
                 vim.lsp.util.open_floating_preview({m}, '', {border = 'single'})
