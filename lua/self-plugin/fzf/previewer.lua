@@ -7,8 +7,13 @@ M.file = function(params)
   local ns = params.ns
   local hlCol = params.hlCol
   local hlRow = params.hlRow
-  if fn ~= vim.fn.expand('%:p') then
+  local currentFn = vim.fn.expand('%:p')
+  local buf = params.buf
+  if fn and fn ~= currentFn then
     vim.cmd('edit ' .. fn)
+  end
+  if buf and vim.api.nvim_buf_get_name(buf) ~= currentFn then
+    vim.cmd('b ' .. buf)
   end
   if row then
     vim.fn.cursor({row, col})
