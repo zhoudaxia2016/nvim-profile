@@ -76,7 +76,7 @@ local ns = vim.api.nvim_create_namespace('fzf')
 M.run = function(params)
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
-  local acceptCb = params.acceptCb or function() end
+  local acceptCb = params.acceptCb or function(_) end
   local cwd = params.cwd
   local multi = params.multi
   local input = params.input
@@ -154,6 +154,17 @@ M.run = function(params)
     resize(-0.1, selectWinId, previewWinId, hidePreview, isVert)
   end, {buffer = selectBuf})
 
+  local currentPreview
+  vim.keymap.set('t', '<c-y>', function()
+    acceptCb({currentPreview})
+  end, {buffer = selectBuf})
+  vim.api.nvim_create_autocmd({'WinEnter'}, {
+    buffer = selectBuf,
+    callback = function()
+      vim.cmd('startinsert')
+    end
+  })
+
   FzfPreviewCb = debounce(function(args)
     if hidePreview == false and vim.api.nvim_win_is_valid(previewWinId) == false then
       return
@@ -168,6 +179,7 @@ M.run = function(params)
     for i = 1, l - 2 do
       table.insert(selection, args[i])
     end
+    currentPreview = selection[1]
     local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
       local value = transform and input[index + 1] or selection[1]
