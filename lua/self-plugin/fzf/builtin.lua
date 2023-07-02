@@ -184,4 +184,41 @@ M.jumps = function()
   })
 end
 
+M.changes = function()
+  local output = vim.api.nvim_exec2('changes', {output = true})
+  local changes = vim.split(output.output, '\n')
+  local changeList, pos = unpack(vim.fn.getchangelist())
+  local l = #changeList
+  if l == 0 then
+    vim.notify('No changes')
+    return
+  end
+  local input = {}
+  for i, j in pairs(changeList) do
+    table.insert(input, {str = changes[i + 1]:match('^>?%s*%d+(.*)'), info = j})
+  end
+  local buf = vim.api.nvim_get_current_buf()
+  run({
+    cmd = ('fzf --tac --no-sort --bind="load:pos(%s)"'):format(l - pos),
+    input = input,
+    transform = function(j)
+      return j.str
+    end,
+    hidePreview = true,
+    scale = 0.4,
+    previewCb = function(args)
+      local info = args.info
+      vim.api.nvim_buf_call(buf, function()
+        vim.fn.cursor({info.lnum, info.col})
+        vim.cmd('redraw')
+      end)
+    end,
+    acceptCb = function(args)
+      local jumpPos = args[1]:match('^%d+')
+      local info = input[tonumber(jumpPos)].info
+      vim.fn.cursor({info.lnum, info.col})
+    end
+  })
+end
+
 return M
