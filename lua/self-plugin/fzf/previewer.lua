@@ -18,7 +18,7 @@ M.file = function(params)
   if row then
     vim.fn.cursor({row, col})
   end
-  vim.cmd('redraw')
+  vim.cmd('normal z.')
   if ns then
     if hlCol then
       vim.highlight.range(0, ns, 'Todo', {row, col}, {row, col + 1}, {priority = 9999})
