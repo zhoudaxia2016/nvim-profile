@@ -152,4 +152,36 @@ M.clearBuffer = function()
   end)
 end
 
+M.jumps = function()
+  local output = vim.api.nvim_exec2('jumps', {output = true})
+  local jumps = vim.split(output.output, '\n')
+  local jumpList, pos = unpack(vim.fn.getjumplist())
+  local l = #jumpList
+  if l == 0 then
+    vim.notify('No jumps')
+    return
+  end
+  local input = {}
+  for i, j in pairs(jumpList) do
+    table.insert(input, {str = jumps[i + 1]:match('^>?%s*%d+(.*)'), info = j})
+  end
+  run({
+    cmd = ('fzf --tac --no-sort --bind="load:pos(%s)"'):format(l - pos),
+    input = input,
+    transform = function(j)
+      return j.str
+    end,
+    previewCb = function(args, ns)
+      local info = args.info
+      previewer.file({buf = info.bufnr, row = info.lnum - 1, col = info.col, hlRow = true, hlCol = true, ns = ns})
+    end,
+    acceptCb = function(args)
+      local jumpPos = args[1]:match('^%d+')
+      local info = input[tonumber(jumpPos)].info
+      vim.cmd(('tab sb %s'):format(info.bufnr))
+      vim.fn.cursor({info.lnum, info.col + 1})
+    end
+  })
+end
+
 return M

@@ -41,3 +41,7 @@ end)
 vim.keymap.set('n', '<cr>c', function()
   fzfBuiltins.clearBuffer()
 end)
+
+vim.keymap.set('n', '<cr>j', function()
+  fzfBuiltins.jumps()
+end)
