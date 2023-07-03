@@ -49,3 +49,7 @@ end)
 vim.keymap.set('n', '<cr>m', function()
   fzfBuiltins.changes()
 end)
+
+vim.keymap.set('n', '<cr>a', function()
+  fzfBuiltins.nvimApis()
+end)
