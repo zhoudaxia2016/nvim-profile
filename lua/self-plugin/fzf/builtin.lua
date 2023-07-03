@@ -221,4 +221,21 @@ M.changes = function()
   })
 end
 
+M.nvimApis = function()
+  local keys = vim.tbl_keys(vim.api)
+  run({
+    input = keys,
+    scale = 0.5,
+    previewCb = function(args)
+      vim.api.nvim_win_call(0, function()
+        vim.bo.buftype = 'help'
+        vim.cmd('help ' .. args)
+      end)
+    end,
+    acceptCb = function(args)
+      vim.cmd('help ' .. args[1])
+    end
+  })
+end
+
 return M
