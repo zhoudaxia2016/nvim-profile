@@ -84,7 +84,7 @@ M.run = function(params)
   local hidePreview = params.hidePreview or false
   local fzfInput
   local quitCb = params.quitCb
-  local isVert = params.isVert ~= false
+  local isVert = params.isVert
   scale = params.scale or 0.8
 
   if multi then

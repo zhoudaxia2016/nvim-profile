@@ -8,7 +8,6 @@ M.findFile = function (cwd)
   run({
     cwd = cwd,
     multi = true,
-    isVert = false,
     history = 'fe',
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
@@ -39,7 +38,6 @@ M.rgSearch = function(cwd)
   run({
     cmd = cmd,
     cwd = cwd,
-    isVert = false,
     multi = true,
     history = 'frg',
     previewCb = function(args, ns)
@@ -80,7 +78,6 @@ M.oldFiles = function()
   run({
     input = vim.tbl_filter(function(f) return f:match('^term:') == nil end, vim.v.oldfiles),
     scale = 0.9,
-    isVert = false,
     multi = true,
     previewCb = function(args)
       previewer.file({fn = args})
@@ -226,6 +223,7 @@ M.nvimApis = function()
   run({
     input = keys,
     scale = 0.5,
+    isVert = true,
     previewCb = function(args)
       vim.api.nvim_win_call(0, function()
         vim.bo.buftype = 'help'
