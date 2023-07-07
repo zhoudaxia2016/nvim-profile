@@ -31,13 +31,10 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
       vim.wo.winbar = fn
     end,
     acceptCb = function(args)
-      local index = tonumber(string.match(args[1], '^%d+'))
-      args = result[index]
       local start = args.range.start
       local line = start.line + 1
       local col = start.character
       local fn = args.filename
-      vim.print(args)
       vim.cmd(string.format('tabnew +%s %s | normal %sl', line, fn, col))
     end,
   })
