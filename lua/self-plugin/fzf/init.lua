@@ -8,8 +8,9 @@ FzfPreviewCb = nil
 
 local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/shell_helper.lua'
 
-local function rpcCmd(cmd)
-  return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" {} {q} {n}'):format(shell_helper_path, cmd)
+local function rpcCmd(cmd, useText)
+  local output = useText and '{}' or '{n} {+n}'
+  return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" %s'):format(shell_helper_path, cmd, output)
 end
 
 local function getLayout(s, hidePreview, isVert)
@@ -66,7 +67,6 @@ local fzfInputKey = 'fzfInput'
 local options = {
   border = 'none',
   color = 'bg:-1',
-  preview = rpcCmd('preview'),
   ['preview-window'] = 'right,0',
 }
 
@@ -80,11 +80,15 @@ M.run = function(params)
   local cwd = params.cwd
   local multi = params.multi
   local input = params.input
-  local transform = params.transform
   local hidePreview = params.hidePreview or false
-  local fzfInput
   local quitCb = params.quitCb
   local isVert = params.isVert
+  local fzfInput = input
+  local useText = input == nil
+  if input and type(input[1]) ~= 'string' then
+    fzfInput = vim.tbl_map(function(item) return item.text end, input)
+  end
+
   scale = params.scale or 0.8
 
   if multi then
@@ -95,27 +99,15 @@ M.run = function(params)
     cmd = cmd .. (' --history="$HOME/.fzf/history/%s"'):format(params.history)
   end
 
-  -- Generate fzf input
-  if transform then
-    if input == nil then
-      vim.notify('缺少input参数')
-      return
-    end
-    fzfInput = {}
-    for i, item in pairs(input) do
-      table.insert(fzfInput, string.format('%s %s', i, transform(item)))
-    end
-  else
-    fzfInput = input
-  end
   local env = {[fzfInputKey] = ''}
   if fzfInput then
     env[fzfInputKey] = vim.fn.join(fzfInput, '\\n')
     cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
   end
 
-  local tmpfile = vim.fn.tempname()
+  local tmpfile
   local o = vim.deepcopy(options)
+  o.preview = rpcCmd('preview', useText)
   local selectBuf = vim.api.nvim_create_buf(false, false)
   vim.api.nvim_buf_call(selectBuf, function()
     for k, v in pairs(o) do
@@ -125,7 +117,10 @@ M.run = function(params)
     if params.debug then
       termOptions.on_stdout = function(...) vim.print(...) end
     end
-    cmd = ('%s > %s'):format(cmd, tmpfile)
+    if useText then
+      tmpfile = vim.fn.tempname()
+      cmd = ('%s > %s'):format(cmd, tmpfile)
+    end
     vim.fn.termopen(cmd, termOptions)
   end)
 
@@ -165,25 +160,19 @@ M.run = function(params)
     end
   })
 
+  local results = {}
   FzfPreviewCb = debounce(function(args)
     if hidePreview == false and vim.api.nvim_win_is_valid(previewWinId) == false then
       return
     end
-    if #args < 3 then
-      return
+    local value = args[1]
+    if useText == false then
+      value = input[args[1] + 1]
+      results = vim.fn.slice(args, 1)
     end
-    local selection = {}
-    local l = #args
-    local index = args[l]
-    local query = args[l - 1]
-    for i = 1, l - 2 do
-      table.insert(selection, args[i])
-    end
-    currentPreview = selection[1]
     local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-      local value = transform and input[index + 1] or selection[1]
-      previewCb(value, ns, query)
+      previewCb(value, ns)
       if hidePreview == false then
         vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
@@ -210,10 +199,14 @@ M.run = function(params)
         vim.cmd('quit')
       end)
     end
-    local results = vim.fn.readfile(tmpfile)
+    if useText then
+      results = vim.fn.readfile(tmpfile)
+    else
+      results = vim.tbl_map(function(i) return input[tonumber(i) + 1] end, results)
+    end
     if #results ~= 0 then
       vim.defer_fn(function()
-        acceptCb(results)
+        acceptCb(multi and results or results[1])
       end, 0)
     end
     if quitCb then

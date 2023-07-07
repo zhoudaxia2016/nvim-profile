@@ -160,21 +160,17 @@ M.jumps = function()
   end
   local input = {}
   for i, j in pairs(jumpList) do
-    table.insert(input, {str = jumps[i + 1]:match('^>?%s*%d+(.*)'), info = j})
+    table.insert(input, {text = jumps[i + 1]:match('^>?%s*%d+(.*)'), info = j})
   end
   run({
     cmd = ('fzf --tac --no-sort --bind="load:pos(%s)"'):format(l - pos),
     input = input,
-    transform = function(j)
-      return j.str
-    end,
     previewCb = function(args, ns)
       local info = args.info
       previewer.file({buf = info.bufnr, row = info.lnum - 1, col = info.col, hlRow = true, hlCol = true, ns = ns})
     end,
     acceptCb = function(args)
-      local jumpPos = args[1]:match('^%d+')
-      local info = input[tonumber(jumpPos)].info
+      local info = args.info
       vim.cmd(('tab sb %s'):format(info.bufnr))
       vim.fn.cursor({info.lnum, info.col + 1})
     end
@@ -192,15 +188,12 @@ M.changes = function()
   end
   local input = {}
   for i, j in pairs(changeList) do
-    table.insert(input, {str = changes[i + 1]:match('^>?%s*%d+(.*)'), info = j})
+    table.insert(input, {text = changes[i + 1]:match('^>?%s*%d+(.*)'), info = j})
   end
   local buf = vim.api.nvim_get_current_buf()
   run({
     cmd = ('fzf --tac --no-sort --bind="load:pos(%s)"'):format(l - pos),
     input = input,
-    transform = function(j)
-      return j.str
-    end,
     hidePreview = true,
     scale = 0.4,
     previewCb = function(args)
@@ -211,8 +204,7 @@ M.changes = function()
       end)
     end,
     acceptCb = function(args)
-      local jumpPos = args[1]:match('^%d+')
-      local info = input[tonumber(jumpPos)].info
+      local info = args.info
       vim.fn.cursor({info.lnum, info.col})
     end
   })
@@ -231,7 +223,7 @@ M.nvimApis = function()
       end)
     end,
     acceptCb = function(args)
-      vim.cmd('help ' .. args[1])
+      vim.cmd('help ' .. args)
     end
   })
 end
