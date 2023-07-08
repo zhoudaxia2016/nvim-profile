@@ -189,7 +189,7 @@ M.run = function(params)
     end
   end, 300)
 
-  local function quit()
+  local function quit(status)
     vim.api.nvim_buf_clear_namespace(vim.fn.winbufnr(previewWinId), ns, 0, -1)
     vim.api.nvim_win_call(selectWinId, function()
       vim.cmd('quit')
@@ -204,7 +204,7 @@ M.run = function(params)
     else
       results = vim.tbl_map(function(i) return input[tonumber(i) + 1] end, results)
     end
-    if #results ~= 0 then
+    if status == 0 and #results ~= 0 then
       vim.defer_fn(function()
         acceptCb(multi and results or results[1])
       end, 0)
@@ -217,7 +217,7 @@ M.run = function(params)
   vim.api.nvim_create_autocmd('termclose', {
     callback = function()
       if vim.api.nvim_win_is_valid(selectWinId) then
-        quit()
+        quit(vim.v.event.status)
       end
     end
   })

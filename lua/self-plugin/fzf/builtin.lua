@@ -124,7 +124,7 @@ end
 M.buffers = function()
   listBuffers(function(args)
     args = vim.tbl_map(function(_)
-      return vim.split(_, '%s')[2]
+      return vim.split(_, '%s+')[2]
     end, args)
     for _, f in pairs(args) do
       vim.cmd(('tabnew %s'):format(f))
