@@ -1,5 +1,3 @@
-vim.cmd[[au BufAdd * call v:lua.ConfigFold()]]
-
 require'nvim-treesitter.configs'.setup {
   ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "jsonc", "query", "comment", "scheme", "markdown", "markdown_inline", "toml", "rust"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
@@ -22,9 +20,6 @@ require'nvim-treesitter.configs'.setup {
       scope_incremental = "m",
       node_decremental = "N",
     },
-  },
-  fold = {
-    enable = true,
   },
   textobjects = {
     select = {
