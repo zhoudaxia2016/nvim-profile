@@ -3,7 +3,13 @@
   ) @scope-root)
 
 ((call_expression
-    function: (_) @call-expression-name
+    function: (identifier) @call-expression-name
+    arguments:
+      (arguments ([(function) (arrow_function)]))
+  ) @scope-root)
+
+((call_expression
+    function: (member_expression (property_identifier) @call-expression-name)
     arguments:
       (arguments ([(function) (arrow_function)]))
   ) @scope-root)

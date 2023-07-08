@@ -3,7 +3,7 @@ local ts_utils = require("nvim-treesitter.ts_utils")
 local ts_parsers = require("nvim-treesitter.parsers")
 local ts_queries = require("nvim-treesitter.query")
 local config = {
-  ["class-name"] = { icon = '', hl = '@class' },
+  ["class-name"] = { icon = '', hl = '@constructor' },
   ["function-name"] = { icon = '', hl = '@function' },
   ["method-name"] = { icon = '', hl = '@method' },
   ["object-name"] = { icon = '', hl = '@variable' },
@@ -69,12 +69,7 @@ vim.api.nvim_set_hl(0, 'WinBar', {
   bg = '#4C566A'
 })
 
-require('util').map('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', { silent = false })
-vim.api.nvim_create_autocmd('BufLeave', {
-  callback = function()
-    vim.opt_local.winbar = ''
-  end
-})
+vim.keymap.set('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', {})
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
     if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'lua'}, vim.o.filetype) then
