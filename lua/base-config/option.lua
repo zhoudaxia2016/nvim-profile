@@ -12,13 +12,8 @@ o.shiftwidth = 2
 o.tabstop = 2
 o.expandtab = true
 o.backspace = 'indent,eol,start'
-o.foldmethod = 'indent'
-o.foldlevel = 3
 o.ffs = 'unix,dos'
 o.hidden = true
-opt.foldopen:append('jump')
-opt.foldopen:append('search')
-opt.foldopen:append('hor')
 opt.diffopt:append('followwrap')
 opt.shortmess:remove('S')
 o.ignorecase = true
