@@ -50,14 +50,32 @@ end
 vim.keymap.set('i', '<Tab>', cleverTab, {expr=true})
 vim.opt.cpt:append('k')
 
-local ignoreFileTypes = {'qf', 'netrw'}
-vim.api.nvim_create_autocmd('BufReadPre', {
-  pattern = '*',
-  callback = function()
-    local ft = vim.o.ft
-    for _, v in pairs(ignoreFileTypes) do
-      if v == ft then return end
+map('n', '<F2>', ':set hls!<cr>')
+
+local function patchEnter()
+  local keymaps = vim.api.nvim_buf_get_keymap(0, 'n')
+  local enterFn
+  for _, item in pairs(keymaps) do
+    if item.lhs == '<CR>' then
+      enterFn = item.rhs or item.callback
+      break
     end
-    vim.keymap.set('n', '<cr>s', ':set hls!<cr>', {buffer = 0})
+  end
+  if enterFn then
+    vim.keymap.set('n', '<tab>', enterFn)
+  end
+end
+
+-- Enter has been used as a prefix for other keymap.
+-- But in some file, we map enter.
+-- We need to use other key for this.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = {'qf', 'query'},
+  callback = function()
+    if vim.o.filetype == 'query' then
+      vim.defer_fn(patchEnter, 0)
+    else
+      patchEnter()
+    end
   end
 })
