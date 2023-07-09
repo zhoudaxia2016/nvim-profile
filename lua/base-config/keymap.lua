@@ -79,3 +79,8 @@ vim.api.nvim_create_autocmd('FileType', {
     end
   end
 })
+
+vim.keymap.set('n', '<A-LeftMouse>', '<c-o>')
+vim.keymap.set('n', '<2-LeftMouse>', 'yiw')
+vim.keymap.set('n', '<LeftDrag>', '<Nop>')
+vim.keymap.set('n', '<LeftRelease>', '<LeftRelease>y')

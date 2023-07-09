@@ -4,6 +4,7 @@ local ts_utils = require('nvim-treesitter.ts_utils')
 local map = require"util".map
 local myutil = require"plugin-config.lsp.util"
 local trim = require"util".trim
+local _util = require('plugin-config.lsp._util')
 
 local bin_name = 'typescript-language-server'
 local getPath = function (str)
@@ -88,6 +89,13 @@ lspconfig.tsserver.setup {
       vim.lsp.buf.execute_command({
         command = typescriptCommands.goToSourceDefinition,
         arguments = {pos.textDocument.uri, pos.position}
+      })
+    end, {}, bufnr)
+    map('n', '<C-LeftMouse>', function()
+      local pos = _util.make_mouse_postion_param()
+      vim.lsp.buf.execute_command({
+        command = typescriptCommands.goToSourceDefinition,
+        arguments = {vim.lsp.util.make_text_document_params().uri, pos}
       })
     end, {}, bufnr)
     vim.api.nvim_create_user_command('RenameDir',
