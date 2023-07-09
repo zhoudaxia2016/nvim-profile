@@ -6,6 +6,18 @@ local _util = require('plugin-config.lsp._util')
 
 M = {}
 
+local make_floating_popup_options = vim.lsp.util.make_floating_popup_options
+vim.lsp.util.make_floating_popup_options = function(...)
+  local opts = make_floating_popup_options(...)
+  local lines_above = vim.fn.screenpos(0, vim.fn.line('.'), 1).row
+  local lines_below = vim.o.lines - lines_above
+  local above = lines_above > lines_below
+  local anchor = above and 'S' or 'N'
+  opts.row = above and 0 or 1
+  opts.anchor = anchor .. opts.anchor:sub(2, 2)
+  return opts
+end
+
 vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
   if not result or vim.tbl_isempty(result) then
     vim.notify('No references found')
