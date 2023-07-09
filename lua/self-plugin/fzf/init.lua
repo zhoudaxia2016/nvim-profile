@@ -1,7 +1,7 @@
 local screenH = vim.o.lines
 local screenW = vim.o.columns
 local scale = 0.8
-local top = 0
+local lastPosJump = require('base-config.lastPosJump')
 local debounce = require('util.debounce')
 
 FzfPreviewCb = nil
@@ -86,6 +86,7 @@ M.run = function(params)
   local fzfInput = input
   local useText = input == nil
   local currentWinId = vim.api.nvim_get_current_win()
+  lastPosJump.clear()
   if input and type(input[1]) ~= 'string' then
     fzfInput = vim.tbl_map(function(item) return item.text end, input)
   end
@@ -175,7 +176,7 @@ M.run = function(params)
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
       previewCb(value, ns)
       if hidePreview == false then
-        vim.api.nvim_set_option_value('bufhidden', 'delete', { scope = 'local', win = previewWinId })
+        vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
         -- after preview cb，may go to another file， need to update statusline option
@@ -208,6 +209,7 @@ M.run = function(params)
     end
     if status == 0 and #results ~= 0 then
       vim.defer_fn(function()
+        lastPosJump.autocmd()
         acceptCb(multi and results or results[1])
       end, 0)
     end
