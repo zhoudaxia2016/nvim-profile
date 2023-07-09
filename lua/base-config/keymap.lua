@@ -82,5 +82,15 @@ vim.api.nvim_create_autocmd('FileType', {
 
 vim.keymap.set('n', '<A-LeftMouse>', '<c-o>')
 vim.keymap.set('n', '<2-LeftMouse>', 'yiw')
-vim.keymap.set('n', '<LeftDrag>', '<Nop>')
-vim.keymap.set('n', '<LeftRelease>', '<LeftRelease>y')
+-- TODO bugfix 有时点击也会触发Drag，导致误触发复制
+-- 应该是neovim bug？还是鼠标事件理解有误？
+local isDrag = false
+vim.keymap.set('n', '<LeftDrag>', function()
+  isDrag = true
+  return ''
+end, {expr = true, remap = true})
+vim.keymap.set('n', '<LeftRelease>', function()
+  local key = isDrag and '<LeftRelease>y' or '<LeftRelease>'
+  isDrag = false
+  return key
+end, {expr = true})
