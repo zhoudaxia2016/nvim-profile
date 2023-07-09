@@ -85,6 +85,7 @@ M.run = function(params)
   local isVert = params.isVert
   local fzfInput = input
   local useText = input == nil
+  local currentWinId = vim.api.nvim_get_current_win()
   if input and type(input[1]) ~= 'string' then
     fzfInput = vim.tbl_map(function(item) return item.text end, input)
   end
@@ -199,6 +200,7 @@ M.run = function(params)
         vim.cmd('quit')
       end)
     end
+    vim.api.nvim_set_current_win(currentWinId)
     if useText then
       results = vim.fn.readfile(tmpfile)
     else
