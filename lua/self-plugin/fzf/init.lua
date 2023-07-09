@@ -153,7 +153,7 @@ M.run = function(params)
 
   local currentPreview
   vim.keymap.set('t', '<c-y>', function()
-    acceptCb({currentPreview})
+    acceptCb(multi and {currentPreview} or currentPreview)
   end, {buffer = selectBuf})
   vim.api.nvim_create_autocmd({'WinEnter'}, {
     buffer = selectBuf,
@@ -172,6 +172,7 @@ M.run = function(params)
       value = input[args[1] + 1]
       results = vim.fn.slice(args, 1)
     end
+    currentPreview = value
     local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
       previewCb(value, ns)
