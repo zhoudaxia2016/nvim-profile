@@ -2,6 +2,8 @@
 
 local api = vim.api
 local uv = vim.uv
+
+local M = {}
 --- Gets the zero-indexed lines from the given buffer.
 --- Works on unloaded buffers by reading the file using libuv to bypass buf reading events.
 --- Falls back to loading the buffer and nvim_buf_get_lines for buffers with non-file URI.
@@ -90,10 +92,19 @@ end
 ---@param bufnr integer
 ---@param row integer zero-indexed line number
 ---@return string the line at row in filename
-local function get_line(bufnr, row)
+M.get_line = function(bufnr, row)
   return get_lines(bufnr, { row })[row]
 end
 
-local M = {}
-M.get_line = get_line
+M.make_mouse_postion_param = function()
+  local pos = vim.fn.getmousepos()
+  local row = pos.line - 1
+  local col = pos.column
+  local line = api.nvim_buf_get_lines(0, row, row + 1, true)[1]
+  if not line then
+    return { line = 0, character = 0 }
+  end
+  return { line = row, character = col }
+end
+
 return M

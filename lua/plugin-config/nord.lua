@@ -24,10 +24,6 @@ local themes = {
   ['@variable'] = { fg = palettes.darkest_white },
   ['LspInlayHint'] = { fg = '#616e88' },
 
-  -- popup
-  ['Pmenu'] = { bg = palettes.dark_gray, fg = palettes.teal },
-  ['PmenuSel'] = { bg = palettes.lightGreen, fg = palettes.dark_gray },
-
   -- markdown
   ['@h1'] = { bg = '#8ea9a4 ', fg = '#666666' },
   ['@h2'] = { bg = '#a0c0ba ', fg = '#555555' },
@@ -40,6 +36,9 @@ local themes = {
   ['DiffDelete'] = { bg = '#582a33' },
   ['DiffChange'] = { bg = '#474E68' },
   ['DiffText'] = { bg = '#604464' },
+
+  -- menu
+  ['PmenuSel'] = { bg = palettes.off_blue, fg = palettes.gray },
 }
 
 vim.cmd[[

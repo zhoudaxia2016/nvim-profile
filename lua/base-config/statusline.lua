@@ -133,8 +133,20 @@ function ShowFileFormatFlag()
   }
   return ' ' .. icons[o.fileformat]
 end
+local menuName = 'statusline_list_files'
 StatusbarHandlers = {
   file = function(_, _, button, modifier)
+    -- TODO: bugfix 文件跳转后会yank
+    if button == 'r' then
+      local files = vim.split(vim.fn.expand('*'), '\n')
+      for _, f in pairs(files) do
+        f = vim.fn.escape(f, '.')
+        vim.cmd(('noremenu %s.%s :tabnew %s<cr>'):format(menuName, f, f))
+      end
+      vim.cmd('popu! ' .. menuName)
+      vim.cmd('unmenu ' .. menuName)
+      return
+    end
     local fn = '%:p'
     modifier = vim.fn.trim(modifier)
     if modifier == '' then
