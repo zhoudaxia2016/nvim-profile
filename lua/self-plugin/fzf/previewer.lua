@@ -32,7 +32,6 @@ M.file = function(params)
       vim.highlight.range(0, ns, 'CursorLine', {row, 0}, {row, 200}, {priority = 9999})
     end
   end
-  vim.wo.winbar = fn
 end
 
 return M

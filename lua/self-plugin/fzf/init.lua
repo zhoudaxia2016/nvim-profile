@@ -74,17 +74,21 @@ local M = {}
 local ns = vim.api.nvim_create_namespace('fzf')
 
 M.run = function(params)
+  local input = params.input
+  if input and #input == 0 then
+    return
+  end
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb
   local acceptCb = params.acceptCb or function(_) end
   local cwd = params.cwd
   local multi = params.multi
-  local input = params.input
   local hidePreview = params.hidePreview or false
   local quitCb = params.quitCb
   local isVert = params.isVert
   local fzfInput = input
   local useText = input == nil
+  local getPreviewTitle = params.getPreviewTitle
   local currentWinId = vim.api.nvim_get_current_win()
   lastPosJump.clear()
   if input and type(input[1]) ~= 'string' then
@@ -180,6 +184,9 @@ M.run = function(params)
         vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
+        if getPreviewTitle then
+          vim.api.nvim_win_set_config(previewWinId, { title = getPreviewTitle(value)})
+        end
         -- after preview cb，may go to another file， need to update statusline option
         vim.wo[previewWinId].statusline = statusline
         vim.cmd('redraw')

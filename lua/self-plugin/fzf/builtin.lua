@@ -9,6 +9,9 @@ M.findFile = function (cwd)
     cwd = cwd,
     multi = true,
     history = 'fe',
+    getPreviewTitle = function(args)
+      return string.format('%s/%s', cwd, args)
+    end,
     previewCb = function(args)
       local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
@@ -17,7 +20,6 @@ M.findFile = function (cwd)
         return
       end
       vim.cmd(string.format('edit %s', fn))
-      vim.wo.winbar = fn
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
@@ -40,6 +42,9 @@ M.rgSearch = function(cwd)
     cwd = cwd,
     multi = true,
     history = 'frg',
+    getPreviewTitle = function(args)
+      return getValue(args)
+    end,
     previewCb = function(args, ns)
       local fn, row, col = getValue(args)
       previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true, hlRow = true})
@@ -165,6 +170,9 @@ M.jumps = function()
   run({
     cmd = ('fzf --tac --no-sort --bind="load:pos(%s)"'):format(l - pos),
     input = input,
+    getPreviewTitle = function(args)
+      return vim.api.nvim_buf_get_name(args.info.bufnr)
+    end,
     previewCb = function(args, ns)
       local info = args.info
       previewer.file({buf = info.bufnr, row = info.lnum - 1, col = info.col, hlRow = true, hlCol = true, ns = ns})
