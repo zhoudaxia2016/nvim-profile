@@ -1,6 +1,7 @@
 local find_git_ancestor = require('lspconfig.util').find_git_ancestor
 local o = vim.o
 local Job = require'plenary.job'
+local fzf = require('self-plugin.fzf.builtin')
 local gitsign = ''
 local fileIcons = {
   sass =  '',
@@ -33,34 +34,6 @@ local fileIcons = {
   vue = '﵂',
 }
 
-function GetStatuslineGitsign()
-  return gitsign .. ' '
-end
-function StatuslineGitSign()
-  Job:new({
-    command = 'git',
-    args = { 'diff', '--shortstat', 'HEAD', vim.fn.expand('%') },
-    on_exit = function(j, return_val)
-      local result = j:result()
-      if return_val == 0 and result[1] ~= nil then
-        local s = {}
-        local addCount = string.match(result[1], '(%d+)%s+%w+%(%+%)')
-        if addCount then
-          table.insert(s, '++ ' .. addCount)
-        end
-        local deleteCount = string.match(result[1], '(%d+)%s+%w+%(%-%)')
-        if deleteCount then
-          table.insert(s, ' ' .. deleteCount)
-        end
-        gitsign = table.concat(s, ' ')
-      else
-        gitsign = ''
-      end
-    end,
-  }):start()
-end
-vim.cmd[[au BufEnter,BufWritePost * call v:lua.StatuslineGitSign()]]
-
 local hlgs = {
   a = {
     name = 'statusline_a',
@@ -78,6 +51,7 @@ local hlgs = {
     bg = '#4C566A'
   }
 }
+
 hlgs.aTob = {
   name = 'statusline_a_to_b',
   fg = hlgs.a.bg,
@@ -113,6 +87,55 @@ hlgs.info = {
   fg = '#88C0D0',
   bg = hlgs.c.bg
 }
+
+local diagnostic = vim.diagnostic
+local diagnostics = {
+  error = {
+    level = diagnostic.severity.ERROR,
+    icon = '',
+    hlg = hlgs.error.name
+  },
+  warn = {
+    level = diagnostic.severity.WARN,
+    icon = '',
+    hlg = hlgs.warn.name
+  },
+  info = {
+    level = diagnostic.severity.HINT,
+    icon = '',
+    hlg = hlgs.info.name
+  }
+}
+
+
+function GetStatuslineGitsign()
+  return gitsign .. ' '
+end
+function StatuslineGitSign()
+  Job:new({
+    command = 'git',
+    args = { 'diff', '--shortstat', 'HEAD', vim.fn.expand('%') },
+    on_exit = function(j, return_val)
+      local result = j:result()
+      if return_val == 0 and result[1] ~= nil then
+        local s = {}
+        local addCount = string.match(result[1], '(%d+)%s+%w+%(%+%)')
+        if addCount then
+          table.insert(s, '++ ' .. addCount)
+        end
+        local deleteCount = string.match(result[1], '(%d+)%s+%w+%(%-%)')
+        if deleteCount then
+          table.insert(s, ' ' .. deleteCount)
+        end
+        gitsign = table.concat(s, ' ')
+      else
+        gitsign = ''
+      end
+    end,
+  }):start()
+end
+vim.cmd[[au BufEnter,BufWritePost * call v:lua.StatuslineGitSign()]]
+
 for _, v in pairs(hlgs) do
   vim.cmd(string.format([[hi %s guifg=%s guibg=%s]], v.name, v.fg, v.bg))
 end
@@ -160,6 +183,17 @@ StatusbarHandlers = {
       fn = '%'
     end
     require('util').copy(vim.fn.expand(fn))
+  end,
+  diagnostic = function(n, _, button)
+    if button == 'l' then
+      local diagnosticConfig = { severity = n, float = { border = "rounded" }}
+      vim.diagnostic.goto_next(diagnosticConfig)
+    else
+      -- TODO Why need to delay?
+      vim.defer_fn(function()
+        fzf.diagnostic(n)
+      end, 200)
+    end
   end
 }
 local leftList = {
@@ -226,31 +260,12 @@ concatStatusline(rightList)
 o.statusline = statusline
 o.laststatus = 3
 
-local diagnostic = vim.diagnostic
-local diagnostics = {
-  error = {
-    level = diagnostic.severity.ERROR,
-    icon = '',
-    hlg = hlgs.error.name
-  },
-  warn = {
-    level = diagnostic.severity.WARN,
-    icon = '',
-    hlg = hlgs.warn.name
-  },
-  info = {
-    level = diagnostic.severity.HINT,
-    icon = '',
-    hlg = hlgs.info.name
-  }
-}
-
 function GetLspDiagnostic()
   local s = {}
   for _, v in pairs(diagnostics) do
     local count = #diagnostic.get(0, { severity = v.level })
     if count > 0 then
-      table.insert(s, string.format('%%#%s#%s %s%%#%s#', v.hlg, v.icon, count, v.hlg))
+      table.insert(s, string.format('%%#%s#%%%s@v:lua.StatusbarHandlers.diagnostic@%s %s%%X%%#%s#', v.hlg, v.level, v.icon, count, v.hlg))
     end
   end
   if #s then

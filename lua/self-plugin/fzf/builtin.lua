@@ -236,4 +236,30 @@ M.nvimApis = function()
   })
 end
 
+M.diagnostic = function(severity)
+  local diagnostic = vim.diagnostic.get(0, {severity = severity})
+  if (#diagnostic == 0) then
+    return
+  end
+  if #diagnostic == 1 then
+    vim.fn.cursor({diagnostic[1].lnum + 1, diagnostic[1].col + 1})
+    return
+  end
+  local input = vim.tbl_map(function(_)
+    return vim.tbl_extend('force', _, {text = ('%s|%s'):format(vim.fn.getline(_.lnum + 1), _.message)})
+  end, diagnostic)
+  local buf = vim.api.nvim_get_current_buf()
+  run({
+    input = input,
+    hidePreview = true,
+    scale = 0.5,
+    previewCb = function(args)
+      vim.api.nvim_buf_call(buf, function()
+        vim.fn.cursor({args.lnum + 1, args.col + 1})
+        vim.cmd('normal zz')
+      end)
+    end,
+  })
+end
+
 return M
