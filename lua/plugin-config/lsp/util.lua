@@ -34,13 +34,15 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
       local start = item.range.start
       return string.format('%s:%s | %s', start.line + 1, start.character + 1, item.text)
     end,
+    getPreviewTitle = function(args)
+      return args.filename
+    end,
     previewCb = function(args, ns)
       local startRange = args.range.start
       local endRange = args.range['end']
       local fn = args.filename
       vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
       vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
-      vim.wo.winbar = fn
     end,
     acceptCb = function(args)
       local start = args.range.start
