@@ -92,12 +92,15 @@ lspconfig.tsserver.setup {
       })
     end, {}, bufnr)
     map('n', '<C-LeftMouse>', function()
-      local pos = _util.make_mouse_postion_param()
-      vim.lsp.buf.execute_command({
-        command = typescriptCommands.goToSourceDefinition,
-        arguments = {vim.lsp.util.make_text_document_params().uri, pos}
-      })
-    end, {}, bufnr)
+      vim.schedule(function()
+        local pos = _util.make_mouse_postion_param()
+        vim.lsp.buf.execute_command({
+          command = typescriptCommands.goToSourceDefinition,
+          arguments = {vim.lsp.util.make_text_document_params().uri, pos}
+        })
+      end)
+      return '<C-LeftMouse>'
+    end, {expr = true}, bufnr)
     vim.api.nvim_create_user_command('RenameDir',
       function(opts)
         local sourceUri = vim.fs.dirname(vim.uri_from_bufnr(0))
