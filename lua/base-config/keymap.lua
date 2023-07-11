@@ -80,7 +80,13 @@ vim.api.nvim_create_autocmd('FileType', {
   end
 })
 
-vim.keymap.set('n', '<A-LeftMouse>', '<c-o>')
+vim.keymap.set('n', '<A-LeftMouse>', function()
+  local pos = vim.fn.getmousepos()
+  if pos.screenrow >= vim.o.lines - 1 then
+    return '<A-LeftMouse>'
+  end
+  return '<c-o>'
+end, {expr = true, remap = true})
 vim.keymap.set('n', '<2-LeftMouse>', 'yiw')
 -- TODO bugfix 有时点击也会触发Drag，导致误触发复制
 -- 应该是neovim bug？还是鼠标事件理解有误？
