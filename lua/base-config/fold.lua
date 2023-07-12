@@ -5,7 +5,8 @@ opt.foldopen:append('jump')
 opt.foldopen:append('search')
 opt.foldopen:append('hor')
 
-vim.api.nvim_create_autocmd('BufEnter', {
+vim.api.nvim_create_autocmd('FileType', {
+  once = true,
   callback = function()
     vim.defer_fn(function()
       if util.isSpecialBuf() then

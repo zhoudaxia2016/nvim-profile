@@ -84,6 +84,9 @@ M.oldFiles = function()
     input = vim.tbl_filter(function(f) return f:match('^term:') == nil end, vim.v.oldfiles),
     scale = 0.9,
     multi = true,
+    getPreviewTitle = function(args)
+      return args
+    end,
     previewCb = function(args)
       previewer.file({fn = args})
     end,
