@@ -3,90 +3,13 @@ local o = vim.o
 local Job = require'plenary.job'
 local fzf = require('self-plugin.fzf.builtin')
 local gitsign = ''
-local fileIcons = {
-  sass =  '',
-  scss =  '',
-  htm = '',
-  html = '',
-  css = '',
-  less = '',
-  md = '',
-  markdown = '',
-  json = '',
-  javascript = '',
-  mjs = '',
-  javascriptreact = '',
-  py = '',
-  conf = '',
-  ini = '',
-  yml = '',
-  yaml = '',
-  cpp = '',
-  c = '',
-  h = '',
-  lua = '',
-  java = '',
-  sh = '',
-  go = '',
-  vim = '',
-  typescript = '',
-  typescriptreact = '',
-  vue = '﵂',
-}
+local fileIcons = require('base-config.statusline.fileIcons')
+local hlgs = require('base-config.statusline.hlgs')
 
-local hlgs = {
-  a = {
-    name = 'statusline_a',
-    fg = '#3B4252',
-    bg = '#88C0D0'
-  },
-  b = {
-    name = 'statusline_b',
-    fg = '#E5E9F0',
-    bg = '#3B4252'
-  },
-  c = {
-    name = 'statusline_c',
-    fg = '#E5E9F0',
-    bg = '#4C566A'
-  }
-}
-
-hlgs.aTob = {
-  name = 'statusline_a_to_b',
-  fg = hlgs.a.bg,
-  bg = hlgs.b.bg
-}
-hlgs.bToa = {
-  name = 'statusline_b_to_a',
-  fg = hlgs.b.bg,
-  bg = hlgs.a.bg
-}
-hlgs.bToc = {
-  name = 'statusline_b_to_c',
-  fg = hlgs.b.bg,
-  bg = hlgs.c.bg
-}
-hlgs.cTob = {
-  name = 'statusline_c_to_b',
-  fg = hlgs.c.bg,
-  bg = hlgs.b.bg
-}
-hlgs.error = {
-  name = 'statusline_error',
-  fg = '#BF616A',
-  bg = hlgs.c.bg
-}
-hlgs.warn = {
-  name = 'statusline_warn',
-  fg = '#EBCB8B',
-  bg = hlgs.c.bg
-}
-hlgs.info = {
-  name = 'statusline_info',
-  fg = '#88C0D0',
-  bg = hlgs.c.bg
-}
+-- highlight setup
+for _, v in pairs(hlgs) do
+  vim.cmd(string.format([[hi %s guifg=%s guibg=%s]], v.name, v.fg, v.bg))
+end
 
 local diagnostic = vim.diagnostic
 local diagnostics = {
@@ -107,7 +30,7 @@ local diagnostics = {
   }
 }
 
-
+-- gitsign cache
 function GetStatuslineGitsign()
   return gitsign .. ' '
 end
@@ -135,10 +58,6 @@ function StatuslineGitSign()
   }):start()
 end
 vim.cmd[[au BufEnter,BufWritePost * call v:lua.StatuslineGitSign()]]
-
-for _, v in pairs(hlgs) do
-  vim.cmd(string.format([[hi %s guifg=%s guibg=%s]], v.name, v.fg, v.bg))
-end
 
 function ShowFileType()
   local ft = vim.o.ft
