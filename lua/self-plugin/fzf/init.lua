@@ -73,6 +73,13 @@ local options = {
 local M = {}
 local ns = vim.api.nvim_create_namespace('fzf')
 
+local function setStatuslineWin(currentWinId)
+  vim.g.statuslineWinId = currentWinId
+end
+local function unsetStatuslineWin()
+  vim.g.statuslineWinId = nil
+end
+
 M.run = function(params)
   local input = params.input
   if input and #input == 0 then
@@ -90,6 +97,7 @@ M.run = function(params)
   local useText = input == nil
   local getPreviewTitle = params.getPreviewTitle
   local currentWinId = vim.api.nvim_get_current_win()
+  setStatuslineWin(currentWinId)
   lastPosJump.clear()
   if input and type(input[1]) ~= 'string' then
     fzfInput = vim.tbl_map(function(item) return item.text end, input)
@@ -135,16 +143,12 @@ M.run = function(params)
     makeFloatOpts({row = selectLayout.t, col = selectLayout.l, width = selectLayout.w, height = selectLayout.h, title = ' results '})
   )
 
-  local statusline = (' FZF://%s'):format(params.cmd or 'fzf')
-  vim.wo[selectWinId].statusline = statusline
-
   local previewBuf, previewWinId
   if hidePreview == false then
     previewBuf = vim.api.nvim_create_buf(false, false)
     previewWinId = vim.api.nvim_open_win(previewBuf, true,
       makeFloatOpts({row = previewLayout.t, col = previewLayout.l, width = previewLayout.w, height = previewLayout.h, title = ' preview '})
     )
-    vim.wo[previewWinId].statusline = statusline
   end
 
   vim.keymap.set('t', '<c-c>', function()
@@ -162,7 +166,18 @@ M.run = function(params)
   vim.api.nvim_create_autocmd({'WinEnter'}, {
     buffer = selectBuf,
     callback = function()
+      setStatuslineWin(currentWinId)
       vim.cmd('startinsert')
+    end
+  })
+  vim.api.nvim_create_autocmd({'WinLeave'}, {
+    buffer = selectBuf,
+    callback = function()
+      -- 不知道为啥预览打开时，先触发WinLeave，然后再触发WinEnter
+      -- 导致statuslineWinId又设置了，所以延后执行
+      vim.defer_fn(function()
+        unsetStatuslineWin()
+      end, 0)
     end
   })
 
@@ -187,9 +202,6 @@ M.run = function(params)
         if getPreviewTitle then
           vim.api.nvim_win_set_config(previewWinId, { title = getPreviewTitle(value)})
         end
-        -- after preview cb，may go to another file， need to update statusline option
-        vim.wo[previewWinId].statusline = statusline
-        vim.cmd('redraw')
       end
     end
     if hidePreview then
@@ -200,6 +212,7 @@ M.run = function(params)
   end, 300)
 
   local function quit(status)
+    unsetStatuslineWin()
     vim.api.nvim_buf_clear_namespace(vim.fn.winbufnr(previewWinId), ns, 0, -1)
     vim.api.nvim_win_call(selectWinId, function()
       vim.cmd('quit')
