@@ -86,7 +86,7 @@ M.run = function(params)
     return
   end
   local cmd = params.cmd or 'fzf'
-  local previewCb = params.previewCb
+  local previewCb = params.previewCb or function(...) end
   local acceptCb = params.acceptCb or function(_) end
   local cwd = params.cwd
   local multi = params.multi

@@ -79,3 +79,4 @@ lspconfig.rust_analyzer.setup({
 require('plugin-config.lsp.tsserver')
 require('plugin-config.lsp.efm')
 require('plugin-config.lsp.sumneko')
+require('plugin-config.lsp.zk')
