@@ -43,5 +43,5 @@ neovim内置了代码编辑器重要特性：
 另外，这些插件用git submodule进行管理
 
 ## :hourglass: TODO
-- [ ] 将所有配置从vim迁移到neovim
-- [ ] 完善readme
+- [x] 将所有配置从vim迁移到neovim
+- [x] 完善readme
