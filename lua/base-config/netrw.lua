@@ -15,31 +15,38 @@ local map = require('util').map
 local trim = require('util').trim
 map('n', '<leader>d', function()
   -- ToggleExplorer
-  -- 是否打开目录树buffer
-  if t.expl_buf_num ~= nil then
-    local expl_win_num = fn.bufwinnr(t.expl_buf_num)
-    -- 打开了目录树窗口
-    if expl_win_num ~= -1 then
-      local cur_win_nr = fn.winnr()
-      -- 先进入目录树窗口
-      cmd(expl_win_num .. 'wincmd w')
-      -- 是否已经在目录树窗口，是则关闭目录树，否则什么都用做
-      if (cur_win_nr == expl_win_num) then
-        cmd('close')
-        local cur_win_nr = fn.winnr()
-        cmd(cur_win_nr .. 'wincmd w')
-        t.expl_buf_num = nil
-      end
+  -- 是否打开netrw
+  if t.netrwWin then
+    local curWin = vim.api.nvim_get_current_win()
+    -- 是否已经在目录树窗口，是则关闭目录树，否则什么都用做
+    if (curWin == t.netrwWin) then
+      vim.api.nvim_win_close(curWin, true)
     else
-      t.expl_buf_num = nil
+      vim.api.nvim_set_current_win(t.netrwWin)
     end
   else
-    -- 没有目录树buffer，则打开，保存buf number
+    -- 没有netrw窗口，则打开并保存winid
     cmd('1wincmd w')
     cmd('Lexplore ' .. fn.expand('%:p:h'))
-    t.expl_buf_num = fn.bufnr("%")
   end
 end, { silent = true })
+
+vim.api.nvim_create_autocmd('WinNew', {
+  callback = function()
+    vim.defer_fn(function()
+      if vim.o.filetype == 'netrw' then
+        t.netrwWin = vim.api.nvim_get_current_win()
+      end
+    end, 0)
+  end,
+})
+vim.api.nvim_create_autocmd('WinClosed', {
+  callback = function()
+    if vim.o.filetype == 'netrw' then
+      t.netrwWin = nil
+    end
+  end,
+})
 
 o.splitright = true
 
@@ -57,7 +64,9 @@ function Netrw_mappings()
     local fn = vim.ui.input({
       prompt = 'Please enter filename: '
     }, function(fn)
-      cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn)) 
+      if fn then
+        cmd(string.format('silent vs %s/%s', b.netrw_curdir, fn))
+      end
     end)
   end, {}, buf)
   if vim.api.nvim_win_get_config(0).relative == '' then
