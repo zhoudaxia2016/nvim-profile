@@ -7,9 +7,6 @@
 [submodule "pack/extensions/start/nvim-treesitter"]
 	path = pack/extensions/start/nvim-treesitter
 	url = https://github.com/nvim-treesitter/nvim-treesitter.git
-[submodule "pack/extensions/start/playground"]
-	path = pack/extensions/start/playground
-	url = git@github.com:nvim-treesitter/playground.git
 [submodule "pack/extensions/start/nvim-autopairs"]
 	path = pack/extensions/start/nvim-autopairs
 	url = git@github.com:windwp/nvim-autopairs.git
