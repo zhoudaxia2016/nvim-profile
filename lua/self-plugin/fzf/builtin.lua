@@ -19,7 +19,7 @@ M.findFile = function (cwd)
       end, previewFilter) > 0 then
         return
       end
-      vim.cmd(string.format('edit %s', fn))
+      previewer.file({fn = fn})
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
