@@ -9,6 +9,14 @@ M.file = function(params)
   local hlRow = params.hlRow
   local currentFn = vim.fn.expand('%:p')
   local buf = params.buf
+  local file_contents = fn and vim.fn.readfile(fn) or vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local file_length = #vim.fn.join(file_contents, ' ')
+  if file_length > 50000 then
+    local messageBuf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_lines(messageBuf, 0, 0, false, {'File is too big to preview!!!'})
+    vim.api.nvim_win_set_buf(0, messageBuf)
+    return
+  end
   if fn and fn ~= currentFn then
     vim.cmd('edit ' .. fn)
   end
