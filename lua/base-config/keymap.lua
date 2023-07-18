@@ -62,7 +62,7 @@ local function patchEnter()
     end
   end
   if enterFn then
-    vim.keymap.set('n', '<tab>', enterFn)
+    vim.keymap.set('n', '<tab>', enterFn, {buffer = true})
   end
 end
 
