@@ -13,6 +13,22 @@ local function rpcCmd(cmd, useText)
   return ('nvim --clean -n --headless --cmd "lua loadfile([[%s]])().rpc_nvim_exec_lua([[$NVIM]], [[%s]])" %s'):format(shell_helper_path, cmd, output)
 end
 
+local function highlight(previewWinId)
+    local buf = vim.api.nvim_win_get_buf(previewWinId)
+    local ft = vim.filetype.match({buf = buf})
+    local useTreesitterHighlighter = false
+    if ft then
+      local lang = vim.treesitter.language.get_lang(ft)
+      if vim.tbl_contains(require'nvim-treesitter.configs'.get_ensure_installed_parsers(), lang) then
+        useTreesitterHighlighter = true
+        vim.treesitter.start(buf, lang)
+      end
+    end
+    if ft and useTreesitterHighlighter == false then
+      vim.api.nvim_buf_set_option(buf, 'syntax', ft)
+    end
+end
+
 local function getLayout(s, hidePreview, isVert)
   if isVert then
     local previewWinW = 0
@@ -86,7 +102,7 @@ M.run = function(params)
     return
   end
   local cmd = params.cmd or 'fzf'
-  local previewCb = params.previewCb or function(...) end
+  local previewCb = params.previewCb or function(value, ns) end
   local acceptCb = params.acceptCb or function(_) end
   local cwd = params.cwd
   local multi = params.multi
@@ -194,7 +210,11 @@ M.run = function(params)
     currentPreview = value
     local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+      local ei = vim.o.eventignore
+      vim.o.eventignore = 'all'
       previewCb(value, ns)
+      vim.o.eventignore = ei
+      highlight(previewWinId)
       if hidePreview == false then
         vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
@@ -209,7 +229,7 @@ M.run = function(params)
     else
       vim.api.nvim_win_call(previewWinId, cb)
     end
-  end, 300)
+  end, 50)
 
   local function quit(status)
     unsetStatuslineWin()
