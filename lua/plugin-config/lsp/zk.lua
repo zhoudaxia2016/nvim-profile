@@ -55,8 +55,8 @@ local function list(opts, onFailed)
       fzf({
         input = result,
         multi = true,
-        previewCb = function(args)
-          previewer.file({fn = args.absPath})
+        preparePreview = function(args)
+          return {fn = args.absPath}
         end,
         acceptCb = function(args)
           for _, f in pairs(args) do

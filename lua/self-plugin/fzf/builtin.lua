@@ -12,14 +12,14 @@ M.findFile = function (cwd)
     getPreviewTitle = function(args)
       return string.format('%s/%s', cwd, args)
     end,
-    previewCb = function(args)
+    preparePreview = function(args)
       local fn = string.format('%s/%s', cwd, args)
       if #vim.tbl_filter(function(p)
         return string.match(fn, p)
       end, previewFilter) > 0 then
         return
       end
-      previewer.file({fn = fn})
+      return {fn = fn}
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
@@ -45,9 +45,9 @@ M.rgSearch = function(cwd)
     getPreviewTitle = function(args)
       return getValue(args)
     end,
-    previewCb = function(args, ns)
+    preparePreview = function(args)
       local fn, row, col = getValue(args)
-      previewer.file({fn = fn, row = row, col = col, ns = ns, hlCol = true, hlRow = true})
+      return {fn = fn, row = row, col = col, hlCol = true, hlRow = true}
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
@@ -87,8 +87,8 @@ M.oldFiles = function()
     getPreviewTitle = function(args)
       return args
     end,
-    previewCb = function(args)
-      previewer.file({fn = args})
+    preparePreview = function(args)
+      return {fn = args}
     end,
     acceptCb = function(args)
       vim.cmd(('edit %s'):format(args[1]))
@@ -122,8 +122,8 @@ local listBuffers = function(cb)
   run({
     input = input,
     multi = true,
-    previewCb = function(args)
-      previewer.file({fn = vim.split(args, '%s')[2]})
+    preparePreview = function(args)
+      return {fn = vim.split(args, '%s')[2]}
     end,
     acceptCb = cb
   })
@@ -176,9 +176,9 @@ M.jumps = function()
     getPreviewTitle = function(args)
       return vim.api.nvim_buf_get_name(args.info.bufnr)
     end,
-    previewCb = function(args, ns)
+    preparePreview = function(args)
       local info = args.info
-      previewer.file({buf = info.bufnr, row = info.lnum - 1, col = info.col, hlRow = true, hlCol = true, ns = ns})
+      return {buf = info.bufnr, row = info.lnum - 1, col = info.col, hlRow = true, hlCol = true}
     end,
     acceptCb = function(args)
       local info = args.info

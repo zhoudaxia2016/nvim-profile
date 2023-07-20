@@ -3,6 +3,7 @@ local screenW = vim.o.columns
 local scale = 0.8
 local lastPosJump = require('base-config.lastPosJump')
 local debounce = require('util.debounce')
+local previewer = require('self-plugin.fzf.previewer')
 
 FzfPreviewCb = nil
 
@@ -27,6 +28,13 @@ local function highlight(previewWinId)
     if ft and useTreesitterHighlighter == false then
       vim.api.nvim_buf_set_option(buf, 'syntax', ft)
     end
+end
+
+local function wrapPreview(previewCb)
+  local ei = vim.o.eventignore
+  vim.o.eventignore = 'all'
+  previewCb()
+  vim.o.eventignore = ei
 end
 
 local function getLayout(s, hidePreview, isVert)
@@ -103,6 +111,7 @@ M.run = function(params)
   end
   local cmd = params.cmd or 'fzf'
   local previewCb = params.previewCb or function(value, ns) end
+  local preparePreview = params.preparePreview
   local acceptCb = params.acceptCb or function(_) end
   local cwd = params.cwd
   local multi = params.multi
@@ -210,11 +219,31 @@ M.run = function(params)
     currentPreview = value
     local cb = function()
       vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-      local ei = vim.o.eventignore
-      vim.o.eventignore = 'all'
-      previewCb(value, ns)
-      vim.o.eventignore = ei
-      highlight(previewWinId)
+      local needEvent = false
+      if preparePreview then
+        local opts = preparePreview(value)
+        if opts.fn and (opts.fn:match('^man://') or vim.fn.isdirectory(opts.fn) == 1) then
+          needEvent = true
+        end
+        local function cb()
+          if opts.fn or opts.buf then
+            opts.ns = ns
+            previewer.file(opts)
+          end
+        end
+        if needEvent then
+          cb()
+        else
+          wrapPreview(cb)
+        end
+      else
+        wrapPreview(function()
+          previewCb(value, ns)
+        end)
+      end
+      if needEvent == false then
+        highlight(previewWinId)
+      end
       if hidePreview == false then
         vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local', win = previewWinId })
         vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
