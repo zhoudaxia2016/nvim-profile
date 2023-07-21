@@ -241,7 +241,7 @@ M.run = function(params)
           previewCb(value, ns)
         end)
       end
-      if needEvent == false then
+      if hidePreview == false and needEvent == false then
         highlight(previewWinId)
       end
       if hidePreview == false then
