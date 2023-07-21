@@ -1,7 +1,5 @@
 local fzfBuiltins = require('self-plugin.fzf.builtin')
 local getRoot = require('util').getRoot
-local run = require('self-plugin.fzf').run
-local previewer = require('self-plugin.fzf.previewer')
 
 vim.keymap.set('n', '<cr>E', function()
   fzfBuiltins.findFile(vim.fn.getcwd())
@@ -52,4 +50,8 @@ end)
 
 vim.keymap.set('n', '<cr>a', function()
   fzfBuiltins.nvimApis()
+end)
+
+vim.keymap.set('n', '<cr>z', function()
+  fzfBuiltins.z()
 end)

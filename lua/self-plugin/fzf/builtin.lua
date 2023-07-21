@@ -1,5 +1,4 @@
 local run = require('self-plugin.fzf').run
-local previewer = require('self-plugin.fzf.previewer')
 
 local previewFilter = {'png', 'jpg'}
 local M = {}
@@ -261,6 +260,19 @@ M.diagnostic = function(severity)
         vim.fn.cursor({args.lnum + 1, args.col + 1})
         vim.cmd('normal zz')
       end)
+    end,
+  })
+end
+
+M.z = function()
+  local root = require('util').getRoot()
+  run({
+    cwd = root,
+    cmd = 'source ~/.bashrc;_z -c -l 2>&1 | fzf +s --tac --with-nth=2',
+    hidePreview = true,
+    scale = 0.6,
+    acceptCb = function(args)
+      vim.cmd(('tabnew %s'):format(vim.split(args, '%s+')[2]))
     end,
   })
 end
