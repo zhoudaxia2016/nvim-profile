@@ -222,19 +222,21 @@ M.run = function(params)
       local needEvent = false
       if preparePreview then
         local opts = preparePreview(value)
-        if opts.fn and (opts.fn:match('^man://') or vim.fn.isdirectory(opts.fn) == 1) then
-          needEvent = true
-        end
-        local function cb()
-          if opts.fn or opts.buf then
-            opts.ns = ns
-            previewer.file(opts)
+        if opts then
+          if opts.fn and (opts.fn:match('^man://') or vim.fn.isdirectory(opts.fn) == 1) then
+            needEvent = true
           end
-        end
-        if needEvent then
-          cb()
-        else
-          wrapPreview(cb)
+          local function cb()
+            if opts.fn or opts.buf then
+              opts.ns = ns
+              previewer.file(opts)
+            end
+          end
+          if needEvent then
+            cb()
+          else
+            wrapPreview(cb)
+          end
         end
       else
         wrapPreview(function()
