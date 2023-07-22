@@ -29,9 +29,7 @@ local getField = function(word)
   }
 end
 
-vim.keymap.set('n', '<leader>t', function()
-  cmd 'normal! viwy'
-  local word = fn.getreg('0')
+local function translate(word)
   local field = getField(word)
   curl.post(uri, {
     body = field,
@@ -56,4 +54,10 @@ vim.keymap.set('n', '<leader>t', function()
       end)
     end
   })
+end
+
+vim.keymap.set('n', '<leader>t', function()
+  translate(vim.fn.expand('<cword>'))
 end)
+
+return translate
