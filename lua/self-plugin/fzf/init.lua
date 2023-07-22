@@ -247,9 +247,9 @@ M.run = function(params)
         highlight(previewWinId)
       end
       if hidePreview == false then
-        vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local', win = previewWinId })
-        vim.api.nvim_set_option_value('number', true, { scope = 'local', win = previewWinId })
-        vim.api.nvim_set_option_value('foldenable', false, { scope = 'local', win = previewWinId })
+        vim.api.nvim_set_option_value('bufhidden', 'wipe', { scope = 'local' })
+        vim.api.nvim_set_option_value('number', true, { scope = 'local' })
+        vim.api.nvim_set_option_value('foldenable', false, { scope = 'local' })
         if getPreviewTitle then
           vim.api.nvim_win_set_config(previewWinId, { title = getPreviewTitle(value)})
         end
