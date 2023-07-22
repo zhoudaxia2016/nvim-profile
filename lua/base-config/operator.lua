@@ -46,3 +46,10 @@ newOperator('b', function()
   local cmd = string.format('tmux new-window "git log -L %d,%d:%s | less -R"', startLine, stopLine, vim.fn.expand('%'))
   vim.fn.system(cmd)
 end)
+
+newOperator('t', function()
+  local _, startRow, startCol = unpack(vim.fn.getpos("'["))
+  local _, endRow, endCol = unpack(vim.fn.getpos("']"))
+  local word = vim.api.nvim_buf_get_text(0, startRow - 1, startCol - 1, endRow - 1, endCol, {})[1]
+  require('self-plugin.translate')(word)
+end)
