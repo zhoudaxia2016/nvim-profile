@@ -14,6 +14,14 @@ end)
 vim.keymap.set('n', '<cr>f', function()
   fzfBuiltins.rgSearch(getRoot())
 end)
+vim.keymap.set('n', '<cr><m-f>', function()
+  vim.ui.input({ prompt = 'Enter ripgrep options: '}, function(input)
+    if input == nil then
+      return
+    end
+    fzfBuiltins.rgSearch(getRoot(), input)
+  end)
+end)
 
 vim.keymap.set('n', '<c-f>l', function()
   fzfBuiltins.searchLines()
