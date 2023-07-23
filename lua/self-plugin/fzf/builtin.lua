@@ -28,8 +28,9 @@ M.findFile = function (cwd)
   })
 end
 
-M.rgSearch = function(cwd)
-  local RG_PREFIX="rg"
+M.rgSearch = function(cwd, moreOpts)
+  moreOpts = moreOpts or ''
+  local RG_PREFIX="rg " .. moreOpts
   local cmd = string.format('%s "" | fzf -0 -1 --exact --delimiter : --nth=3.. -m --bind "change:reload(%s {q})" --ansi --phony', RG_PREFIX, RG_PREFIX)
   local function getValue(args)
     local fn, row, col =  string.match(args, '^([^:]*):(%d+):(%d+)')
