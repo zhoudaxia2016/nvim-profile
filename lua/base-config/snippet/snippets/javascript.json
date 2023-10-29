@@ -1,0 +1,103 @@
+{
+  "console.log": {
+    "prefix": "co",
+    "body": "console.log(${0})"
+  },
+  "JSON.stringify": {
+    "prefix": "js",
+    "body": "JSON.stringify($0)"
+  },
+  "JSON.parse()": {
+    "prefix": "jp",
+    "body": "JSON.parse($0)"
+  },
+  "class": {
+    "prefix": "c",
+    "body": "class ${1:name} {\n\tconstructor (${2:arguments}) {\n\t\t${0}\n\t}\n}"
+  },
+  "class extends": {
+    "prefix": "ce",
+    "body": "class ${1:name} extends ${2:base} {\n\tconstructor (${3:arguments}) {\n\t\tsuper(${3:arguments})\n\t\t${0}\n\t}\n}"
+  },
+  "export named function": {
+    "prefix": "ef",
+    "body": "export function ${1:member} (${2:arguments}) {\n\t${0}\n}"
+  },
+  "module default export": {
+    "prefix": "ed",
+    "body": "export default ${1:member}"
+  },
+  "import module": {
+    "prefix": "im",
+    "body": "import ${2:*} from '${1:module}'"
+  },
+  "try/catch": {
+    "prefix": "tr",
+    "body": "try {\n\t$1\n} catch ($2) {\n\t$3\n}"
+  },
+  "named function": {
+    "prefix": "f",
+    "body": "function ${1:name}(${2:arguments}) {\n\t${0}\n}"
+  },
+  "For Loop": {
+    "prefix": "fo",
+    "body": [
+      "for (let ${1:index} = 0; ${1:index} < ${2:array}.length; ${1:index}++) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "For Loop"
+  },
+  "For-In Loop": {
+    "prefix": "fi",
+    "body": [
+      "for (const ${1:key} in ${2:object}) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "For-In Loop"
+  },
+  "For-Of Loop": {
+    "prefix": "ff",
+    "body": [
+      "for (const ${1:iterator} of ${2:object}) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "For-Of Loop"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": ["if (${1:condition}) {", "\t$0", "}"],
+    "description": "If Statement"
+  },
+  "If-Else Statement": {
+    "prefix": "ife",
+    "body": ["if (${1:condition}) {", "\t$2", "} else {", "\t$0", "}"],
+    "description": "If-Else Statement"
+  },
+  "Switch Statement": {
+    "prefix": "sw",
+    "body": [
+      "switch (${1:key}) {",
+      "\tcase ${2:value}:",
+      "\t\t$0",
+      "\t\tbreak",
+      "",
+      "\tdefault:",
+      "\t\tbreak",
+      "}"
+    ],
+    "description": "Switch Statement"
+  },
+  "While Statement": {
+    "prefix": "wh",
+    "body": ["while (${1:condition}) {", "\t$0", "}"],
+    "description": "While Statement"
+  },
+  "Do-While Statement": {
+    "prefix": "do",
+    "body": ["do {", "\t$0", "} while (${1:condition})"],
+    "description": "Do-While Statement"
+  }
+}
