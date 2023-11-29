@@ -33,7 +33,10 @@ end
 local function wrapPreview(previewCb)
   local ei = vim.o.eventignore
   vim.o.eventignore = 'all'
-  previewCb()
+  local success, error = pcall(previewCb)
+  if (success == false) then
+    vim.print('[FZF] previewCb error: ', error)
+  end
   vim.o.eventignore = ei
 end
 

@@ -24,7 +24,7 @@ vim.keymap.set('i', '<c-k>', function()
   local line = vim.fn.getline('.')
   local trigger = line:match('%w+$')
   local ft = vim.o.filetype
-  if ft == 'typescript' then
+  if ft == 'typescript' or ft == 'typescriptreact' then
     ft = 'javascript'
   end
   local config = getConfig(ft)[trigger]
