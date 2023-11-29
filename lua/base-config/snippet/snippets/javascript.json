@@ -42,7 +42,7 @@
   "For Loop": {
     "prefix": "fo",
     "body": [
-      "for (let ${1:index} = 0; ${1:index} < ${2:array}.length; ${1:index}++) {",
+      "for (let ${1:index} = 0; ${1:index} < ${2:array}; ${1:index}++) {",
       "\t$0",
       "}"
     ],
@@ -99,5 +99,10 @@
     "prefix": "do",
     "body": ["do {", "\t$0", "} while (${1:condition})"],
     "description": "Do-While Statement"
+  },
+  "jsdoc marks": {
+    "prefix": "jsd",
+    "body": "/** @$0 */",
+    "description": "jsdoc marks"
   }
 }
