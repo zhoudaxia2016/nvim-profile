@@ -30,3 +30,5 @@
   "," @_start .
   (import_specifier) @pair.inner
  (#make-range! "pair.outer" @_start @pair.inner))
+
+(formal_parameters (_) @argument)

@@ -2,4 +2,5 @@
 (jsx_attribute
   (property_identifier) @jsxattr.property
   (_) @jsxattr.value
- (#make-range! "jsxattr.outer" @jsxattr.property @jsxattr.value))
+ (#make-range! "jsxattr.outer" @jsxattr.property @jsxattr.value)) @jsxattr.entire
+
