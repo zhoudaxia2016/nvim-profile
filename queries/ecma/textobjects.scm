@@ -33,3 +33,12 @@
 
 (switch_statement) @block.outer
 
+(ternary_expression consequence:(_) @ternary.item)
+(ternary_expression alternative:(_) @ternary.item)
+(object_pattern (pair_pattern) @object.item)
+(object_pattern (shorthand_property_identifier_pattern) @object.item)
+(object_pattern (object_assignment_pattern) @object.item)
+(object (pair) @object.item)
+(object (shorthand_property_identifier) @object.item)
+(object (spread_element) @object.item)
+(arguments (_) @argument)

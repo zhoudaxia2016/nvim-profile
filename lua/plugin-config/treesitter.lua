@@ -39,7 +39,20 @@ require'nvim-treesitter.configs'.setup {
     move = {
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
-    }
+    },
+    swap = {
+      enable = true,
+      swap_next = {
+        ["<leader>w"] = {
+          query = {"@ternary.item", "@object.item", "@jsxattr.entire", "@argument"}
+        },
+      },
+      swap_previous = {
+        ["<leader>W"] = {
+          query = {"@ternary.item", "@object.item", "@jsxattr.entire", "@argument"}
+        }
+      },
+    },
   },
   refactor = {
     highlight_definitions = { enable = true },
