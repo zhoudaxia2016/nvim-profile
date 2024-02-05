@@ -7,13 +7,13 @@
 ; Interface
 ((interface_declaration
   name: (type_identifier) @class-name
-  body: (object_type)) @scope-root)
+  body: (interface_body)) @scope-root)
 
 
 ; Anonymous function
 ((variable_declarator
   name: (identifier) @function-name
-  value: (function
+  value: (function_expression
     body: (statement_block))) @scope-root)
 
 
