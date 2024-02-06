@@ -49,6 +49,7 @@ local function cleverTab()
 end
 vim.keymap.set('i', '<Tab>', cleverTab, {expr=true})
 vim.opt.cpt:append('k')
+vim.opt.cpt:remove('t')
 
 map('n', '<F2>', ':set hls!<cr>')
 
