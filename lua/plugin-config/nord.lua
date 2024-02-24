@@ -30,6 +30,8 @@ local themes = {
   ['@h3'] = { bg = '#b7cdce ', fg = '#444444' },
   ['@h4'] = { bg = '#cfdcdd ', fg = '#333333' },
   ['@h5'] = { bg = '#e0e6eb ', fg = '#222222' },
+  ['@markup.strong'] = { style = 'reverse' },
+  ['@markup.raw'] = { fg = palettes.purple },
 
   -- diff
   ['DiffAdd'] = { bg = '#495959' },
