@@ -5,7 +5,7 @@ local pairs = {
   ['('] = ')',
   ['['] = ']',
   ['{'] = '}',
-  ['<'] = '>'
+  ['<'] = '>',
 }
 local prefix = '<leader>o'
 local function newOperator(key, fn)
@@ -20,24 +20,87 @@ end
 local getLine = vim.fn.line
 local getCol = vim.fn.col
 
-newOperator('s', function()
-  local parser = vim.treesitter.get_parser(0)
-  local tstree = parser:parse()
+local function matchPair(str)
+  for k, v in ipairs(pairs) do
+    if str[1] == k and str[#str] == v then
+      return true
+    end
+  end
+  return false
+end
+
+vim.keymap.set('n', '<leader>oO', function()
+  local node = utils.get_node_at_cursor()
+  local isPair = false
+  if node == nil then
+    return
+  end
+  local text = vim.treesitter.get_node_text(node, 0)
+  while (node) do
+    if (#text > 1 and text:sub(1, 1) == text:sub(#text, #text)) or matchPair(text) then
+      isPair = true
+      break
+    end
+    node = node:parent()
+  end
+  if isPair then
+    local startRow, startCol, endRow, endCol = vim.treesitter.get_node_range(node)
+    local edits = {
+      {
+        newText = text:sub(2, #text - 1),
+        range = {
+          start = {line = startRow, character = startCol},
+          ['end'] = {line = endRow, character = endCol},
+        }
+      }
+    }
+    vim.lsp.util.apply_text_edits(edits, 0, 'utf-8')
+  end
+end)
+
+local function surround(multi)
+  multi = multi or false
   local startLine = getLine("'[") - 1
   local startCol = getCol("'[") - 1
   local stopLine = getLine("']") - 1
   local stopCol = getCol("']") - 1
-  local node = tstree[1]:root():descendant_for_range(startLine, startCol, stopLine, stopCol)
-  local fc = string.char(vim.fn.getchar())
-  local lc = pairs[fc]
-  if (lc == nil) then
-    lc = fc
+
+  local c = vim.fn.getcharstr()
+  local lc = c
+  if multi then
+    while(true) do
+      c = vim.fn.getcharstr()
+      if c == '\r' then
+        break
+      end
+      lc = lc .. c
+    end
   end
-  local range = utils.node_to_lsp_range(node)
+
+  local rc = pairs[lc]
+  if (rc == nil) then
+    rc = lc
+  end
+  local leftRange = {
+    start = { line = startLine, character = startCol},
+    ['end'] = { line = startLine, character = startCol}
+  }
+  local rightRange = {
+    start = { line = stopLine, character = stopCol + 1},
+    ['end'] = { line = stopLine, character = stopCol + 1}
+  }
   local edits = {
-    { newText = fc .. vim.treesitter.get_node_text(node, 0) .. lc, range = range },
+    { newText = lc, range = leftRange },
+    { newText = rc, range = rightRange },
   }
   vim.lsp.util.apply_text_edits(edits, 0, 'utf-8')
+end
+
+newOperator('o', function()
+  surround()
+end)
+newOperator('p', function()
+  surround(true)
 end)
 
 newOperator('b', function()
