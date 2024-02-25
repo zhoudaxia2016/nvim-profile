@@ -23,6 +23,7 @@ local themes = {
   ['@lsp.type.variable'] = { fg = palettes.white },
   ['@variable'] = { fg = palettes.darkest_white },
   ['LspInlayHint'] = { fg = '#616e88' },
+  Folded = { bg = '#474E68' },
 
   -- markdown
   ['@h1'] = { bg = '#8ea9a4 ', fg = '#666666' },
