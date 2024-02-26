@@ -2,13 +2,22 @@
 local ts_utils = require("nvim-treesitter.ts_utils")
 local ts_parsers = require("nvim-treesitter.parsers")
 local ts_queries = require("nvim-treesitter.query")
+local utils = require('util')
+
+local function createColorGroup(link)
+  return utils.createColorGroup({bg = '#4c566a'}, 'winbar_', link)
+end
+
 local config = {
-  ["class-name"] = { icon = '', hl = '@constructor' },
-  ["function-name"] = { icon = '', hl = '@function' },
-  ["method-name"] = { icon = '', hl = '@method' },
-  ["object-name"] = { icon = '', hl = '@variable' },
-  ["call-expression-name"] = { icon = '北', hl = '@function.call' }
+  ["class-name"] = { icon = '', hl = createColorGroup('@constructor') },
+  ["function-name"] = { icon = '', hl = createColorGroup('@function') },
+  ["method-name"] = { icon = '', hl = createColorGroup('@method') },
+  ["object-name"] = { icon = '', hl = createColorGroup('@variable') },
+  ["call-expression-name"] = { icon = '北', hl = createColorGroup('@function.call') }
 }
+
+local delimiterColorGroup = createColorGroup('Comment')
+local defaultColorGroup = createColorGroup('@variable')
 
 local function transform(text, name)
   if config[name] then
@@ -17,7 +26,7 @@ local function transform(text, name)
     text = string.format('%%#%s#%s%s', hl, icon, text)
   end
   text = text:gsub('\n%s*', '')
-  return '%#@variable#' .. text
+  return string.format('%%#@%s#%s', defaultColorGroup, text)
 end
 
 HandleWinbarClick = function (i) end
@@ -62,7 +71,7 @@ function CodeLocation()
   return table.concat(vim.tbl_map(function(_)
     i = i + 1
     return string.format([[%%%s@v:lua.HandleWinbarClick@%s%%X]], i, transform(table.concat({vim.treesitter.get_node_text(_.node, 0)}, ' '), _.name))
-  end, captures), '%#NonText# > ')
+  end, captures), string.format('%%#%s# > ', delimiterColorGroup))
 end
 
 vim.api.nvim_set_hl(0, 'WinBar', {

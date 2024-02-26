@@ -44,4 +44,14 @@ M.getRoot = function ()
   return require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd())
 end
 
+M.createColorGroup = function(base, prefix, link)
+  local hl = link and vim.api.nvim_get_hl(0, {name = link}) or {}
+  for k, v in pairs(base) do
+    hl[k] = v
+  end
+  local name = prefix .. link
+  vim.api.nvim_set_hl(0, name, hl)
+  return name
+end
+
 return M
