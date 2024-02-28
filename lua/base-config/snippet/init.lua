@@ -8,8 +8,9 @@ local function readFile(name)
 end
 
 local function getConfig(lang)
-  if cache[lang] == nil then
-    local json = readFile('/home/zhou/.config/nvim/lua/base-config/snippet/snippets/' .. lang .. '.json')
+  local configFile = '/home/zhou/.config/nvim/lua/base-config/snippet/snippets/' .. lang .. '.json'
+  if cache[lang] == nil and vim.fn.filereadable(configFile) == 1 then
+    local json = readFile(configFile)
     json = vim.json.decode(json)
     local config = {}
     for _, v in pairs(json) do
@@ -27,10 +28,13 @@ vim.keymap.set('i', '<c-k>', function()
   if ft == 'typescript' or ft == 'typescriptreact' then
     ft = 'javascript'
   end
-  local config = getConfig(ft)[trigger]
-  if config == nil then
+
+  local config = getConfig(ft)
+  if config == nil or config[trigger] == nil then
     return
   end
+
+  config = config[trigger]
   line = line:gsub('%w+$', '')
   vim.api.nvim_set_current_line(line)
   local body = type(config.body) == 'string' and config.body or vim.fn.join(config.body, '\n')
