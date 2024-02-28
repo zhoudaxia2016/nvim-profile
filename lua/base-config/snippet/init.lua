@@ -21,16 +21,26 @@ local function getConfig(lang)
   return cache[lang]
 end
 
+local extends = {
+  typescript = {'javascript'},
+  typescriptreact = {'javascript'},
+  less = {'css'},
+  sass = {'css'},
+  scss = {'css'},
+}
+
 vim.keymap.set('i', '<c-k>', function()
   local line = vim.fn.getline('.')
   local trigger = line:match('%w+$')
   local ft = vim.o.filetype
-  if ft == 'typescript' or ft == 'typescriptreact' then
-    ft = 'javascript'
+  local fts = vim.fn.extend({ft}, extends[ft] or {})
+  local config = {}
+  for _, t in ipairs(fts) do
+    local c = getConfig(t)
+    config = vim.tbl_extend('keep', config, c or {})
   end
 
-  local config = getConfig(ft)
-  if config == nil or config[trigger] == nil then
+  if vim.tbl_isempty(config) or config[trigger] == nil then
     return
   end
 
