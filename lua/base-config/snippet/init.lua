@@ -1,3 +1,8 @@
+-- snippet原则
+-- trigger限制最长3，尽量2，可以1
+-- trigger尽量截取body的begin，避免记忆
+-- 只做常用的snippet
+
 local cache = {}
 
 local function readFile(name)
