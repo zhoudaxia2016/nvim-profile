@@ -35,6 +35,7 @@ g.netrw_browsex_viewer="cmd.exe /C start"
 o.conceallevel = 1
 o.fixendofline = false
 opt.iskeyword:append('-')
+o.winblend = 24
 
 if o.diff then
   o.readonly = false
