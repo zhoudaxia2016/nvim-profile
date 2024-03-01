@@ -24,3 +24,42 @@ vim.api.nvim_create_autocmd('FileType', {
   end
 })
 
+vim.o.mousemoveevent = true
+
+local ns = vim.api.nvim_create_namespace('fold')
+vim.keymap.set({'n', 'i'}, '<MouseMove>', function()
+  local pos = vim.fn.getmousepos()
+  if pos.line == 0 then
+    return
+  end
+  if vim.fn.foldclosed(pos.line) == -1 then
+    return
+  end
+  local buf = vim.api.nvim_win_get_buf(pos.winid)
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  vim.api.nvim_buf_set_extmark(buf, ns, pos.line - 1, pos.column - 1, {
+    virt_text = {{'▶', 'number'}},
+    virt_text_win_col = 0,
+  })
+end)
+
+vim.keymap.set({'n', 'i'}, '<LeftMouse>', function()
+  local pos = vim.fn.getmousepos()
+  if pos.line == 0 then
+    return
+  end
+  if vim.fn.foldclosed(pos.line) == -1 then
+    return
+  end
+  local buf = vim.api.nvim_win_get_buf(pos.winid)
+  local start = {pos.line - 1, pos.column - 1}
+  local m = vim.api.nvim_buf_get_extmarks(buf, ns, start, start, {})
+  if m == nil then
+    return
+  end
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  vim.api.nvim_buf_set_extmark(buf, ns, pos.line - 1, pos.column - 1, {
+    virt_text = {{'▼', 'number'}},
+    virt_text_win_col = 0,
+  })
+end)
