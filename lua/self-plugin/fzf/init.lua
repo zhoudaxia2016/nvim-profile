@@ -177,6 +177,10 @@ M.run = function(params)
     makeFloatOpts({row = selectLayout.t, col = selectLayout.l, width = selectLayout.w, height = selectLayout.h, title = ' results '})
   )
 
+  vim.api.nvim_win_call(selectWinId, function()
+    vim.api.nvim_set_option_value('winblend', 0, { scope = 'local' })
+  end)
+
   local previewBuf, previewWinId
   if hidePreview == false then
     previewBuf = vim.api.nvim_create_buf(false, false)
