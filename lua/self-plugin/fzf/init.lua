@@ -209,6 +209,10 @@ M.run = function(params)
     end
   })
 
+  vim.api.nvim_win_call(selectWinId, function()
+    vim.api.nvim_set_option_value('winblend', 0, { scope = 'local'})
+  end)
+
   local results = {}
   FzfPreviewCb = debounce(function(args)
     if hidePreview == false and vim.api.nvim_win_is_valid(previewWinId) == false then
