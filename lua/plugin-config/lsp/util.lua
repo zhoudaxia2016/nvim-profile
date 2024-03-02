@@ -160,6 +160,16 @@ local on_attach = function(client, bufnr)
     })
   end
 
+  if capabilities.codeLensProvider then
+    vim.lsp.codelens.refresh()
+    vim.api.nvim_create_autocmd({'BufEnter', 'InsertLeave'}, {
+      buffer = bufnr,
+      callback = function()
+        vim.lsp.codelens.refresh()
+      end
+    })
+  end
+
   -- if capabilities.inlayHintProvider then
   --   vim.lsp.buf.inlay_hint(bufnr, true)
   -- end

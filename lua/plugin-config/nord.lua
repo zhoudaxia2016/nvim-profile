@@ -25,6 +25,8 @@ local themes = {
   ['LspInlayHint'] = { fg = '#616e88' },
   Folded = { bg = '#474E68' },
   WinBarNC = { bg = 'NONE' },
+  LspCodeLens = { fg = palettes.light_gray_bright },
+  LspCodeLensSeparator = { fg = palettes.light_gray_bright },
 
   -- markdown
   ['@h1'] = { bg = '#8ea9a4 ', fg = '#666666' },

@@ -18,7 +18,13 @@ local typescriptCommands = {
 local settings = {
   format = {
     insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces = false,
-  }
+  },
+  implementationsCodeLens = {
+    enabled = true,
+  },
+  referencesCodeLens = {
+    enabled = true,
+  },
 }
 
 local function showInlayHint()
@@ -166,5 +172,10 @@ lspconfig.tsserver.setup {
         end
       end
     end
-  }
+  },
+  capabilities = {
+    textDocument = {
+      codeLens = {}
+    }
+  },
 }
