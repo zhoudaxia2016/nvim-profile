@@ -1,4 +1,6 @@
 local run = require('self-plugin.fzf').run
+local palettes = require('nord.named_colors')
+local previewer = require('self-plugin.fzf.previewer')
 
 local previewFilter = {'png', 'jpg'}
 local M = {}
@@ -275,6 +277,71 @@ M.z = function()
     acceptCb = function(args)
       vim.cmd(('tabnew %s'):format(vim.split(args, '%s+')[2]))
     end,
+  })
+end
+
+local function hex2rgb(hex)
+    hex = hex:gsub("#","")
+    return tonumber("0x"..hex:sub(1,2)), tonumber("0x"..hex:sub(3,4)), tonumber("0x"..hex:sub(5,6))
+end
+
+local function format(color, str)
+  local r, g, b = hex2rgb(color)
+  return string.format('\\e[38;2;%s;%s;%sm%s\\e[0m', r, g, b, str)
+end
+
+M.keymaps = function()
+  local modes = {'n', 'i', 'v', 's', 'o', 'c', 't'}
+  local keymaps = {}
+  for _, m in pairs(modes)do
+    keymaps = vim.list_extend(keymaps, vim.api.nvim_get_keymap(m))
+  end
+  keymaps = vim.tbl_map(function(keymap)
+    local rhs = keymap.callback and debug.getinfo(keymap.callback).short_src or keymap.rhs
+    rhs = format(palettes.blue, rhs)
+    local lhs = format(palettes.purple, keymap.lhs)
+    local desc = keymap.desc or ''
+    local info = {
+      info = keymap,
+      text = string.format('%s\\t%s\\t%s', keymap.mode, lhs, desc)
+    }
+    return info
+  end, keymaps)
+  run({
+    input = keymaps,
+    align = true,
+    getPreviewTitle = function(args)
+      if args.info.callback then
+        local callbackInfo = debug.getinfo(args.info.callback)
+        return callbackInfo.short_src
+      end
+      return 'String Keymap'
+    end,
+    previewCb = function(args, ns)
+      if args.info.callback then
+        local callbackInfo = debug.getinfo(args.info.callback)
+        local row = callbackInfo.linedefined
+        previewer.file({
+          fn = callbackInfo.short_src,
+          row = row,
+          col = 1,
+          ns = ns,
+          selection = {
+            startRange = {line = row - 1, character = 1},
+            endRange = {line = callbackInfo.lastlinedefined - 1, character = -1},
+          }
+        })
+      else
+        previewer.string(args.info.rhs)
+      end
+    end,
+    acceptCb = function(args)
+      if args.info.callback then
+        local callbackInfo = debug.getinfo(args.info.callback)
+        local row = callbackInfo.linedefined
+        vim.cmd(string.format('tabnew +%s %s | normal %sl', row, callbackInfo.short_src, 0))
+      end
+    end
   })
 end
 
