@@ -23,10 +23,10 @@ M.file = function(params)
     end
   end
   if fn and fn ~= currentFn then
-    vim.cmd('edit ' .. fn)
+    vim.cmd('edit! ' .. fn)
   end
   if buf and vim.api.nvim_buf_get_name(buf) ~= currentFn then
-    vim.cmd('b ' .. buf)
+    vim.cmd('b! ' .. buf)
   end
   if row then
     vim.fn.cursor({row, col})
@@ -39,12 +39,18 @@ M.file = function(params)
     if selection then
       local startRange = selection.startRange
       local endRange = selection.endRange
-      vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
+      vim.highlight.range(0, ns, 'CursorLine', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
     end
     if hlRow then
       vim.highlight.range(0, ns, 'CursorLine', {row, 0}, {row, 200}, {priority = 9999})
     end
   end
+end
+
+M.string = function(str)
+  local tmpBuf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(tmpBuf, 0, 0, false, {str})
+  vim.api.nvim_win_set_buf(0, tmpBuf)
 end
 
 return M

@@ -95,6 +95,7 @@ local options = {
   border = 'none',
   color = 'bg:-1',
   ['preview-window'] = 'right,0',
+  ansi = true,
 }
 
 local M = {}
@@ -124,6 +125,7 @@ M.run = function(params)
   local fzfInput = input
   local useText = input == nil
   local getPreviewTitle = params.getPreviewTitle
+  local align = params.align
   local currentWinId = vim.api.nvim_get_current_win()
   setStatuslineWin(currentWinId)
   lastPosJump.clear()
@@ -144,7 +146,8 @@ M.run = function(params)
   local env = {[fzfInputKey] = ''}
   if fzfInput then
     env[fzfInputKey] = vim.fn.join(fzfInput, '\\n')
-    cmd = string.format('echo -e $%s | %s', fzfInputKey, cmd)
+    local alignCmd = align and 'column -t -s "\t" | ' or ''
+    cmd = string.format('echo -e $%s | %s %s', fzfInputKey, alignCmd, cmd)
   end
 
   local tmpfile
@@ -153,8 +156,11 @@ M.run = function(params)
   local selectBuf = vim.api.nvim_create_buf(false, false)
   vim.api.nvim_buf_call(selectBuf, function()
     for k, v in pairs(o) do
-      cmd = cmd .. string.format(" --%s='%s'", k, v)
+      cmd = cmd .. (v == true
+        and string.format(' --%s', k)
+        or string.format(" --%s='%s'", k, v))
     end
+    cmd = cmd .. ' --ansi'
     local termOptions = {env = env, cwd = cwd}
     if params.debug then
       termOptions.on_stdout = function(...) vim.print(...) end
@@ -277,7 +283,7 @@ M.run = function(params)
     end)
     if hidePreview == false then
       vim.api.nvim_win_call(previewWinId, function()
-        vim.cmd('quit')
+        vim.cmd('quit!')
       end)
     end
     vim.api.nvim_set_current_win(currentWinId)

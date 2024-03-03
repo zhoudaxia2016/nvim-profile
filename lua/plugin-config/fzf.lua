@@ -63,3 +63,7 @@ end)
 vim.keymap.set('n', '<cr>z', function()
   fzfBuiltins.z()
 end)
+
+vim.api.nvim_create_user_command('FzfKeymaps', function()
+  fzfBuiltins.keymaps()
+end, {})
