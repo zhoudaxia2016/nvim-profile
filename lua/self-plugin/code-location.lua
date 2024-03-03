@@ -81,7 +81,7 @@ vim.api.nvim_set_hl(0, 'WinBar', {
 vim.keymap.set('n', '<leader>p', ':echo v:lua.CodeLocation()<cr>', {})
 vim.api.nvim_create_autocmd('BufEnter', {
   callback = function()
-    if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'lua'}, vim.o.filetype) then
+    if vim.tbl_contains({'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'lua', 'c', 'cpp'}, vim.o.filetype) then
       vim.opt_local.winbar = '%!v:lua.CodeLocation()'
     end
   end

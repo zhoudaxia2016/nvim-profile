@@ -1,5 +1,5 @@
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "jsonc", "query", "comment", "scheme", "markdown", "markdown_inline", "toml", "rust", "go"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = {"javascript", "typescript", "tsx", "lua", "json", "jsonc", "query", "comment", "scheme", "markdown", "markdown_inline", "toml", "rust", "go", "c", "cpp"}, -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   highlight = {
     enable = true,              -- false will disable the whole extension
