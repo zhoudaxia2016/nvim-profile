@@ -58,6 +58,6 @@ end
 
 vim.keymap.set('n', '<leader>t', function()
   translate(vim.fn.expand('<cword>'))
-end)
+end, {desc = 'Translate word at cursor'})
 
 return translate

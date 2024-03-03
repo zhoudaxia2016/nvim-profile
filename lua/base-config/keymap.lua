@@ -8,7 +8,7 @@ map('n', '<leader><leader>', function()
       vim.cmd('help ' .. input)
     end
   end)
-end)
+end, {desc = 'Nvim Help'})
 
 -- move around window
 map('n', '<c-l>', '<c-w><c-l>')
@@ -47,11 +47,11 @@ local function cleverTab()
     return "<c-n>"
   end
 end
-vim.keymap.set('i', '<Tab>', cleverTab, {expr=true})
+vim.keymap.set('i', '<Tab>', cleverTab, {expr = true, desc = 'Clever Tab'})
 vim.opt.cpt:append('k')
 vim.opt.cpt:remove('t')
 
-map('n', '<F2>', ':set hls!<cr>')
+map('n', '<F2>', ':set hls!<cr>', {desc = 'Toggle highlight'})
 
 local function patchEnter()
   local keymaps = vim.api.nvim_buf_get_keymap(0, 'n')
@@ -88,16 +88,16 @@ vim.keymap.set('n', '<A-LeftMouse>', function()
   end
   return '<c-o>'
 end, {expr = true, remap = true})
-vim.keymap.set('n', '<2-LeftMouse>', 'yiw')
+vim.keymap.set('n', '<2-LeftMouse>', 'yiw', {desc = 'Copy word at cursor'})
 -- TODO bugfix 有时点击也会触发Drag，导致误触发复制
 -- 应该是neovim bug？还是鼠标事件理解有误？
 local isDrag = false
 vim.keymap.set('n', '<LeftDrag>', function()
   isDrag = true
   return ''
-end, {expr = true, remap = true})
+end, {expr = true, remap = true, desc = 'Drag copy start'})
 vim.keymap.set('n', '<LeftRelease>', function()
   local key = isDrag and '<LeftRelease>y' or '<LeftRelease>'
   isDrag = false
   return key
-end, {expr = true})
+end, {expr = true, desc = 'Drag copy end'})
