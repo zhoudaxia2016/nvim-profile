@@ -20,7 +20,7 @@ vim.cmd[[au VimEnter * ++once call v:lua.InitProjectConfig()]]
 require('util').map('n', '<m-c>', function()
   local configFile = getConfigFile()
   vim.cmd('vs ' .. configFile)
-end)
+end, {desc = 'Edit project config'})
 
 local userConfig = vim.env.HOME .. '/.config/nvim/projects-config/user.lua'
 if vim.fn.filereadable(userConfig) == 1 then

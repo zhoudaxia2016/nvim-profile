@@ -10,4 +10,4 @@ require('util').map('n', '<leader>r', function()
       end)
     end
   end)
-end)
+end, {desc = 'Search and replace in current buffer'})

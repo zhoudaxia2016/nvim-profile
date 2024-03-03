@@ -7,14 +7,16 @@ local pairs = {
   ['{'] = '}',
   ['<'] = '>',
 }
+
+local descPrefix = '[Operator]: '
 local prefix = '<leader>o'
-local function newOperator(key, fn)
+local function newOperator(key, fn, desc)
   vim.keymap.set({'n', 'v'}, prefix .. key, function()
     OperatorFunc = fn
     -- TODO use lua function: vim.o.operatorfunc = fn
     vim.o.operatorfunc = 'v:lua.OperatorFunc'
     return 'g@'
-  end, { expr = true, silent = true, noremap = true })
+  end, { expr = true, silent = true, noremap = true, desc = descPrefix .. (desc or '') })
 end
 
 local getLine = vim.fn.line
@@ -56,7 +58,7 @@ vim.keymap.set('n', '<leader>oO', function()
     }
     vim.lsp.util.apply_text_edits(edits, 0, 'utf-8')
   end
-end)
+end, {desc = descPrefix .. 'Surround delete'})
 
 local function surround(multi)
   multi = multi or false
@@ -98,21 +100,21 @@ end
 
 newOperator('o', function()
   surround()
-end)
+end, 'Surround insert a char')
 newOperator('p', function()
   surround(true)
-end)
+end, 'Surround insert a string, enter <cr> to finish')
 
 newOperator('b', function()
   local startLine = getLine("'[")
   local stopLine = getLine("']")
   local cmd = string.format('tmux new-window "git log -L %d,%d:%s | less -R"', startLine, stopLine, vim.fn.expand('%'))
   vim.fn.system(cmd)
-end)
+end, 'Git blame')
 
 newOperator('t', function()
   local _, startRow, startCol = unpack(vim.fn.getpos("'["))
   local _, endRow, endCol = unpack(vim.fn.getpos("']"))
   local word = vim.api.nvim_buf_get_text(0, startRow - 1, startCol - 1, endRow - 1, endCol, {})[1]
   require('self-plugin.translate')(word)
-end)
+end, 'Translate')

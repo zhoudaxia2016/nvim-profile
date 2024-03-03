@@ -106,4 +106,4 @@ end)
 
 vim.keymap.set('n', '<leader>b', function()
   setBlameMsg(true)
-end, {})
+end, {desc = 'Git blame current line'})

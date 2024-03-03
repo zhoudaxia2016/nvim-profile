@@ -52,7 +52,7 @@ end
 
 require('util').map('n', '<m-t><m-t>', function()
   runJestTest()
-end)
+end, {desc = 'Run jest test'})
 require('util').map('n', '<m-t><m-u>', function()
   runJestTest(1)
-end)
+end, {desc = 'Debug jest test'})

@@ -29,7 +29,7 @@ map('n', '<leader>d', function()
     cmd('1wincmd w')
     cmd('Lexplore ' .. fn.expand('%:p:h'))
   end
-end, { silent = true })
+end, { silent = true, desc = 'Toggle netrw' })
 
 vim.api.nvim_create_autocmd('WinNew', {
   callback = function()
