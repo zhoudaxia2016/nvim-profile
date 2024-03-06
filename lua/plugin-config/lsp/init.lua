@@ -80,3 +80,10 @@ require('plugin-config.lsp.tsserver')
 require('plugin-config.lsp.efm')
 require('plugin-config.lsp.sumneko')
 require('plugin-config.lsp.zk')
+
+-- TODO: 待完善
+-- 现在的实现edit的执行可能有冲突，不能完全fix all
+vim.api.nvim_create_user_command('FixAll', function()
+  vim.diagnostic.setloclist()
+  vim.cmd("ldo lua vim.lsp.buf.code_action({apply=true, context={only={'quickfix'}}, filter = function(_) return string.find(_.title, 'Declare property') end})")
+end, {})
