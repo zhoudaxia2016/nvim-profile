@@ -15,7 +15,7 @@ M.file = function(params)
   end)
   if ok then
     local file_length = #vim.fn.join(file_contents, ' ')
-    if file_length > 300000 then
+    if file_length > 300000 or #file_contents[1] > 5000 then
       local messageBuf = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_buf_set_lines(messageBuf, 0, 0, false, {'File is too big to preview!!!'})
       vim.api.nvim_win_set_buf(0, messageBuf)
