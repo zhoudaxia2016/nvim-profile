@@ -75,6 +75,9 @@ lspconfig.rust_analyzer.setup({
         }
     }
 })
+lspconfig.gopls.setup {
+  on_attach = myutil.on_attach,
+}
 
 require('plugin-config.lsp.tsserver')
 require('plugin-config.lsp.efm')
