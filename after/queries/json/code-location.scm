@@ -13,15 +13,10 @@
     key: (string (string_content) @null-name)
     value: (null)) @scope-root)
 
-; Boolean (false)
+; Boolean
 ((pair
     key: (string (string_content) @boolean-name)
-    value: (false)) @scope-root)
-
-; Boolean (true)
-((pair
-    key: (string (string_content) @boolean-name)
-    value: (true)) @scope-root)
+    value: ([(false) (true)])) @scope-root)
 
 ; Number
 ((pair
