@@ -2,6 +2,7 @@ local cmd = vim.cmd
 local opt = vim.opt
 local lspconfig = require"lspconfig"
 local myutil = require"plugin-config.lsp.util"
+local icons = require"util.icons"
 
 local msgFilter = {'tsserver'}
 
@@ -38,7 +39,12 @@ cmd [[hi LspReferenceRead guibg=#6b778d]]
 cmd [[hi LspReferenceWrite guibg=#6b778d]]
 cmd [[hi LspSignatureActiveParameter guibg=#6b778d]]
 
-local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+local signs = {
+  Error = icons.cross .. " ",
+  Warn = icons.exclamation_reverse .. " ",
+  Hint = icons.bulb .. " ",
+  Info = icons.info .. " ",
+}
 
 for type, icon in pairs(signs) do
   local hl = "DiagnosticSign" .. type

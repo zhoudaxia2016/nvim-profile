@@ -3,22 +3,23 @@ local hlgs = require('base-config.statusline.hlgs')
 local gitsign = require('base-config.statusline.gitsign')
 local fileIcons = require('base-config.statusline.fileIcons')
 local find_git_ancestor = require('lspconfig.util').find_git_ancestor
+local icons = require"util.icons"
 local diagnostic = vim.diagnostic
 local o = vim.o
 local diagnostics = {
   error = {
     level = diagnostic.severity.ERROR,
-    icon = '',
+    icon = icons.cross,
     hlg = hlgs.error.name
   },
   warn = {
     level = diagnostic.severity.WARN,
-    icon = '',
+    icon = icons.exclamation_reverse,
     hlg = hlgs.warn.name
   },
   info = {
     level = diagnostic.severity.HINT,
-    icon = '',
+    icon = icons.bulb,
     hlg = hlgs.info.name
   }
 }
