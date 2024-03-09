@@ -9,11 +9,11 @@ local function createColorGroup(link)
 end
 
 local config = {
-  ["class-name"] = { icon = '', hl = createColorGroup('@constructor') },
-  ["function-name"] = { icon = '', hl = createColorGroup('@function') },
-  ["method-name"] = { icon = '', hl = createColorGroup('@method') },
-  ["object-name"] = { icon = '', hl = createColorGroup('@variable') },
-  ["call-expression-name"] = { icon = '北', hl = createColorGroup('@function.call') }
+  ["class-name"] = { icon = '󰌗', hl = createColorGroup('@constructor') },
+  ["function-name"] = { icon = '󰊕', hl = createColorGroup('@function') },
+  ["method-name"] = { icon = '󰆧', hl = createColorGroup('@method') },
+  ["object-name"] = { icon = '󰅩', hl = createColorGroup('@variable') },
+  ["call-expression-name"] = { icon = '♺', hl = createColorGroup('@function.call') }
 }
 
 local delimiterColorGroup = createColorGroup('Comment')
