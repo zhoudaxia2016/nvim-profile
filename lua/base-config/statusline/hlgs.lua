@@ -1,18 +1,26 @@
+local palettes = require('nord.named_colors')
+local dark_gray = palettes.dark_gray
+local off_blue = palettes.off_blue
+local darker_white = palettes.darker_white
+local light_gray = palettes.light_gray
+local red = palettes.red
+local yellow = palettes.yellow
+
 local hlgs = {
   a = {
     name = 'statusline_a',
-    fg = '#3B4252',
-    bg = '#88C0D0'
+    fg = dark_gray,
+    bg = off_blue
   },
   b = {
     name = 'statusline_b',
-    fg = '#E5E9F0',
-    bg = '#3B4252'
+    fg = darker_white,
+    bg = dark_gray
   },
   c = {
     name = 'statusline_c',
-    fg = '#E5E9F0',
-    bg = '#4C566A'
+    fg = darker_white,
+    bg = light_gray
   }
 }
 
@@ -38,17 +46,17 @@ hlgs.cTob = {
 }
 hlgs.error = {
   name = 'statusline_error',
-  fg = '#BF616A',
+  fg = red,
   bg = hlgs.c.bg
 }
 hlgs.warn = {
   name = 'statusline_warn',
-  fg = '#EBCB8B',
+  fg = yellow,
   bg = hlgs.c.bg
 }
 hlgs.info = {
   name = 'statusline_info',
-  fg = '#88C0D0',
+  fg = off_blue,
   bg = hlgs.c.bg
 }
 
