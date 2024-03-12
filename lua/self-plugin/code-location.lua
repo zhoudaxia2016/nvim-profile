@@ -1,5 +1,4 @@
 -- 参考 https://github.com/SmiteshP/nvim-gps
-local ts_utils = require("nvim-treesitter.ts_utils")
 local ts_parsers = require("nvim-treesitter.parsers")
 local ts_queries = require("nvim-treesitter.query")
 local utils = require('util')
@@ -29,7 +28,7 @@ local function transform(text, name)
   return string.format('%%#@%s#%s', defaultColorGroup, text)
 end
 
-HandleWinbarClick = function (i) end
+HandleWinbarClick = function () end
 
 function CodeLocation()
   local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
@@ -39,7 +38,7 @@ function CodeLocation()
     return ''
   end
 
-  local current_node = ts_utils.get_node_at_cursor()
+  local current_node = vim.treesitter.get_node({})
 
   local captures = {}
   local node = current_node
