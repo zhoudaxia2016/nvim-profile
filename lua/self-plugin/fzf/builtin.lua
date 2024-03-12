@@ -24,7 +24,7 @@ M.findFile = function (cwd)
     end,
     acceptCb = function(args)
       for _, f in ipairs(args) do
-        vim.cmd(string.format('tabnew %s/%s', cwd, f))
+        vim.cmd(string.format('tab drop %s/%s', cwd, f))
       end
     end
   })
@@ -54,7 +54,7 @@ M.rgSearch = function(cwd, moreOpts)
     acceptCb = function(args)
       for _, f in ipairs(args) do
         local fn, row, col = getValue(f)
-        vim.cmd(string.format('tabnew +%s %s | normal %sl', row + 1, fn, col))
+        vim.cmd(string.format('tab drop +%s %s | normal %sl', row + 1, fn, col))
       end
     end
   })
@@ -96,7 +96,7 @@ M.oldFiles = function()
       vim.cmd(('edit %s'):format(args[1]))
       if #args > 1 then
         for i = 2, #args do
-          vim.cmd(('tabnew %s'):format(args[i]))
+          vim.cmd(('tab drop %s'):format(args[i]))
         end
       end
     end
@@ -137,7 +137,7 @@ M.buffers = function()
       return vim.split(_, '%s+')[2]
     end, args)
     for _, f in pairs(args) do
-      vim.cmd(('tabnew %s'):format(f))
+      vim.cmd(('tab drop %s'):format(f))
     end
   end)
 end
@@ -275,7 +275,7 @@ M.z = function()
     hidePreview = true,
     scale = 0.6,
     acceptCb = function(args)
-      vim.cmd(('tabnew %s'):format(vim.split(args, '%s+')[2]))
+      vim.cmd(('tab drop %s'):format(vim.split(args, '%s+')[2]))
     end,
   })
 end
@@ -339,7 +339,7 @@ M.keymaps = function()
       if args.info.callback then
         local callbackInfo = debug.getinfo(args.info.callback)
         local row = callbackInfo.linedefined
-        vim.cmd(string.format('tabnew +%s %s | normal %sl', row, callbackInfo.short_src, 0))
+        vim.cmd(string.format('tab drop +%s %s | normal %sl', row, callbackInfo.short_src, 0))
       end
     end
   })
