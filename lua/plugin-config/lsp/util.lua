@@ -148,6 +148,7 @@ local on_attach = function(client, bufnr)
         clear = true
       })
       vim.api.nvim_create_autocmd('CursorMovedI', {
+        buffer = bufnr,
         group = id,
         callback = debounce(function()
           vim.lsp.buf.signature_help()
