@@ -49,7 +49,7 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
       local line = start.line + 1
       local col = start.character
       local fn = args.filename
-      vim.cmd(string.format('tabnew +%s %s | normal %sl', line, fn, col))
+      vim.cmd(string.format('tab drop +%s %s | normal %sl', line, fn, col))
     end,
   })
 end

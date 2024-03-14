@@ -26,7 +26,7 @@ local function new(...)
       if not (result and result.path) then
         return
       end
-      vim.cmd('tabnew ' .. result.path)
+      vim.cmd('tab drop ' .. result.path)
   end)
 end
 
@@ -46,7 +46,7 @@ local function list(opts, onFailed)
         return
       end
       if #result == 1 then
-        vim.cmd('tabnew ' .. result[1].absPath)
+        vim.cmd('tab drop ' .. result[1].absPath)
         return
       end
       for _, item in pairs(result) do
@@ -60,7 +60,7 @@ local function list(opts, onFailed)
         end,
         acceptCb = function(args)
           for _, f in pairs(args) do
-            vim.cmd('tabnew ' .. f.absPath)
+            vim.cmd('tab drop ' .. f.absPath)
           end
         end,
       })
