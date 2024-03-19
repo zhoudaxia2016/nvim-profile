@@ -3,9 +3,12 @@ local lspconfig = require"lspconfig"
 local util = require 'lspconfig.util'
 
 local eslint = {
-  lintCommand = "eslint_d --no-error-on-unmatched-pattern --quiet -f unix --stdin --stdin-filename ${INPUT}",
+  lintCommand = "eslint_d -f visualstudio --stdin --stdin-filename ${INPUT}",
   lintStdin = true,
-  lintFormats = {"%f:%l:%c: %m"},
+  lintFormats = {
+    "%f(%l,%c): %tarning %m",
+    "%f(%l,%c): %trror %m"
+  },
   lintIgnoreExitCode = true,
   formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
   formatStdin = true,
@@ -17,7 +20,7 @@ lspconfig.efm.setup {
     documentFormatting = true,
     codeAction = true,
   },
-  root_dir = util.root_pattern('.eslintrc.*', '.git'),
+  root_dir = util.root_pattern('.eslintrc.*', '.git', 'eslint.config.js'),
   settings = {
     languages = {
       javascript = {eslint},
