@@ -36,6 +36,7 @@ o.conceallevel = 1
 o.fixendofline = false
 opt.iskeyword:append('-')
 o.winblend = 24
+o.smartcase = true
 
 if o.diff then
   o.readonly = false
