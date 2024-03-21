@@ -39,7 +39,13 @@ function MyTabLabel(n)
       end
     end
   end
-  local modifyMark = api.nvim_buf_get_option(activeBuf, "mod") and '+ ' or ''
+  local ok, isModify = api.nvim_buf_get_option(activeBuf, "mod")
+  if not ok then
+    -- TODO: 分析为什么会报错
+    -- vim.print('Tabline execute wrong!!!!', activeBuf, winlist)
+    isModify = false
+  end
+  local modifyMark = isModify and '+ ' or ''
   return modifyMark .. fn.fnamemodify(api.nvim_buf_get_name(activeBuf), ':t')
 end
 vim.o.tabline='%!v:lua.MyTabLine()'
