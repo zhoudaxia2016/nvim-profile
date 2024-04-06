@@ -20,16 +20,17 @@ local getField = function(word)
   local sign = vim.fn.sha256(hash)
   return {
     q = word,
-    from = 'en',
+    from = 'auto',
     to = 'zh',
     signType = 'v3',
     appid = appId,
     salt = salt,
     sign = sign,
+    action = 1,
   }
 end
 
-local function translate(word)
+return function (word)
   local field = getField(word)
   curl.post(uri, {
     body = field,
@@ -55,9 +56,3 @@ local function translate(word)
     end
   })
 end
-
-vim.keymap.set('n', '<leader>t', function()
-  translate(vim.fn.expand('<cword>'))
-end, {desc = 'Translate word at cursor'})
-
-return translate
