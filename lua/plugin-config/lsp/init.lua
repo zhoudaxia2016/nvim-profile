@@ -25,7 +25,7 @@ vim.api.nvim_create_autocmd('LspProgress', {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if client and vim.tbl_contains(msgFilter, client.name, {}) then
-      local value = args.data.result.value
+      local value = args.data.params.value
       vim.notify(string.format('[%s] %s', value.kind == 'begin' and '...' or 'Done', value.title))
     end
   end
@@ -39,17 +39,21 @@ cmd [[hi LspReferenceRead guibg=#6b778d]]
 cmd [[hi LspReferenceWrite guibg=#6b778d]]
 cmd [[hi LspSignatureActiveParameter guibg=#6b778d]]
 
-local signs = {
-  Error = icons.cross .. " ",
-  Warn = icons.exclamation_reverse .. " ",
-  Hint = icons.bulb .. " ",
-  Info = icons.info .. " ",
-}
 
-for type, icon in pairs(signs) do
+for _, type in pairs(vim.diagnostic.severity) do
   local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl })
 end
+vim.diagnostic.config({
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = icons.cross .. " ",
+      [vim.diagnostic.severity.WARN] = icons.exclamation_reverse .. " ",
+      [vim.diagnostic.severity.HINT] = icons.bulb .. " ",
+      [vim.diagnostic.severity.INFO] = icons.info .. " ",
+    }
+  },
+})
+vim.diagnostic.enable()
 
 lspconfig.marksman.setup {
   on_attach = myutil.on_attach,
