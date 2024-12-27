@@ -48,6 +48,7 @@ vim.api.nvim_create_user_command('TsSearch', function()
     getPreviewTitle = function(args)
       return args.info.fn
     end,
+    multi = true,
     previewCb = function(args, ns)
       local info = args.info
       local row1 = info.row1
@@ -66,5 +67,10 @@ vim.api.nvim_create_user_command('TsSearch', function()
         }
       })
     end,
+    acceptCb = function(args)
+      for _, f in ipairs(args) do
+        vim.cmd(string.format('tab drop +%s %s | normal %sl', f.info.row1 + 1, f.info.fn, f.info.col1))
+      end
+    end
   })
 end, {})
