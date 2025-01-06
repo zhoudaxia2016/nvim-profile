@@ -47,10 +47,11 @@ vim.cmd[[
   au FileType netrw setl bufhidden=delete
 ]]
 
-vim.api.nvim_create_autocmd('BufReadPost', {
-  pattern = "*.json",
+vim.api.nvim_create_autocmd('FileType', {
   callback = function()
-    vim.opt_local.conceallevel = 0
+    if vim.iter({'json', 'jsonc'}):find(vim.o.filetype) then
+      vim.opt_local.conceallevel = 0
+    end
   end
 })
 
