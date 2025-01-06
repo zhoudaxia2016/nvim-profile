@@ -76,7 +76,7 @@ M.leftList = {
       modifier = vim.fn.trim(modifier)
       if modifier == '' then
         local gitroot = find_git_ancestor(vim.fn.expand('%:p'))
-        local lspClients = vim.lsp.get_active_clients()
+        local lspClients = vim.lsp.get_clients()
         local root = (lspClients and lspClients[1] and lspClients[1].config.root_dir) or gitroot
         if root then
           fn = fn .. string.format(':s?%s/??', root)
