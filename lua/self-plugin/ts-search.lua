@@ -34,7 +34,7 @@ vim.api.nvim_create_user_command('TsSearch', function()
     local tree = vim.treesitter.get_string_parser(content, ft):parse()
     local query = vim.treesitter.query.parse(ft, queryStr)
     local fn = p
-    for id, node, metadata in query:iter_captures(tree[1]:root(), 0, 0, -1) do
+    for id, node, metadata in query:iter_captures(tree[1]:root(), content, 0, -1) do
       local name = query.captures[id] -- name of the capture in the query
       local type = node:type() -- type of the captured node
       local text = vim.treesitter.get_node_text(node, content)
