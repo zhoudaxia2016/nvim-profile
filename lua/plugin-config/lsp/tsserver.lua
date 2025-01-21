@@ -19,12 +19,6 @@ local settings = {
   format = {
     insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces = false,
   },
-  implementationsCodeLens = {
-    enabled = true,
-  },
-  referencesCodeLens = {
-    enabled = true,
-  },
 }
 
 local function showInlayHint()
@@ -78,7 +72,7 @@ local function renameFile(sourceUri, newName)
 end
 
 
-lspconfig.tsserver.setup {
+lspconfig.ts_ls.setup {
   root_dir = function(fname)
     if (util.root_pattern('.flowconfig')(fname)) then
       return nil

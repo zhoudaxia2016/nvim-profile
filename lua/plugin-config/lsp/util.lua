@@ -30,6 +30,7 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
   end
   fzf.run({
     input = result,
+    multi = true,
     transform = function(item)
       local start = item.range.start
       return string.format('%s:%s | %s', start.line + 1, start.character + 1, item.text)
@@ -45,23 +46,22 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
       vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
     end,
     acceptCb = function(args)
-      local start = args.range.start
-      local line = start.line + 1
-      local col = start.character
-      local fn = args.filename
-      vim.cmd(string.format('tab drop +%s %s | normal %sl', line, fn, col))
+      for _, f in ipairs(args) do
+        local start = f.range.start
+        local line = start.line + 1
+        local col = start.character
+        local fn = f.filename
+        vim.cmd(string.format('tab drop +%s %s | normal %sl', line, fn, col))
+      end
     end,
   })
 end
 
 local on_attach = function(client, bufnr)
   local capabilities = client.server_capabilities
-  -- TODO: remove that after #21001 fixed
-  if capabilities.completionProvider then
-    vim.bo[bufnr].omnifunc = 'v:lua.vim.lsp.omnifunc'
-  end
+  vim.lsp.completion.enable(true, client.id, bufnr, {autotrigger = false})
   if vim.o.diff then
-    vim.diagnostic.disable()
+    vim.diagnostic.enable(false)
   end
   local function bindCursorEvent(event, handler)
     vim.api.nvim_create_autocmd(event, {
@@ -88,7 +88,9 @@ local on_attach = function(client, bufnr)
     map('n', lhs, fn, { silent = true }, bufnr)
   end
 
-  nmap('<c-d><c-h>', 'hover')
+  nmap('<c-d><c-h>', function()
+    vim.lsp.buf.hover({border = 'rounded'})
+  end)
   nmap('<c-d><c-j>', 'definition')
   nmap('<c-d><c-u>', 'rename')
   nmap('<c-d><c-l>', 'references')
@@ -146,18 +148,13 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_create_autocmd('CursorMovedI', {
       buffer = bufnr,
       callback = debounce(function()
-        vim.lsp.buf.signature_help()
+        vim.lsp.buf.signature_help({
+          border = 'rounded',
+          silent = true,
+          focusable = false,
+          max_height = math.ceil(vim.o.lines / 2) - 2,
+        })
       end, 300)
-    })
-  end
-
-  if capabilities.codeLensProvider then
-    vim.lsp.codelens.refresh()
-    vim.api.nvim_create_autocmd({'BufEnter', 'InsertLeave'}, {
-      buffer = bufnr,
-      callback = function()
-        vim.lsp.codelens.refresh()
-      end
     })
   end
 

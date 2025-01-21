@@ -6,21 +6,6 @@ local icons = require"util.icons"
 
 local msgFilter = {'tsserver'}
 
-vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(
-  vim.lsp.handlers.hover, {
-    border = 'rounded'
-  }
-)
-
-vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
-  vim.lsp.handlers.signature_help, {
-    border = 'rounded',
-    silent = true,
-    focusable = false,
-    max_height = math.ceil(vim.o.lines / 2) - 2,
-  }
-)
-
 vim.api.nvim_create_autocmd('LspProgress', {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -32,7 +17,7 @@ vim.api.nvim_create_autocmd('LspProgress', {
 })
 
 opt.updatetime = 500
-vim.o.completeopt = 'menu'
+vim.o.completeopt = 'menu,fuzzy,popup'
 
 cmd [[hi LspReferenceText guibg=#6b778d]]
 cmd [[hi LspReferenceRead guibg=#6b778d]]
