@@ -44,7 +44,10 @@ local themes = {
   ['DiffText'] = { bg = '#604464' },
 
   -- menu
-  ['PmenuSel'] = { bg = palettes.off_blue, fg = palettes.gray },
+  ['Pmenu'] = { bg = palettes.gray },
+  ['PmenuSel'] = { bg = palettes.light_gray_bright },
+  ['PmenuMatch'] = { fg = palettes.off_blue },
+  ['PmenuMatchSel'] = { fg = palettes.off_blue },
 }
 
 vim.cmd[[
