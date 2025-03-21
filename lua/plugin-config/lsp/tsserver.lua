@@ -21,6 +21,12 @@ local settings = {
   },
 }
 
+local supportGotoSource = false
+
+vim.lsp.handlers['$/typescriptVersion'] = function(_, result, _, _)
+  supportGotoSource = vim.version.ge(result.version, '4.7')
+end
+
 local function showInlayHint()
   local pos = vim.lsp.util.make_position_params()
   vim.lsp.buf_request(0, 'textDocument/inlayHint', {
@@ -85,6 +91,10 @@ lspconfig.ts_ls.setup {
     client.server_capabilities.document_range_formatting = false
     map('n', '<c-d><c-k>', showInlayHint, { silent = true }, 0)
     map('n', '<c-d><c-j>', function()
+      if supportGotoSource == false then
+        vim.lsp.buf.definition()
+        return
+      end
       local pos = vim.lsp.util.make_position_params()
       vim.lsp.buf.execute_command({
         command = typescriptCommands.goToSourceDefinition,
@@ -93,6 +103,10 @@ lspconfig.ts_ls.setup {
     end, {}, bufnr)
     map('n', '<C-LeftMouse>', function()
       vim.schedule(function()
+        if supportGotoSource == false then
+          vim.lsp.buf.definition()
+          return
+        end
         local pos = _util.make_mouse_postion_param()
         vim.lsp.buf.execute_command({
           command = typescriptCommands.goToSourceDefinition,
