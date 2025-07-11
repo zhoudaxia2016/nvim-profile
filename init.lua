@@ -1,3 +1,4 @@
+require('preload')
 vim.g.workspace = require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd()) or vim.fn.getcwd()
 
 vim.g.nord_borders = true
