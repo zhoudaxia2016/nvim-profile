@@ -1,6 +1,5 @@
 local cmd = vim.cmd
 local opt = vim.opt
-local lspconfig = require"lspconfig"
 local myutil = require"plugin-config.lsp.util"
 local icons = require"util.icons"
 
@@ -40,39 +39,30 @@ vim.diagnostic.config({
 })
 vim.diagnostic.enable()
 
-lspconfig.marksman.setup {
+vim.lsp.enable({'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', ''})
+vim.lsp.config('*', {
   on_attach = myutil.on_attach,
-}
-lspconfig.clangd.setup {
-  on_attach = myutil.on_attach,
-}
-lspconfig.flow.setup {
-  on_attach = myutil.on_attach,
-}
-lspconfig.rust_analyzer.setup({
-    on_attach= myutil.on_attach,
-    settings = {
-        ["rust-analyzer"] = {
-            imports = {
-                granularity = {
-                    group = "module",
-                },
-                prefix = "self",
-            },
-            cargo = {
-                buildScripts = {
-                    enable = true,
-                },
-            },
-            procMacro = {
-                enable = true
-            },
-        }
-    }
 })
-lspconfig.gopls.setup {
-  on_attach = myutil.on_attach,
-}
+vim.lsp.config('rust_analyzer', {
+  settings = {
+    ["rust-analyzer"] = {
+      imports = {
+        granularity = {
+          group = "module",
+        },
+        prefix = "self",
+      },
+      cargo = {
+        buildScripts = {
+          enable = true,
+        },
+      },
+      procMacro = {
+        enable = true
+      },
+    }
+  }
+})
 
 require('plugin-config.lsp.tsserver')
 require('plugin-config.lsp.efm')
