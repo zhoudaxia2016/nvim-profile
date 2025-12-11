@@ -1,4 +1,3 @@
-local lspconfig = require"lspconfig"
 local fzf = require"self-plugin.fzf".run
 local previewer = require('self-plugin.fzf.previewer')
 
@@ -69,7 +68,8 @@ end
 
 -- 部分命令依赖zk alias配置
 -- reference https://github.com/zhoudaxia2016/note/blob/main/.zk/config.toml
-lspconfig.zk.setup {
+vim.lsp.enable('zk')
+vim.lsp.config('zk', {
   commands = {
     ZKNew = {
       new,
@@ -118,4 +118,4 @@ lspconfig.zk.setup {
       end,
     }
   }
-}
+})

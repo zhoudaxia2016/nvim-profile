@@ -9,8 +9,7 @@ local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, "lua/?.lua")
 table.insert(runtime_path, "lua/?/init.lua")
 
-require'lspconfig'.lua_ls.setup {
-  on_attach = myutil.on_attach,
+vim.lsp.config('lua_ls', {
   settings = {
     Lua = {
       runtime = {
@@ -34,4 +33,5 @@ require'lspconfig'.lua_ls.setup {
       },
     },
   },
-}
+})
+vim.lsp.enable('lua_ls')

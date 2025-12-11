@@ -1,4 +1,3 @@
-local lspconfig = require"lspconfig"
 local util = require"lspconfig.util"
 local ts_utils = require('nvim-treesitter.ts_utils')
 local map = require"util".map
@@ -78,14 +77,8 @@ local function renameFile(sourceUri, newName)
 end
 
 
-lspconfig.ts_ls.setup {
-  root_dir = function(fname)
-    if (util.root_pattern('.flowconfig')(fname)) then
-      return nil
-    end
-    return util.root_pattern 'tsconfig.json'(fname)
-    or util.root_pattern('package.json', 'jsconfig.json', '.git')(fname)
-  end,
+vim.lsp.enable('ts_ls')
+vim.lsp.config('ts_ls', {
   on_attach = myutil.on_attachWithCb(function(client, bufnr)
     client.server_capabilities.document_formatting = false
     client.server_capabilities.document_range_formatting = false
@@ -186,4 +179,4 @@ lspconfig.ts_ls.setup {
       codeLens = {}
     }
   },
-}
+})

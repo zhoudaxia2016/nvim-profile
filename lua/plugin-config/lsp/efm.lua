@@ -1,5 +1,4 @@
 local myutil = require"plugin-config.lsp.util"
-local lspconfig = require"lspconfig"
 local util = require 'lspconfig.util'
 
 local eslint = {
@@ -14,8 +13,8 @@ local eslint = {
   formatStdin = true,
 }
 
-lspconfig.efm.setup {
-  on_attach = myutil.on_attach,
+vim.lsp.enable('efm')
+vim.lsp.config('efm', {
   init_options = {
     documentFormatting = true,
     codeAction = true,
@@ -39,4 +38,4 @@ lspconfig.efm.setup {
     "typescript.tsx",
     "typescriptreact"
   },
-}
+})
