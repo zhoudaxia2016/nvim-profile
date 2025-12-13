@@ -5,7 +5,10 @@ map('n', '<leader><leader>', function()
     completion = 'help'
   }, function(input)
     if input then
-      vim.cmd('help ' .. input)
+      local success = pcall(vim.cmd, 'help ' .. input)
+      if not success then
+        vim.cmd('helpgrep ' .. input)
+      end
     end
   end)
 end, {desc = 'Nvim Help'})
