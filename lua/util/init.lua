@@ -41,7 +41,7 @@ function M.map(mode, key, command, opt, bufnr)
 end
 
 M.getRoot = function ()
-  return require('lspconfig.util').root_pattern('package.json', '.git')(vim.fn.getcwd())
+  return vim.fs.root(vim.fn.getcwd(), {'package.json', '.git', 'bin'})
 end
 
 M.createColorGroup = function(base, prefix, link)
