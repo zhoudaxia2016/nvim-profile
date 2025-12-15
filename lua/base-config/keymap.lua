@@ -41,6 +41,7 @@ map('n', '<c-e>', '<c-v>')
 map('n', ';', ':', { silent = false })
 
 map('c', '<m-l>', '<C-f>a<Tab>', { noremap = false })
+vim.keymap.set('v', '//', [[y/\V<C-R>=escape(@",'/\')<CR><CR>]])
 
 local function cleverTab()
   local col = vim.fn.col('.')
