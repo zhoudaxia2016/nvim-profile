@@ -44,6 +44,7 @@ vim.lsp.config('*', {
   on_attach = myutil.on_attach,
 })
 vim.lsp.config('rust_analyzer', {
+  on_attach = myutil.on_attach,
   settings = {
     ["rust-analyzer"] = {
       imports = {
