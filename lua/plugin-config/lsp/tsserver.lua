@@ -77,7 +77,6 @@ local function renameFile(sourceUri, newName)
 end
 
 
-vim.lsp.enable('ts_ls')
 vim.lsp.config('ts_ls', {
   on_attach = myutil.on_attachWithCb(function(client, bufnr)
     client.server_capabilities.document_formatting = false
