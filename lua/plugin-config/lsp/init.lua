@@ -39,12 +39,15 @@ vim.diagnostic.config({
 })
 vim.diagnostic.enable()
 
-vim.lsp.enable({'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', ''})
-vim.lsp.config('*', {
-  on_attach = myutil.on_attach,
-})
+local enable_list = {'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', 'efm', 'sumneko', 'lua_ls', 'ts_ls', 'zk', 'rust_analyzer'}
+vim.lsp.enable(enable_list)
+for _, name in pairs(enable_list) do
+  vim.lsp.config(name, {
+    on_attach = myutil.on_attach,
+  })
+end
+
 vim.lsp.config('rust_analyzer', {
-  on_attach = myutil.on_attach,
   settings = {
     ["rust-analyzer"] = {
       imports = {

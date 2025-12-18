@@ -68,7 +68,6 @@ end
 
 -- 部分命令依赖zk alias配置
 -- reference https://github.com/zhoudaxia2016/note/blob/main/.zk/config.toml
-vim.lsp.enable('zk')
 vim.lsp.config('zk', {
   commands = {
     ZKNew = {

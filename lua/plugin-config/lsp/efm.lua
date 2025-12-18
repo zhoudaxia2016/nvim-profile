@@ -13,7 +13,6 @@ local eslint = {
   formatStdin = true,
 }
 
-vim.lsp.enable('efm')
 vim.lsp.config('efm', {
   init_options = {
     documentFormatting = true,
