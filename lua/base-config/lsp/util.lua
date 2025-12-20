@@ -137,10 +137,10 @@ local on_attach = function(client, bufnr)
   end)
   local diagnosticConfig = { severity = vim.diagnostic.severity.ERROR, float = { border = "rounded" }}
   nmap('<c-d><c-n>', function()
-    vim.diagnostic.goto_next(diagnosticConfig)
+    vim.diagnostic.jump(vim.tbl_extend('force', diagnosticConfig, {count = 1}))
   end, true)
   nmap('<c-d><c-p>', function()
-    vim.diagnostic.goto_prev(diagnosticConfig)
+    vim.diagnostic.jump(vim.tbl_extend('force', diagnosticConfig, {count = -1}))
   end, true)
   map('v', 'f', 'format')
 

@@ -27,8 +27,8 @@ local diagnostics = {
 local function makeDiagnosticHandler(severity)
   return function(_, button)
       if button == 'l' then
-        local diagnosticConfig = { severity = severity, float = { border = "rounded" }}
-        vim.diagnostic.goto_next(diagnosticConfig)
+        local diagnosticConfig = { count = 1, severity = severity, float = { border = "rounded" }}
+        vim.diagnostic.jump(diagnosticConfig)
       else
         -- TODO Why need to delay?
         vim.defer_fn(function()
