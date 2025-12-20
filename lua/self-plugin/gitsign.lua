@@ -10,7 +10,7 @@ local gitsign_config = {
 local function executeShell(cmd, useBuf)
   local dir = vim.fs.dirname(vim.fn.expand('%:p'))
   local fn = useBuf and vim.fn.expand('%:t') or ''
-  return vim.trim(vim.fn.system(string.format('cd %s;%s%s', dir, cmd, fn)))
+  return vim.fn.system(string.format('cd %s;%s%s', dir, cmd, fn))
 end
 
 local function memoize(fn, hash_fn)
