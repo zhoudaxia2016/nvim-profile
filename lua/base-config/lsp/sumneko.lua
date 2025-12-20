@@ -1,4 +1,4 @@
-local myutil = require"plugin-config.lsp.util"
+local myutil = require"base-config.lsp.util"
 
 -- 安装最新ninja
 -- 参考 https://jdhao.github.io/2021/08/12/nvim_sumneko_lua_conf/
