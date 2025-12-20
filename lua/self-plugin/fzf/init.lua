@@ -26,7 +26,7 @@ local function highlight(previewWinId)
       end
     end
     if ft and useTreesitterHighlighter == false then
-      vim.api.nvim_buf_set_option(buf, 'syntax', ft)
+      vim.api.nvim_set_option_value('syntax', ft, {buf = buf})
     end
 end
 

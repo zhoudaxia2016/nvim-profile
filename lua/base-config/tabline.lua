@@ -33,18 +33,13 @@ function MyTabLabel(n)
   else
     for _, win in pairs(winlist) do
       local buf = api.nvim_win_get_buf(win)
-      if api.nvim_buf_get_option(buf, 'filetype') ~= 'netrw' then
+      if api.nvim_get_option_value('filetype', {buf = buf}) ~= 'netrw' then
         activeBuf = buf
         break
       end
     end
   end
-  local ok, isModify = api.nvim_buf_get_option(activeBuf, "mod")
-  if not ok then
-    -- TODO: 分析为什么会报错
-    -- vim.print('Tabline execute wrong!!!!', activeBuf, winlist)
-    isModify = false
-  end
+  local isModify = api.nvim_get_option_value("mod", {buf = activeBuf})
   local modifyMark = isModify and '+ ' or ''
   return modifyMark .. fn.fnamemodify(api.nvim_buf_get_name(activeBuf), ':t')
 end

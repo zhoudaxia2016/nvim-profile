@@ -43,7 +43,7 @@ return function (word)
         local buf = api.nvim_create_buf(false, true)
         api.nvim_buf_set_lines(buf, 0, -1, true, {result.trans_result[1].dst})
         local id = api.nvim_open_win(buf, false, { style = 'minimal', relative = 'cursor', row = 1, col = 0, width = 10, height = 3, border = 'single' })
-        api.nvim_win_set_option(id, 'winhl', 'Normal:Translate')
+        api.nvim_set_option_value('winhl', 'Normal:Translate', {win = id})
         vim.api.nvim_create_autocmd({'CursorMoved', 'CmdLineEnter'}, {
           callback = function()
             if id and api.nvim_win_is_valid(id) then
