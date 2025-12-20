@@ -1,14 +1,12 @@
-local ts_utils = require('nvim-treesitter.ts_utils')
 local get_node_text = vim.treesitter.get_node_text
 
 local function getTestName(node)
   if node == nil then return nil end
   if node:type() == 'call_expression' then
-    local children = ts_utils.get_named_children(node)
-    local text = get_node_text(children[1], 0)
+    local text = get_node_text(node:named_child(1), 0)
     local name = ''
     if text == 'describe' or text == 'it' then
-      name = get_node_text(ts_utils.get_named_children(ts_utils.get_named_children(children[2])[1])[1], 0)
+      name = get_node_text(node:named_child(2):named_child(1):named_child(1))
       if text == 'it' then
         name = getTestName(node:parent()) .. " " .. name
       end

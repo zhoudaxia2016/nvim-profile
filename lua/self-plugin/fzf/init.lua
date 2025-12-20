@@ -20,7 +20,7 @@ local function highlight(previewWinId)
     local useTreesitterHighlighter = false
     if ft then
       local lang = vim.treesitter.language.get_lang(ft)
-      if vim.tbl_contains(require'nvim-treesitter.configs'.get_ensure_installed_parsers(), lang) then
+      if vim.tbl_contains(require'nvim-treesitter'.get_installed(), lang) then
         useTreesitterHighlighter = true
         vim.treesitter.start(buf, lang)
       end

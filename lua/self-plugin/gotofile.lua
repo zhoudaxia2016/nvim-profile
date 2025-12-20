@@ -1,4 +1,3 @@
-local ts_utils = require('nvim-treesitter.ts_utils')
 local util = require('lspconfig.util')
 local config
 local exts = {'ts', 'js', 'tsx', 'jsx'}
@@ -74,7 +73,7 @@ end
 local function gotoFile()
   init()
   local paths = config.paths
-  local node = ts_utils.get_node_at_cursor(0)
+  local node = vim.treesitter.get_node()
   if node:type() ~= 'string_fragment' then
     return 'gf'
   end
