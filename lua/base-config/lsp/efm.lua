@@ -1,4 +1,4 @@
-local myutil = require"plugin-config.lsp.util"
+local myutil = require"base-config.lsp.util"
 local util = require 'lspconfig.util'
 
 local eslint = {

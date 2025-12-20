@@ -1,6 +1,6 @@
 local cmd = vim.cmd
 local opt = vim.opt
-local myutil = require"plugin-config.lsp.util"
+local myutil = require"base-config.lsp.util"
 local icons = require"util.icons"
 
 local msgFilter = {'tsserver'}
@@ -68,10 +68,10 @@ vim.lsp.config('rust_analyzer', {
   }
 })
 
-require('plugin-config.lsp.tsserver')
-require('plugin-config.lsp.efm')
-require('plugin-config.lsp.sumneko')
-require('plugin-config.lsp.zk')
+require('base-config.lsp.tsserver')
+require('base-config.lsp.efm')
+require('base-config.lsp.sumneko')
+require('base-config.lsp.zk')
 
 -- TODO: 待完善
 -- 现在的实现edit的执行可能有冲突，不能完全fix all

@@ -2,7 +2,7 @@ local map = require"util".map
 local debounce = require'util.debounce'
 local api = vim.api
 local fzf = require('self-plugin.fzf')
-local _util = require('plugin-config.lsp._util')
+local _util = require('base-config.lsp._util')
 
 M = {}
 

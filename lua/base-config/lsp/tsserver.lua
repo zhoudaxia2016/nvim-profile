@@ -1,8 +1,8 @@
 local util = require"lspconfig.util"
 local map = require"util".map
-local myutil = require"plugin-config.lsp.util"
+local myutil = require"base-config.lsp.util"
 local trim = require"util".trim
-local _util = require('plugin-config.lsp._util')
+local _util = require('base-config.lsp._util')
 
 local bin_name = 'typescript-language-server'
 local getPath = function (str)
