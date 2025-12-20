@@ -11,7 +11,7 @@ function _G.javascript_indent()
     end
   end
 
-  return vim.fn['nvim_treesitter#indent']()
+  return require'nvim-treesitter'.indentexpr()
 end
 
 local ft = { 'javascript', 'typescript', 'typescriptreact' }
