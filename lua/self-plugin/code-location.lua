@@ -1,6 +1,4 @@
 -- 参考 https://github.com/SmiteshP/nvim-gps
-local ts_parsers = require("nvim-treesitter.parsers")
-local ts_queries = require("nvim-treesitter.query")
 local utils = require('util')
 
 local function createColorGroup(link)
@@ -31,8 +29,8 @@ end
 HandleWinbarClick = function () end
 
 function CodeLocation()
-  local filelang = ts_parsers.ft_to_lang(vim.bo.filetype)
-  local code_location_query = ts_queries.get_query(filelang, "code-location")
+  local filelang = vim.treesitter.language.get_lang(vim.bo.filetype) or vim.bo.filetype
+  local code_location_query = vim.treesitter.query.get(filelang, "code-location")
 
   if not code_location_query then
     return ''

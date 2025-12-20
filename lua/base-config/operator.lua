@@ -1,5 +1,4 @@
 OperatorFunc = nil
-local utils = require "nvim-treesitter.ts_utils"
 local pairs = {
   ['"'] = '"',
   ['('] = ')',
@@ -32,7 +31,7 @@ local function matchPair(str)
 end
 
 vim.keymap.set('n', '<leader>oO', function()
-  local node = utils.get_node_at_cursor()
+  local node = vim.treesitter.get_node()
   local isPair = false
   if node == nil then
     return

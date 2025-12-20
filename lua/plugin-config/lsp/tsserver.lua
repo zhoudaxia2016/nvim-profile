@@ -1,5 +1,4 @@
 local util = require"lspconfig.util"
-local ts_utils = require('nvim-treesitter.ts_utils')
 local map = require"util".map
 local myutil = require"plugin-config.lsp.util"
 local trim = require"util".trim
@@ -40,14 +39,14 @@ local function showInlayHint()
       if (#result == 1) then
         label = result[1].label
       else
-        local current = ts_utils.get_node_at_cursor()
+        local current = vim.treesitter.get_node()
         local node = current:parent()
         while (node and node:type() ~= 'arguments') do
           current = node
           node = node:parent()
         end
         if node ~= nil then
-          local startLine, startCharacter = ts_utils.get_node_range(current)
+          local startLine, startCharacter = vim.treesitter.get_node_range(current)
           for _, v in ipairs(result) do
             if (v.kind == 2) then
               if v.position.character == startCharacter and v.position.line == startLine then

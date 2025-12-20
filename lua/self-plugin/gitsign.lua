@@ -1,5 +1,4 @@
 local gitsign_data = {}
-local memoize_by_buf_tick = require('nvim-treesitter.ts_utils').memoize_by_buf_tick
 local gitsign_config = {
   a = { hl = 'diffAdded', icon = '│' },
   db = { hl = 'diffRemoved', icon = '‾'},
@@ -14,12 +13,29 @@ local function executeShell(cmd, useBuf)
   return vim.trim(vim.fn.system(string.format('cd %s;%s%s', dir, cmd, fn)))
 end
 
-local isInsideGitWorkTree = memoize_by_buf_tick(function()
+local function memoize(fn, hash_fn)
+  local cache = setmetatable({}, { __mode = 'kv' }) ---@type table<any,any>
+
+  return function(...)
+    local key = hash_fn(...)
+    if cache[key] == nil then
+      local v = fn(...) ---@type any
+      cache[key] = v ~= nil and v or vim.NIL
+    end
+
+    local v = cache[key]
+    return v ~= vim.NIL and v or nil
+  end
+end
+
+local isInsideGitWorkTree = memoize(function(buf)
   local res = executeShell('git rev-parse --is-inside-work-tree') == 'true'
   if (res == true) then
     return executeShell('git check-ignore ', true) == ''
   end
   return res
+end, function(buf)
+  return tostring(buf)
 end)
 
 local function getDiff()
