@@ -52,7 +52,7 @@ local function init()
   if config then
     return
   end
-  local rootDir = util.find_package_json_ancestor(vim.fn.getcwd())
+  local rootDir = vim.fs.dirname(vim.fs.find('package.json', { path = vim.fn.getcwd(), upward = true })[1])
   if rootDir == nil then return end
   local tsconfigFile = rootDir .. '/tsconfig.json'
   config = {

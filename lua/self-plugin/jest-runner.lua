@@ -37,7 +37,7 @@ local function runJestTest(debug)
   end
   loadedConfig = true
 
-  local node = ts_utils.get_node_at_cursor()
+  local node = vim.treesitter.get_node()
   local name = getTestName(node) or ''
   local fn = vim.fn.expand('%:p')
   local debugArgs = ''

@@ -1,8 +1,7 @@
 local configDir = vim.fn.stdpath('config') .. '/projects-config/'
-local util = require('lspconfig.util')
 
 local function getConfigFile()
-  local root = util.find_package_json_ancestor(vim.fn.getcwd())
+  local root = vim.fs.dirname(vim.fs.find('package.json', { path = vim.fn.getcwd(), upward = true })[1])
   if root == nil then
     return nil
   end

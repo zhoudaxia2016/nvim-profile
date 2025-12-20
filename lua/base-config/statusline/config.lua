@@ -2,7 +2,6 @@ local fzf = require('self-plugin.fzf.builtin')
 local hlgs = require('base-config.statusline.hlgs')
 local gitsign = require('base-config.statusline.gitsign')
 local fileIcons = require('base-config.statusline.fileIcons')
-local find_git_ancestor = require('lspconfig.util').find_git_ancestor
 local icons = require"util.icons"
 local diagnostic = vim.diagnostic
 local o = vim.o
@@ -75,7 +74,7 @@ M.leftList = {
       local fn = '%:p'
       modifier = vim.fn.trim(modifier)
       if modifier == '' then
-        local gitroot = find_git_ancestor(vim.fn.expand('%:p'))
+        local gitroot = vim.fs.dirname(vim.fs.find('.git', { path = vim.fn.expand('%:p'), upward = true })[1])
         local lspClients = vim.lsp.get_clients()
         local root = (lspClients and lspClients[1] and lspClients[1].config.root_dir) or gitroot
         if root then
