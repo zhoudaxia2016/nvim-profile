@@ -39,13 +39,19 @@ vim.diagnostic.config({
 })
 vim.diagnostic.enable()
 
-local enable_list = {'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', 'efm', 'sumneko', 'lua_ls', 'ts_ls', 'zk', 'rust_analyzer'}
+local enable_list = {'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', 'efm', 'sumneko', 'lua_ls', 'ts_ls', 'zk', 'rust_analyzer', 'kotlin_lsp', 'jdtls'}
 vim.lsp.enable(enable_list)
 for _, name in pairs(enable_list) do
   vim.lsp.config(name, {
     on_attach = myutil.on_attach,
   })
 end
+
+vim.lsp.log.set_level(vim.log.levels.DEBUG)
+vim.lsp.config('kotlin_lsp', {
+  -- TODO 启动路径优化，软链接到~/.loca/bin目录有问题
+  cmd = { vim.env.HOME .. '/.local/kotlin/kotlin-lsp.sh', '--stdio' },
+})
 
 vim.lsp.config('rust_analyzer', {
   settings = {
