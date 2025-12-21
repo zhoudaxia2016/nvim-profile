@@ -1,15 +1,8 @@
-vim.api.nvim_create_autocmd('TextYankPost', {
-  pattern = '*',
-  callback = function()
-    vim.highlight.on_yank { higroup='DiffText', timeout=700 }
-  end
-})
-
-local lastClosedTab
+local lastLeavedTab
 vim.api.nvim_create_autocmd('TabLeave', {
   pattern = '*',
   callback = function()
-    lastClosedTab = vim.fn.tabpagenr()
+    lastLeavedTab = vim.fn.tabpagenr()
   end
 })
 vim.api.nvim_create_autocmd('TabClosed', {
@@ -19,7 +12,7 @@ vim.api.nvim_create_autocmd('TabClosed', {
     if (curtab == 1) then
       return
     end
-    if (curtab == lastClosedTab) then
+    if (curtab == lastLeavedTab) then
       local tabonleft = curtab - 1
       vim.cmd(tabonleft .. 'tabnext')
     end
