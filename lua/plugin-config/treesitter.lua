@@ -1,1 +1,1 @@
-require'nvim-treesitter'.install {"javascript", "typescript", "tsx", "lua", "json", "jsonc", "query", "comment", "scheme", "markdown", "markdown_inline", "toml", "rust", "go", "c", "cpp"}
+require'nvim-treesitter'.install {"javascript", "typescript", "tsx", "lua", "json", "jsonc", "query", "comment", "scheme", "markdown", "markdown_inline", "toml", "rust", "go", "c", "cpp", "git_config", "kotlin", "java"}
