@@ -48,6 +48,8 @@ local themes = {
   ['PmenuSel'] = { bg = palettes.light_gray_bright },
   ['PmenuMatch'] = { fg = palettes.off_blue },
   ['PmenuMatchSel'] = { fg = palettes.off_blue },
+
+  ['Scope'] = { bg = palettes.dark_gray }
 }
 
 vim.cmd[[
