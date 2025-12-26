@@ -6,7 +6,7 @@ local function highlight_node(node)
   end
   local start_row, _, end_row, _ = node:range()
   local end_row = vim.fn.line('$') == end_row and end_row or end_row + 1
-  vim.api.nvim_buf_set_extmark(0, ns, start_row, 0, {hl_group = 'Scope', end_row = end_row, end_col = 0, hl_eol = true})
+  vim.api.nvim_buf_set_extmark(0, ns, start_row, 0, {hl_group = 'Scope', end_row = end_row, end_col = 0, hl_eol = true, priority = vim.hl.priorities.treesitter})
 end
 
 local function memoize(fn, hash_fn)
