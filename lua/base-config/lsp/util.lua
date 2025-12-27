@@ -3,6 +3,7 @@ local debounce = require'util.debounce'
 local api = vim.api
 local fzf = require('self-plugin.fzf')
 local _util = require('base-config.lsp._util')
+local goto_doc_hl_result = require('base-config.lsp.featrues.document_highlight').goto_doc_hl_result
 
 M = {}
 
@@ -57,8 +58,10 @@ vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
   })
 end
 
+--- @param client vim.lsp.Client
+--- @param bufnr integer
 local on_attach = function(client, bufnr)
-  local capabilities = client.server_capabilities
+  local capabilities = client.server_capabilities or {}
   vim.lsp.completion.enable(true, client.id, bufnr, {autotrigger = false})
   if vim.o.diff then
     vim.diagnostic.enable(false)
@@ -72,7 +75,7 @@ local on_attach = function(client, bufnr)
     })
   end
 
-  if client.server_capabilities.document_highlight then
+  if capabilities.documentHighlightProvider then
     bindCursorEvent('CursorHold', 'document_highlight')
   end
   bindCursorEvent('CursorMoved', 'clear_references')
@@ -143,6 +146,12 @@ local on_attach = function(client, bufnr)
     vim.diagnostic.jump(vim.tbl_extend('force', diagnosticConfig, {count = -1}))
   end, true)
   map('v', 'f', 'format')
+  nmap('gyi', function()
+    goto_doc_hl_result(1)
+  end)
+  nmap('gyI', function()
+    goto_doc_hl_result(-1)
+  end)
 
   if (client.server_capabilities.signatureHelpProvider) then
     vim.api.nvim_create_autocmd('CursorMovedI', {
