@@ -1,8 +1,6 @@
 local map = require"util".map
 local debounce = require'util.debounce'
 local api = vim.api
-local fzf = require('self-plugin.fzf')
-local _util = require('base-config.lsp._util')
 local goto_doc_hl_result = require('base-config.lsp.featrues.document_highlight').goto_doc_hl_result
 
 M = {}
@@ -17,45 +15,6 @@ vim.lsp.util.make_floating_popup_options = function(...)
   opts.row = above and 0 or 1
   opts.anchor = anchor .. opts.anchor:sub(2, 2)
   return opts
-end
-
-vim.lsp.handlers['textDocument/references'] = function(_, result, _, _)
-  if not result or vim.tbl_isempty(result) then
-    vim.notify('No references found')
-    return
-  end
-  for _, item in pairs(result) do
-    local start = item.range.start
-    item.text = _util.get_line(vim.uri_to_bufnr(item.uri), start.line)
-    item.filename = vim.uri_to_fname(item.uri)
-  end
-  fzf.run({
-    input = result,
-    multi = true,
-    transform = function(item)
-      local start = item.range.start
-      return string.format('%s:%s | %s', start.line + 1, start.character + 1, item.text)
-    end,
-    getPreviewTitle = function(args)
-      return args.filename
-    end,
-    previewCb = function(args, ns)
-      local startRange = args.range.start
-      local endRange = args.range['end']
-      local fn = args.filename
-      vim.cmd(string.format('edit +%s %s', startRange.line + 1, fn))
-      vim.highlight.range(0, ns, 'Todo', {startRange.line, startRange.character}, {endRange.line, endRange.character}, {priority = 9999})
-    end,
-    acceptCb = function(args)
-      for _, f in ipairs(args) do
-        local start = f.range.start
-        local line = start.line + 1
-        local col = start.character
-        local fn = f.filename
-        vim.cmd(string.format('tab drop +%s %s | normal %sl', line, fn, col))
-      end
-    end,
-  })
 end
 
 --- @param client vim.lsp.Client
