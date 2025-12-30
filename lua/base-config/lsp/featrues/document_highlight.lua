@@ -5,6 +5,14 @@ vim.lsp.handlers['textDocument/documentHighlight'] = function(err, result, ctx, 
     return
   end
 
+  result = vim.tbl_filter(function(item)
+    return item.kind ~= vim.lsp.protocol.DocumentHighlightKind.Text
+  end, result)
+
+  if #result == 0 then
+    return
+  end
+
   local start_line = vim.fn.line('w0') - 1
   local end_line = vim.fn.line('w$') - 1
   local n = 0
