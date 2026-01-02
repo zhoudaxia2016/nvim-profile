@@ -95,7 +95,7 @@ function MyTabLine()
     if i == stop and stop_len ~= -1 then
       text = string.sub(text, 1, stop_len - 1) .. '>'
     end
-    s = s .. text
+    s = s .. string.format('%%%d@v:lua.TabLineSwitch@%s%%X', i, text)
   end
 
   -- 默认info背景色和TabLine一致
@@ -110,6 +110,10 @@ function MyTabLine()
   s = string.format('%s%%#%s#%s', s, info_color_group, info)
 
   return s
+end
+
+function TabLineSwitch(i)
+  vim.cmd('tabn ' .. i)
 end
 
 vim.o.tabline='%!v:lua.MyTabLine()'
