@@ -2,9 +2,6 @@ local myutil = require"base-config.lsp.util"
 
 -- 安装最新ninja
 -- 参考 https://jdhao.github.io/2021/08/12/nvim_sumneko_lua_conf/
-local sumneko_binary_path = vim.fn.exepath('lua-language-server')
-local sumneko_root_path = vim.fn.fnamemodify(sumneko_binary_path, ':h:h:h')
-
 local runtime_path = vim.split(package.path, ';')
 table.insert(runtime_path, "lua/?.lua")
 table.insert(runtime_path, "lua/?/init.lua")
@@ -17,6 +14,7 @@ vim.lsp.config('lua_ls', {
         version = 'LuaJIT',
         -- Setup your lua path
         path = runtime_path,
+        pathStrict = true,
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
