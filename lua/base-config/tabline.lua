@@ -47,6 +47,8 @@ function MyTabLine()
 
   local total_char = 0
 
+  stop = math.min(count, stop)
+
   -- 当前选中tab不在可视区域，重新计算
   if select_index < start or select_index > stop then
     start = select_index
