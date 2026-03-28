@@ -129,6 +129,7 @@ local on_attach = function(client, bufnr)
   -- if capabilities.inlayHintProvider then
   --   vim.lsp.buf.inlay_hint(bufnr, true)
   -- end
+  vim.lsp.document_color.enable(true, 0, {style = 'virtual'})
 end
 
 M.on_attach = on_attach
