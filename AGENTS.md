@@ -4,7 +4,7 @@
 
 ### 验证策略
 用 luacheck 静态检查
-不要用 `nvim --headless` 验证
+不要用 `nvim --headless` 验证（除非用户主动要求）
 
 ### Neovim 配置问题
 **文档搜索顺序**
