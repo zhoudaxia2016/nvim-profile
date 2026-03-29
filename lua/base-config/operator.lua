@@ -1,10 +1,11 @@
 OperatorFunc = nil
-local pairs = {
+local pair_chars = {
   ['"'] = '"',
   ['('] = ')',
   ['['] = ']',
   ['{'] = '}',
   ['<'] = '>',
+  ["'"] = "'",
 }
 
 local descPrefix = '[Operator]: '
@@ -22,12 +23,9 @@ local getLine = vim.fn.line
 local getCol = vim.fn.col
 
 local function matchPair(str)
-  for k, v in ipairs(pairs) do
-    if str[1] == k and str[#str] == v then
-      return true
-    end
-  end
-  return false
+  local first = str:sub(1, 1)
+  local last = str:sub(-1)
+  return pair_chars[first] == last
 end
 
 vim.keymap.set('n', '<leader>oO', function()
@@ -36,9 +34,9 @@ vim.keymap.set('n', '<leader>oO', function()
   if node == nil then
     return
   end
-  local text = vim.treesitter.get_node_text(node, 0)
   while (node) do
-    if (#text > 1 and text:sub(1, 1) == text:sub(#text, #text)) or matchPair(text) then
+    local text = vim.treesitter.get_node_text(node, 0)
+    if matchPair(text) then
       isPair = true
       break
     end
@@ -46,6 +44,7 @@ vim.keymap.set('n', '<leader>oO', function()
   end
   if isPair then
     local startRow, startCol, endRow, endCol = vim.treesitter.get_node_range(node)
+    local text = vim.treesitter.get_node_text(node, 0)
     local edits = {
       {
         newText = text:sub(2, #text - 1),
@@ -55,7 +54,7 @@ vim.keymap.set('n', '<leader>oO', function()
         }
       }
     }
-    vim.lsp.util.apply_text_edits(edits, 0, 'utf-8')
+vim.lsp.util.apply_text_edits(edits, vim.api.nvim_get_current_buf(), 'utf-8')
   end
 end, {desc = descPrefix .. 'Surround delete'})
 
