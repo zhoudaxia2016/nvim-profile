@@ -5,6 +5,7 @@ local preview_ticket = {}
 local origin_buf_cache = {}
 local PREVIEW_DELETE_HL = 'DiffDelete'
 local PREVIEW_ADD_HL = 'DiffAdd'
+local PREVIEW_CHANGE_HL = 'DiffChange'
 local gitsign_config = {
   a = { hl = 'diffAdded', icon = '│' },
   db = { hl = 'diffRemoved', icon = '‾'},
@@ -336,6 +337,104 @@ local function sameHunk(a, b)
     and a[4] == b[4]
 end
 
+local function getInlineDiffSpan(oldText, newText)
+  local oldLen = #oldText
+  local newLen = #newText
+  local prefix = 0
+  local maxPrefix = math.min(oldLen, newLen)
+  while prefix < maxPrefix do
+    if oldText:sub(prefix + 1, prefix + 1) ~= newText:sub(prefix + 1, prefix + 1) then
+      break
+    end
+    prefix = prefix + 1
+  end
+
+  local oldSuffix = 0
+  local newSuffix = 0
+  while prefix + oldSuffix < oldLen and prefix + newSuffix < newLen do
+    if oldText:sub(oldLen - oldSuffix, oldLen - oldSuffix) ~= newText:sub(newLen - newSuffix, newLen - newSuffix) then
+      break
+    end
+    oldSuffix = oldSuffix + 1
+    newSuffix = newSuffix + 1
+  end
+
+  local oldStart = prefix
+  local oldEnd = oldLen - oldSuffix
+  local newStart = prefix
+  local newEnd = newLen - newSuffix
+  if oldStart >= oldEnd and newStart >= newEnd then
+    return nil
+  end
+
+  return {
+    old_start = oldStart,
+    old_end = oldEnd,
+    new_start = newStart,
+    new_end = newEnd,
+  }
+end
+
+local function appendHighlight(hl, extraHl)
+  if type(hl) == 'table' then
+    local copy = {}
+    for i, item in ipairs(hl) do
+      copy[i] = item
+    end
+    table.insert(copy, extraHl)
+    return copy
+  end
+  return { hl, extraHl }
+end
+
+local function applySpanToChunks(chunks, spanStart, spanEnd, extraHl)
+  if spanStart == nil or spanEnd == nil or spanStart >= spanEnd then
+    return chunks
+  end
+
+  local result = {}
+  local cursor = 0
+  for _, chunk in ipairs(chunks) do
+    local text = chunk[1]
+    local hl = chunk[2]
+    local chunkStart = cursor
+    local chunkEnd = cursor + #text
+    if spanEnd <= chunkStart or spanStart >= chunkEnd then
+      table.insert(result, { text, hl })
+    else
+      if spanStart > chunkStart then
+        local before = text:sub(1, spanStart - chunkStart)
+        table.insert(result, { before, hl })
+      end
+
+      local insideStart = math.max(spanStart, chunkStart)
+      local insideEnd = math.min(spanEnd, chunkEnd)
+      local inside = text:sub(insideStart - chunkStart + 1, insideEnd - chunkStart)
+      table.insert(result, { inside, appendHighlight(hl, extraHl) })
+
+      if spanEnd < chunkEnd then
+        local after = text:sub(spanEnd - chunkStart + 1)
+        table.insert(result, { after, hl })
+      end
+    end
+    cursor = chunkEnd
+  end
+
+  return result
+end
+
+local function addTextHighlights(buf, line, startCol, endCol, hl)
+  if startCol == nil or endCol == nil or startCol >= endCol then
+    return
+  end
+
+  vim.api.nvim_buf_set_extmark(buf, preview_ns, line - 1, startCol, {
+    end_col = endCol,
+    hl_group = hl,
+    hl_mode = 'combine',
+  })
+end
+
 local function addLineHighlights(buf, startLine, count, hl)
   if count == 0 then
     return
@@ -347,6 +446,15 @@ local function addLineHighlights(buf, startLine, count, hl)
       hl_eol = true,
     })
   end
+end
+
+local function addLineRangeHighlights(buf, line, text, hl)
+  vim.api.nvim_buf_set_extmark(buf, preview_ns, line - 1, 0, {
+    end_col = #text,
+    hl_group = hl,
+    hl_eol = true,
+    hl_mode = 'combine',
+  })
 end
 
 local m = {}
@@ -400,6 +508,15 @@ m.open_diff = function()
       return
     end
 
+    local previewHl = PREVIEW_DELETE_HL
+    local addHl = PREVIEW_ADD_HL
+    local inlineHl = nil
+    if hunk[2] > 0 and hunk[4] > 0 then
+      previewHl = PREVIEW_CHANGE_HL
+      addHl = PREVIEW_CHANGE_HL
+      inlineHl = 'DiffText'
+    end
+
     local oldLines = {}
     if hunk[2] > 0 then
       for i = 0, hunk[2] - 1 do
@@ -407,12 +524,28 @@ m.open_diff = function()
         table.insert(oldLines, line)
       end
     end
+    local newLines = {}
+    if hunk[4] > 0 then
+      newLines = vim.api.nvim_buf_get_lines(buf, hunk[3] - 1, hunk[3] - 1 + hunk[4], true)
+    end
+    local pairCount = math.min(#oldLines, #newLines)
+
     local virtLines = {}
     local windowWidth = math.max(vim.api.nvim_win_get_width(0), 1)
     for i, line in ipairs(oldLines) do
       local row = hunk[1] + i - 1
-      local chunks = getLineChunks(line, scratchBuf, row, PREVIEW_DELETE_HL)
-      local wrapped = wrapLineChunks(chunks, windowWidth, PREVIEW_DELETE_HL)
+      local lineHl = previewHl
+      if inlineHl ~= nil then
+        lineHl = i <= pairCount and PREVIEW_CHANGE_HL or PREVIEW_DELETE_HL
+      end
+      local chunks = getLineChunks(line, scratchBuf, row, lineHl)
+      if inlineHl ~= nil and i <= pairCount then
+        local span = getInlineDiffSpan(line, newLines[i] or '')
+        if span ~= nil then
+          chunks = applySpanToChunks(chunks, span.old_start, span.old_end, inlineHl)
+        end
+      end
+      local wrapped = wrapLineChunks(chunks, windowWidth, lineHl)
       for _, virtLine in ipairs(wrapped) do
         table.insert(virtLines, virtLine)
       end
@@ -426,7 +559,24 @@ m.open_diff = function()
       })
     end
     if hunk[4] > 0 then
-      addLineHighlights(buf, hunk[3], hunk[4], PREVIEW_ADD_HL)
+      for i, line in ipairs(newLines) do
+        local lineNum = hunk[3] + i - 1
+        local lineHl = addHl
+        if inlineHl ~= nil then
+          lineHl = i <= pairCount and PREVIEW_CHANGE_HL or PREVIEW_ADD_HL
+        end
+        if i <= pairCount and inlineHl ~= nil then
+          local span = getInlineDiffSpan(oldLines[i] or '', line)
+          if span ~= nil then
+            addTextHighlights(buf, lineNum, span.new_start, span.new_end, inlineHl)
+            addLineRangeHighlights(buf, lineNum, line, lineHl)
+          else
+            addLineRangeHighlights(buf, lineNum, line, lineHl)
+          end
+        else
+          addLineHighlights(buf, lineNum, 1, lineHl)
+        end
+      end
     end
     preview_state[buf] = { hunk[1], hunk[2], hunk[3], hunk[4] }
   end))
