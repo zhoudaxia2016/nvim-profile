@@ -194,6 +194,98 @@ local function getLineChunks(line, scratchBuf, row, bgHl)
   return chunks
 end
 
+local function splitTextByWidth(text, maxWidth)
+  local charCount = vim.fn.strchars(text)
+  if charCount == 0 then
+    return '', ''
+  end
+
+  local lo = 1
+  local hi = charCount
+  local best = 0
+  while lo <= hi do
+    local mid = math.floor((lo + hi) / 2)
+    local candidate = vim.fn.strcharpart(text, 0, mid)
+    local width = vim.fn.strdisplaywidth(candidate)
+    if width <= maxWidth then
+      best = mid
+      lo = mid + 1
+    else
+      hi = mid - 1
+    end
+  end
+
+  if best == 0 then
+    local head = vim.fn.strcharpart(text, 0, 1)
+    local tail = vim.fn.strcharpart(text, 1, math.max(charCount - 1, 0))
+    return head, tail
+  end
+
+  local head = vim.fn.strcharpart(text, 0, best)
+  local tail = vim.fn.strcharpart(text, best, math.max(charCount - best, 0))
+  return head, tail
+end
+
+local function padLine(line, targetWidth, bgHl)
+  local width = 0
+  for _, chunk in ipairs(line) do
+    width = width + vim.fn.strdisplaywidth(chunk[1])
+  end
+  local padWidth = math.max(targetWidth - width, 0)
+  if padWidth > 0 then
+    table.insert(line, { string.rep(' ', padWidth), bgHl })
+  end
+  return line
+end
+
+local function wrapLineChunks(lineChunks, maxWidth, bgHl)
+  local wrapped = {}
+  local currentLine = {}
+  local currentWidth = 0
+  local targetWidth = math.max(maxWidth or 1, 1)
+
+  local function pushCurrentLine()
+    if #currentLine > 0 then
+      table.insert(wrapped, padLine(currentLine, targetWidth, bgHl))
+      currentLine = {}
+      currentWidth = 0
+    end
+  end
+
+  for _, chunk in ipairs(lineChunks) do
+    local text = chunk[1]
+    local hl = chunk[2]
+    local textWidth = vim.fn.strdisplaywidth(text)
+    if textWidth == 0 then
+      table.insert(currentLine, { text, hl })
+    else
+      local remainingText = text
+      while remainingText ~= '' do
+        local remainingWidth = targetWidth - currentWidth
+        if remainingWidth <= 0 then
+          pushCurrentLine()
+          remainingWidth = targetWidth
+        end
+
+        local piece, tail = splitTextByWidth(remainingText, remainingWidth)
+        if piece == '' then
+          pushCurrentLine()
+        else
+          table.insert(currentLine, { piece, hl })
+          currentWidth = currentWidth + vim.fn.strdisplaywidth(piece)
+          remainingText = tail
+          if currentWidth >= targetWidth then
+            pushCurrentLine()
+          end
+        end
+      end
+    end
+  end
+
+  pushCurrentLine()
+  return wrapped
+end
+
 local function makeScratchBuf(lines, filetype)
   local scratchBuf = vim.api.nvim_create_buf(false, true)
   vim.bo[scratchBuf].bufhidden = 'wipe'
@@ -316,10 +408,14 @@ m.open_diff = function()
       end
     end
     local virtLines = {}
+    local windowWidth = math.max(vim.api.nvim_win_get_width(0), 1)
     for i, line in ipairs(oldLines) do
       local row = hunk[1] + i - 1
       local chunks = getLineChunks(line, scratchBuf, row, PREVIEW_DELETE_HL)
-      table.insert(virtLines, chunks)
+      local wrapped = wrapLineChunks(chunks, windowWidth, PREVIEW_DELETE_HL)
+      for _, virtLine in ipairs(wrapped) do
+        table.insert(virtLines, virtLine)
+      end
     end
 
     if #virtLines > 0 then
