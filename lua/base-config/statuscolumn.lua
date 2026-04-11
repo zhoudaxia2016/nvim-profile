@@ -14,9 +14,14 @@ function StatusColumn()
   local cursorLnum = vim.fn.line('.')
   local lnum = vim.v.lnum
   local isCursorLine = cursorLnum == lnum
-  local lineNumInfo = vim.v.virtnum == 0
-    and string.format('%%=%%<%%#%s#%s ', isCursorLine and 'CursorLineNr' or 'LineNr', isCursorLine and lnum or vim.v.relnum)
-    or ''
+  if vim.v.virtnum ~= 0 then
+    return ''
+  end
+  local lineNumInfo = string.format(
+    '%%=%%<%%#%s#%s ',
+    isCursorLine and 'CursorLineNr' or 'LineNr',
+    isCursorLine and lnum or vim.v.relnum
+  )
   if (filetype == 'netrw') then
     return lineNumInfo
   end
