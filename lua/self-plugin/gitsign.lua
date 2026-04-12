@@ -620,6 +620,39 @@ m.preview = function()
   end))
 end
 
+m.restoreHunk = function()
+  local buf = vim.api.nvim_get_current_buf()
+  local hunk = getCurrentHunk()
+  if hunk == nil then
+    vim.notify('No diff hunk at cursor', vim.log.levels.INFO)
+    return
+  end
+
+  local context = getCurrentFileContext()
+  if context == nil then
+    vim.notify('No file context', vim.log.levels.INFO)
+    return
+  end
+
+  local code, stdout = execute({ 'git', 'show', '--no-color', ':./' .. context.name }, context.dir)
+  if code ~= 0 then
+    vim.notify('Failed to get original content from git', vim.log.levels.ERROR)
+    return
+  end
+
+  local originLines = splitLines(stdout)
+  local old_start, old_count, new_start, new_count = hunk[1], hunk[2], hunk[3], hunk[4]
+
+  local oldHunkLines = {}
+  for i = 1, old_count do
+    table.insert(oldHunkLines, originLines[old_start + i - 1] or '')
+  end
+
+  vim.api.nvim_buf_set_lines(buf, new_start - 1, new_start - 1 + new_count, false, oldHunkLines)
+  clearPreview(buf)
+  invalidateOriginBuf(buf)
+end
+
 m.setup = function()
   local group = vim.api.nvim_create_augroup('SelfGitsign', { clear = true })
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI', 'BufLeave' }, {
@@ -681,6 +714,10 @@ m.setup = function()
   vim.keymap.set('n', '<leader>up', function()
     jumpToPrevHunk()
   end, { desc = 'Git jump to previous hunk' })
+
+  vim.keymap.set('n', '<leader>ur', function()
+    m.restoreHunk()
+  end, { desc = 'Git restore current hunk' })
 end
 
 return m
