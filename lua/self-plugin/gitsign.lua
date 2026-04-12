@@ -129,6 +129,58 @@ local function getCurrentHunk()
   return nil
 end
 
+local function getHunkJumpLine(hunk)
+  if hunk == nil then
+    return nil
+  end
+  if hunk[3] > 0 then
+    return hunk[3]
+  end
+  return math.max(1, hunk[1])
+end
+
+local function jumpToHunk(forward)
+  local diff = getDiff()
+  if #diff == 0 then
+    vim.notify('No diff hunk in current buffer', vim.log.levels.INFO)
+    return
+  end
+
+  local curLine = vim.api.nvim_win_get_cursor(0)[1]
+  local target = nil
+
+  if forward then
+    for _, hunk in ipairs(diff) do
+      local line = getHunkJumpLine(hunk)
+      if line ~= nil and line > curLine then
+        target = line
+        break
+      end
+    end
+    if target == nil then
+      target = getHunkJumpLine(diff[1])
+    end
+  else
+    for i = #diff, 1, -1 do
+      local line = getHunkJumpLine(diff[i])
+      if line ~= nil and line < curLine then
+        target = line
+        break
+      end
+    end
+    if target == nil then
+      target = getHunkJumpLine(diff[#diff])
+    end
+  end
+
+  if target ~= nil then
+    vim.api.nvim_win_set_cursor(0, { target, 0 })
+  end
+end
+
+local function jumpToNextHunk() jumpToHunk(true) end
+local function jumpToPrevHunk() jumpToHunk(false) end
+
 local function getSyntaxGroup(scratchBuf, row, col)
   local ok, captures = pcall(vim.treesitter.get_captures_at_pos, scratchBuf, row - 1, col)
   if ok and captures ~= nil then
@@ -635,6 +687,14 @@ m.setup = function()
   vim.keymap.set('n', '<leader>uu', function()
     m.open_diff()
   end, { desc = 'Git diff current hunk preview' })
+
+  vim.keymap.set('n', '<leader>un', function()
+    jumpToNextHunk()
+  end, { desc = 'Git jump to next hunk' })
+
+  vim.keymap.set('n', '<leader>up', function()
+    jumpToPrevHunk()
+  end, { desc = 'Git jump to previous hunk' })
 end
 
 return m
