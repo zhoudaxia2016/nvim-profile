@@ -109,6 +109,7 @@ local function invalidateOriginBuf(buf)
   origin_buf_cache[buf] = nil
 end
 
+-- TODO: 缓存
 local function getCurrentHunk()
   local lineNum = vim.api.nvim_win_get_cursor(0)[1]
   for _, chunk in ipairs(getDiff()) do
@@ -378,17 +379,6 @@ local function clearPreview(buf)
   preview_ticket[buf] = (preview_ticket[buf] or 0) + 1
 end
 
-local function sameHunk(a, b)
-  if a == nil or b == nil then
-    return false
-  end
-
-  return a[1] == b[1]
-    and a[2] == b[2]
-    and a[3] == b[3]
-    and a[4] == b[4]
-end
-
 local function getInlineDiffSpan(oldText, newText)
   local oldLen = #oldText
   local newLen = #newText
@@ -527,16 +517,11 @@ m.sign = function()
   return ' '
 end
 
-m.open_diff = function()
+m.preview = function()
   local buf = vim.api.nvim_get_current_buf()
   local hunk = getCurrentHunk()
   if hunk == nil then
     vim.notify('No diff hunk at cursor', vim.log.levels.INFO)
-    return
-  end
-
-  if sameHunk(preview_state[buf], hunk) then
-    clearPreview(buf)
     return
   end
 
@@ -551,6 +536,7 @@ m.open_diff = function()
   clearPreview(buf)
   local ticket = preview_ticket[buf] or 0
   local scratchBuf = getOriginScratchBuf(buf, originLines, filetype)
+  -- TODO: treesitter本身有缓存吗？需要考虑缓存吗？
   local parser = vim.treesitter.get_parser(scratchBuf, vim.treesitter.language.get_lang(filetype) or filetype)
   parser:parse(nil, vim.schedule_wrap(function()
     if vim.api.nvim_buf_is_valid(buf) == false then
@@ -685,7 +671,7 @@ m.setup = function()
   })
 
   vim.keymap.set('n', '<leader>uu', function()
-    m.open_diff()
+    m.preview()
   end, { desc = 'Git diff current hunk preview' })
 
   vim.keymap.set('n', '<leader>un', function()
