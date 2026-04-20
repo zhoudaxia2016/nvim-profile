@@ -56,21 +56,25 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 o.clipboard = 'unnamedplus'
-local paste = function()
-  return vim.split(vim.fn.getreg('"'), '\n')
+if vim.env.TMUX and vim.fn.executable('tmux') == 1 then
+  g.clipboard = 'tmux'
+else
+  local paste = function()
+    return vim.split(vim.fn.getreg('"'), '\n')
+  end
+  g.clipboard = {
+    name = 'WslClipboard',
+    copy = {
+      ['+'] = 'win32yank.exe -i --crlf',
+      ['*'] = 'win32yank.exe -i --crlf',
+    },
+    -- 粘贴系统clipboard直接用快捷键即可，不然会很慢（PowerShell问题）
+    paste = {
+      ['+'] = paste,
+      ['*'] = paste,
+    },
+    cache_enabled = 1,
+  }
 end
-g.clipboard =  {
-  name = 'WslClipboard',
-  copy = {
-    ['+'] = 'clip.exe',
-    ['*'] = 'clip.exe',
-  },
-  -- 粘贴系统clipboard直接用快捷键即可，不然会很慢（PowerShell问题）
-  paste = {
-    ['+'] = paste,
-    ['*'] = paste,
-  },
-  cache_enabled = 1,
-}
 vim.keymap.set({'n', 'v'}, 'c', '"-c')
 vim.keymap.set({'n', 'v'}, 'd', '"-d')
