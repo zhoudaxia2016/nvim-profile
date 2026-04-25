@@ -55,26 +55,34 @@ vim.api.nvim_create_autocmd('FileType', {
   end
 })
 
-o.clipboard = 'unnamedplus'
+vim.api.nvim_create_autocmd('TextYankPost', {
+  pattern = '*',
+  callback = function()
+    if vim.v.event.operator ~= 'y' then
+      return
+    end
+    local text = vim.fn.getreg('"')
+    if vim.v.event.regtype == 'V' then
+      text = text:gsub('\n$', '')
+    end
+    vim.fn.setreg('+', text)
+    vim.fn.setreg('*', text)
+  end
+})
+
 if vim.env.TMUX and vim.fn.executable('tmux') == 1 then
   g.clipboard = 'tmux'
 else
-  local paste = function()
-    return vim.split(vim.fn.getreg('"'), '\n')
-  end
   g.clipboard = {
     name = 'WslClipboard',
     copy = {
       ['+'] = 'win32yank.exe -i --crlf',
       ['*'] = 'win32yank.exe -i --crlf',
     },
-    -- 粘贴系统clipboard直接用快捷键即可，不然会很慢（PowerShell问题）
     paste = {
-      ['+'] = paste,
-      ['*'] = paste,
+      ['+'] = 'win32yank.exe -o --lf',
+      ['*'] = 'win32yank.exe -o --lf',
     },
     cache_enabled = 1,
   }
 end
-vim.keymap.set({'n', 'v'}, 'c', '"-c')
-vim.keymap.set({'n', 'v'}, 'd', '"-d')
