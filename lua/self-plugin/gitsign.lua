@@ -1,6 +1,6 @@
 local gitsign_data = {}
+local git = require('util.git')
 local preview_ns = vim.api.nvim_create_namespace('gitsign_preview')
-local preview_state = {}
 local preview_ticket = {}
 local origin_buf_cache = {}
 local PREVIEW_DELETE_HL = 'DiffDelete'
@@ -13,28 +13,6 @@ local gitsign_config = {
   c = { hl = 'diffChanged', icon = '│' },
   cd = { hl = 'diffChanged', icon = '~' },
 }
-
-local function getCurrentFileContext()
-  local file = vim.api.nvim_buf_get_name(0)
-  if file == '' then
-    return nil
-  end
-  if file:match('^%a+://') then
-    return nil
-  end
-  if vim.bo.buftype ~= '' then
-    return nil
-  end
-  return {
-    dir = vim.fs.dirname(file),
-    name = vim.fs.basename(file),
-  }
-end
-
-local function execute(cmd, cwd)
-  local result = vim.system(cmd, { text = true, cwd = cwd }):wait()
-  return result.code, result.stdout or '', result.stderr or ''
-end
 
 local function memoize(fn, hash_fn)
   local cache = setmetatable({}, { __mode = 'kv' }) ---@type table<any,any>
@@ -51,29 +29,56 @@ local function memoize(fn, hash_fn)
   end
 end
 
-local isInsideGitWorkTree = memoize(function(_)
-  local context = getCurrentFileContext()
+local function getCurrentFile()
+  local file = vim.api.nvim_buf_get_name(0)
+  if file == '' or file:match('^%a+://') then
+    return nil
+  end
+  if vim.bo.buftype ~= '' then
+    return nil
+  end
+  return file
+end
+
+local getGitContext = memoize(function(buf)
+  return git.get_context(buf)
+end, function(buf)
+  return tostring(buf) .. ':' .. vim.api.nvim_buf_get_name(buf)
+end)
+
+local function runGit(context, args)
+  return git.run(context, args)
+end
+
+local isInsideGitWorkTree = memoize(function(buf)
+  local context = getGitContext(buf)
   if context == nil then
     return false
   end
 
-  local code, stdout = execute({ 'git', 'rev-parse', '--is-inside-work-tree' }, context.dir)
-  local res = code == 0 and vim.trim(stdout) == 'true'
-  if (res == true) then
-    local ignoreCode = execute({ 'git', 'check-ignore', context.name }, context.dir)
-    return ignoreCode ~= 0
-  end
-  return res
+  local ignoreCode = runGit(context, {
+    'check-ignore',
+    '--',
+    context.relpath,
+  })
+  return ignoreCode ~= 0
 end, function(buf)
-  return tostring(buf)
+  return tostring(buf) .. ':' .. vim.api.nvim_buf_get_name(buf)
 end)
 
 local function getDiff()
-  local context = getCurrentFileContext()
+  if getCurrentFile() == nil then
+    return {}
+  end
+  local context = getGitContext(vim.api.nvim_get_current_buf())
   if context == nil then
     return {}
   end
-  local code, originFile = execute({ 'git', 'show', '--no-color', ':./' .. context.name }, context.dir)
+  local code, originFile = runGit(context, {
+    'show',
+    '--no-color',
+    ':' .. context.relpath,
+  })
   if code ~= 0 then
     return {}
   end
@@ -88,12 +93,19 @@ local function splitLines(text)
 end
 
 local function getOriginLines()
-  local context = getCurrentFileContext()
+  if getCurrentFile() == nil then
+    return nil, 'No file in current buffer'
+  end
+  local context = getGitContext(vim.api.nvim_get_current_buf())
   if context == nil then
     return nil, 'No file in current buffer'
   end
 
-  local code, stdout, stderr = execute({ 'git', 'show', '--no-color', ':./' .. context.name }, context.dir)
+  local code, stdout, stderr = runGit(context, {
+    'show',
+    '--no-color',
+    ':' .. context.relpath,
+  })
   if code ~= 0 then
     return nil, vim.trim(stderr ~= '' and stderr or stdout)
   end
@@ -375,7 +387,6 @@ end
 
 local function clearPreview(buf)
   vim.api.nvim_buf_clear_namespace(buf, preview_ns, 0, -1)
-  preview_state[buf] = nil
   preview_ticket[buf] = (preview_ticket[buf] or 0) + 1
 end
 
@@ -616,7 +627,6 @@ m.preview = function()
         end
       end
     end
-    preview_state[buf] = { hunk[1], hunk[2], hunk[3], hunk[4] }
   end))
 end
 
@@ -628,13 +638,17 @@ m.restoreHunk = function()
     return
   end
 
-  local context = getCurrentFileContext()
-  if context == nil then
-    vim.notify('No file context', vim.log.levels.INFO)
+  local gitCtx = getGitContext(buf)
+  if gitCtx == nil then
+    vim.notify('No git context', vim.log.levels.INFO)
     return
   end
 
-  local code, stdout = execute({ 'git', 'show', '--no-color', ':./' .. context.name }, context.dir)
+  local code, stdout = runGit(gitCtx, {
+    'show',
+    '--no-color',
+    ':' .. gitCtx.relpath,
+  })
   if code ~= 0 then
     vim.notify('Failed to get original content from git', vim.log.levels.ERROR)
     return
