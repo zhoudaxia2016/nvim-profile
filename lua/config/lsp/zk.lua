@@ -1,5 +1,5 @@
-local fzf = require"self-plugin.fzf".run
-local previewer = require('self-plugin.fzf.previewer')
+local fzf = require"features.fzf".run
+local previewer = require('features.fzf.previewer')
 
 local tags = {}
 local function getTags(cb)

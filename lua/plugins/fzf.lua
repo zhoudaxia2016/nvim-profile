@@ -1,4 +1,4 @@
-local fzfBuiltins = require('self-plugin.fzf.builtin')
+local fzfBuiltins = require('features.fzf.builtin')
 local getRoot = require('util').getRoot
 
 ---@param lhs string

@@ -1,4 +1,4 @@
-local gitsign = require('self-plugin.gitsign')
+local gitsign = require('features.gitsign')
 gitsign.setup()
 
 function StatusColumn()

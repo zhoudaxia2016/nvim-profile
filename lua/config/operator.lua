@@ -114,5 +114,5 @@ newOperator('t', function()
   local _, startRow, startCol = unpack(vim.fn.getpos("'["))
   local _, endRow, endCol = unpack(vim.fn.getpos("']"))
   local word = vim.api.nvim_buf_get_text(0, startRow - 1, startCol - 1, endRow - 1, endCol, {})[1]
-  require('self-plugin.translate')(word)
+  require('features.translate')(word)
 end, 'Translate')

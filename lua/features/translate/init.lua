@@ -2,9 +2,9 @@ local ts = vim.g.translateservice
 
 local translate = function(source)
   if (ts == 'tencent') then
-    require('self-plugin.translate.baidu')(source)
+    require('features.translate.baidu')(source)
   else
-    require('self-plugin.translate.baidu')(source)
+    require('features.translate.baidu')(source)
   end
 end
 

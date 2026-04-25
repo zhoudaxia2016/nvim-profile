@@ -1,7 +1,7 @@
 local map = require"util".map
 local debounce = require'util.debounce'
 local api = vim.api
-local goto_doc_hl_result = require('base-config.lsp.featrues.document_highlight').goto_doc_hl_result
+local goto_doc_hl_result = require('config.lsp.featrues.document_highlight').goto_doc_hl_result
 
 M = {}
 

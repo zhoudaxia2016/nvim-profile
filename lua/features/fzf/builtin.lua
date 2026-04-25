@@ -1,6 +1,6 @@
-local run = require('self-plugin.fzf').run
+local run = require('features.fzf').run
 local palettes = require('nord.named_colors')
-local previewer = require('self-plugin.fzf.previewer')
+local previewer = require('features.fzf.previewer')
 
 local previewFilter = {'png', 'jpg'}
 local M = {}

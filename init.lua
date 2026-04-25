@@ -10,9 +10,9 @@ if (vim.env.clean) then
 end
 
 vim.g.mapleader = ' '
-require 'base-config'
-require 'plugin-config'
-require 'self-plugin'
+require 'config'
+require 'plugins'
+require 'features'
 
 -- TODO: will be fixed after #21771 close
 vim.cmd[[

@@ -1,7 +1,7 @@
 local o = vim.o
-local hlgs = require('base-config.statusline.hlgs')
-local utils = require('base-config.statusline.utils')
-local config = require('base-config.statusline.config')
+local hlgs = require('config.statusline.hlgs')
+local utils = require('config.statusline.utils')
+local config = require('config.statusline.config')
 
 -- highlight setup
 for _, v in pairs(hlgs) do

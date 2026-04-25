@@ -1,13 +1,13 @@
 local screenH = vim.o.lines
 local screenW = vim.o.columns
 local scale = 0.8
-local lastPosJump = require('base-config.lastPosJump')
+local lastPosJump = require('config.lastPosJump')
 local debounce = require('util.debounce')
-local previewer = require('self-plugin.fzf.previewer')
+local previewer = require('features.fzf.previewer')
 
 FzfPreviewCb = nil
 
-local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/self-plugin/fzf/shell_helper.lua'
+local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/features/fzf/shell_helper.lua'
 
 local function rpcCmd(cmd, useText)
   local output = useText and '{}' or '{n} {+n}'

@@ -1,4 +1,4 @@
-local run = require('self-plugin.fzf').run
+local run = require('features.fzf').run
 
 vim.api.nvim_create_user_command('FzfDebugVim', function()
   vim.cmd('packadd termdebug')

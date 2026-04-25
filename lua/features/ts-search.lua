@@ -1,5 +1,5 @@
-local run = require('self-plugin.fzf').run
-local previewer = require('self-plugin.fzf.previewer')
+local run = require('features.fzf').run
+local previewer = require('features.fzf.previewer')
 
 local extensionMap = {
   typescript = {'ts', 'tsx'},

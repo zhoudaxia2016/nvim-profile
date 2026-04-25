@@ -13,7 +13,7 @@ local function readFile(name)
 end
 
 local function getConfig(lang)
-  local configFile = '/home/zhou/.config/nvim/lua/base-config/snippet/snippets/' .. lang .. '.json'
+  local configFile = '/home/zhou/.config/nvim/lua/config/snippet/snippets/' .. lang .. '.json'
   if cache[lang] == nil and vim.fn.filereadable(configFile) == 1 then
     local json = readFile(configFile)
     json = vim.json.decode(json)
