@@ -19,7 +19,7 @@ vim.cmd[[
 autocmd DirChanged * call chansend(v:stderr, printf("\033]7;%s\033", v:event.cwd))
 ]]
 
-require('vim._extui').enable({
+require('vim._core.ui2').enable({
   enable = true,
   msg = {
     target = 'cmd',
