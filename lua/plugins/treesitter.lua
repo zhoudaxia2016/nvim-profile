@@ -18,6 +18,16 @@ local langs = {
   "git_config",
   "kotlin",
   "java",
+  "lean",
+}
+
+local parsers = require('nvim-treesitter.parsers')
+parsers.lean = {
+  install_info = {
+    url = 'https://github.com/Julian/tree-sitter-lean',
+    revision = 'main',
+    files = { 'src/parser.c', 'src/scanner.c' },
+  },
 }
 
 local treesitter = require('nvim-treesitter')
@@ -29,7 +39,7 @@ end
 
 vim.api.nvim_create_autocmd('FileType', {
   callback = function(args)
-    local lang = vim.treesitter.language.get_lang(vim.o.filetype)
+    local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
     if not vim.tbl_contains(langs, lang) then
       return
     end
@@ -39,8 +49,6 @@ vim.api.nvim_create_autocmd('FileType', {
       return
     end
 
-    if installed[lang] then
-      vim.treesitter.start(args.buf, lang)
-    end
+    vim.treesitter.start(args.buf, lang)
   end
 })
