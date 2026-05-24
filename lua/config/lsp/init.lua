@@ -40,12 +40,21 @@ vim.diagnostic.config({
 vim.diagnostic.enable()
 
 local enable_list = {'marksman', 'clangd', 'flow', 'rust_analyzer', 'gopls', 'efm', 'sumneko', 'lua_ls', 'ts_ls', 'zk', 'rust_analyzer', 'kotlin_lsp', 'jdtls', 'tailwindcss'}
+
 vim.lsp.enable(enable_list)
 for _, name in pairs(enable_list) do
   vim.lsp.config(name, {
     on_attach = myutil.on_attach,
   })
 end
+
+vim.lsp.config('leanls', {
+  cmd = { 'lean', '--server' },
+  filetypes = { 'lean' },
+  root_markers = { 'lakefile.toml', 'lakefile.lean', 'lean-toolchain', '.git' },
+  on_attach = myutil.on_attach,
+})
+vim.lsp.enable('leanls')
 
 vim.lsp.log.set_level(vim.log.levels.DEBUG)
 vim.lsp.config('kotlin_lsp', {
