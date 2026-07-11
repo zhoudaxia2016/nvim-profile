@@ -22,7 +22,7 @@ function StatusColumn()
     isCursorLine and 'CursorLineNr' or 'LineNr',
     isCursorLine and lnum or vim.v.relnum
   )
-  if (filetype == 'netrw') then
+  if (filetype == 'netrw' or filetype == 'directory') then
     return lineNumInfo
   end
   return string.format('%s%%s%s', gitsign.sign(), lineNumInfo)

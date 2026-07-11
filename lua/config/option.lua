@@ -30,8 +30,8 @@ o.undodir = vim.fn.stdpath('data') .. '/undo/'
 o.swapfile = false
 o.switchbuf = 'useopen,usetab,newtab'
 o.jumpoptions = 'stack'
-g.netrw_use_noswf= 0
-g.netrw_browsex_viewer="cmd.exe /C start"
+o.splitright = true
+g.loaded_netrwPlugin = 1 -- disable netrw, use builtin directory browser
 o.conceallevel = 1
 o.fixendofline = false
 opt.iskeyword:append('-')
@@ -44,7 +44,6 @@ end
 
 vim.cmd[[
   au VimEnter * if &diff | execute 'windo set wrap' | endif
-  au FileType netrw setl bufhidden=delete
 ]]
 
 vim.api.nvim_create_autocmd('FileType', {

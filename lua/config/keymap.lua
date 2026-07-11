@@ -13,6 +13,23 @@ map('n', '<leader><leader>', function()
   end)
 end, {desc = 'Nvim Help'})
 
+map('n', '<leader>d', function()
+  -- Toggle directory browser (left sidebar)
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local ft = vim.api.nvim_get_option_value('filetype', { buf = vim.api.nvim_win_get_buf(win) })
+    if ft == 'directory' then
+      if win == vim.api.nvim_get_current_win() then
+        vim.api.nvim_win_close(win, true)
+      else
+        vim.api.nvim_set_current_win(win)
+      end
+      return
+    end
+  end
+  -- No directory window open: open left sidebar at fixed width
+  vim.cmd('leftabove 20vs ' .. vim.fn.fnameescape(vim.fn.expand('%:p:h')))
+end, { desc = 'Toggle directory browser' })
+
 -- move around window
 map('n', '<c-l>', '<c-w><c-l>')
 map('n', '<c-h>', '<c-w><c-h>')

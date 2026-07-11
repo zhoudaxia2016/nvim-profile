@@ -8,7 +8,7 @@ function M.trim(s)
 end
 
 function M.isSpecialBuf()
-  return M.hasValue({'qf', 'netrw', 'help', ''}, vim.o.filetype)
+  return M.hasValue({'qf', 'directory', 'help', ''}, vim.o.filetype)
 end
 
 function M.hasValue(tab, val)

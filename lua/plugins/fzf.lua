@@ -10,7 +10,7 @@ end
 
 vim.api.nvim_create_autocmd('FileType', {
   callback = function()
-    local ignore_fts = {'qf', 'netrw'}
+    local ignore_fts = {'qf', 'netrw', 'directory'}
     if vim.tbl_contains(ignore_fts, vim.o.filetype) then
       return
     end

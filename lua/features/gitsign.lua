@@ -685,7 +685,7 @@ m.setup = function()
     group = group,
     callback = function()
       local buf = vim.api.nvim_get_current_buf()
-      if (isInsideGitWorkTree(buf) == false or vim.o.filetype == 'netrw') then
+      if (isInsideGitWorkTree(buf) == false or vim.o.filetype == 'netrw' or vim.o.filetype == 'directory') then
         clearPreview(buf)
         invalidateOriginBuf(buf)
         return

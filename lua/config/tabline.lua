@@ -23,7 +23,8 @@ local function tabLabel(n)
   else
     for _, win in pairs(winlist) do
       local buf = api.nvim_win_get_buf(win)
-      if api.nvim_get_option_value('filetype', {buf = buf}) ~= 'netrw' then
+      if api.nvim_get_option_value('filetype', {buf = buf}) ~= 'netrw'
+        and api.nvim_get_option_value('filetype', {buf = buf}) ~= 'directory' then
         activeBuf = buf
         break
       end
