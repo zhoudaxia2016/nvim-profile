@@ -2,6 +2,7 @@ local M = {}
 local TARGETS = {
   codex = { "codex" },
   opencode = { "opencode" },
+  claude = { "claude" },
 }
 local pane_cache = {}
 
@@ -108,7 +109,7 @@ end
 local function send(msg, target)
   target = target or find_pane()
   if not target then return end
-  vim.fn.system({ "tmux", "send-keys", "-t", target.pane_id, msg, "C-m" })
+  vim.fn.system({ "tmux", "send-keys", "-t", target.pane_id, msg, " " })
   if target.window_id then
     vim.fn.system({ "tmux", "select-window", "-t", target.window_id })
   end
