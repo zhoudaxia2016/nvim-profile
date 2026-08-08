@@ -1,4 +1,4 @@
-local basePath = vim.env.HOME .. '/.config/nvim/dict/'
+local basePath = vim.fn.stdpath('config') .. '/dict/'
 local queries = vim.treesitter.query
 
 local function dictCollect()

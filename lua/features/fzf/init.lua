@@ -7,7 +7,7 @@ local previewer = require('features.fzf.previewer')
 
 FzfPreviewCb = nil
 
-local shell_helper_path = vim.env.HOME .. '/.config/nvim/lua/features/fzf/shell_helper.lua'
+local shell_helper_path = vim.fn.stdpath('config') .. '/lua/features/fzf/shell_helper.lua'
 
 local function rpcCmd(cmd, useText)
   local output = useText and '{}' or '{n} {+n}'

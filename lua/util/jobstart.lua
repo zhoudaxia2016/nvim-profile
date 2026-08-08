@@ -1,6 +1,7 @@
 local uv = vim.loop
 local function jobstart(script, cb, cwd)
-  script = script .. ' 2>>/tmp/nvim-jobstart.log'
+  local logfile = vim.fn.stdpath('data') .. '/nvim-jobstart.log'
+  script = script .. ' 2>>' .. logfile
   if cwd == nil then
     cwd = vim.fn.getcwd()
   end
@@ -18,7 +19,8 @@ local function jobstart(script, cb, cwd)
 
   -- luacheck: no unused
   local handle
-  handle = uv.spawn("sh", {
+  local shell = vim.fn.has('win32') == 1 and 'cmd.exe' or 'sh'
+  handle = uv.spawn(shell, {
     stdio = {stdin, stdout, stderr};
     cwd = cwd;
   }, function(code, signal)

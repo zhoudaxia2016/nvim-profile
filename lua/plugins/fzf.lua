@@ -73,6 +73,9 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_autocmd('VimEnter', {
   pattern = '*',
   callback = function()
+    if vim.fn.executable('fzf') ~= 1 then
+      return
+    end
     -- TODO: 因为参数是[nvim, --embed]，所以长度为2。需优化判断
     if #vim.v.argv == 2 then
       fzfBuiltins.oldFiles()

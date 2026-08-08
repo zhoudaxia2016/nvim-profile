@@ -26,7 +26,7 @@ o.listchars = 'tab:  ,trail:_'
 o.termguicolors = true
 o.mouse = 'n'
 o.undofile = true
-o.undodir='/tmp/nvim/'
+o.undodir = vim.fn.stdpath('data') .. '/undo/'
 o.swapfile = false
 o.switchbuf = 'useopen,usetab,newtab'
 o.jumpoptions = 'stack'
@@ -72,7 +72,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 if vim.env.TMUX and vim.fn.executable('tmux') == 1 then
   g.clipboard = 'tmux'
-else
+elseif vim.fn.has('win32') == 1 then
+  -- Native Windows: use built-in clipboard (no win32yank needed)
+  vim.opt.clipboard = 'unnamedplus'
+elseif vim.fn.executable('win32yank.exe') == 1 then
+  -- WSL
   g.clipboard = {
     name = 'WslClipboard',
     copy = {

@@ -5,7 +5,7 @@ cmd'au BufNewFile * call v:lua.LoadTemplate()'
 function LoadTemplate()
   local ft = vim.o.filetype
   local args = {filename = vim.fn.expand("%")}
-  local tpf = vim.env.HOME .. '/.config/nvim/templates/files/' .. ft .. '.tpl'
+  local tpf = vim.fn.stdpath('config') .. '/templates/files/' .. ft .. '.tpl'
 
   if fn.filereadable(tpf) == 1 then
     cmd('r ' .. tpf)
