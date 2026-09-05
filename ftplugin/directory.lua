@@ -13,7 +13,9 @@ map('f', function()
   if line then
     local path = dir .. '/' .. line:gsub('/$', '')
     local dir_win = vim.api.nvim_get_current_win()
-    vim.cmd('rightbelow vs ' .. vim.fn.fnameescape(path))
+    vim.cmd('wincmd l')
+    local split = vim.api.nvim_get_current_win() == dir_win and 'rightbelow vs' or 'leftabove vs'
+    vim.cmd(split .. ' ' .. vim.fn.fnameescape(path))
     vim.api.nvim_win_set_width(dir_win, 20)
   end
 end, { desc = 'Open after directory' })
@@ -23,7 +25,9 @@ map('(', function()
   vim.ui.input({ prompt = 'Please enter filename: ' }, function(fn)
     if fn then
       local dir_win = vim.api.nvim_get_current_win()
-      vim.cmd('rightbelow vs ' .. vim.fn.fnameescape(dir .. '/' .. fn))
+      vim.cmd('wincmd l')
+      local split = vim.api.nvim_get_current_win() == dir_win and 'rightbelow vs' or 'leftabove vs'
+      vim.cmd(split .. ' ' .. vim.fn.fnameescape(dir .. '/' .. fn))
       vim.api.nvim_win_set_width(dir_win, 20)
     end
   end)
