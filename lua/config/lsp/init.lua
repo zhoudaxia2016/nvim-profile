@@ -87,6 +87,7 @@ require('config.lsp.tsserver')
 require('config.lsp.efm')
 require('config.lsp.sumneko')
 require('config.lsp.zk')
+require('config.lsp.clangd')
 
 -- TODO: 待完善
 -- 现在的实现edit的执行可能有冲突，不能完全fix all
