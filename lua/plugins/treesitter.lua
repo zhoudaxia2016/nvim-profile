@@ -15,6 +15,7 @@ local langs = {
   "go",
   "c",
   "cpp",
+  "cmake",
   "git_config",
   "kotlin",
   "java",
