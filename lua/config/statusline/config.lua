@@ -80,6 +80,8 @@ M.leftList = {
         if root then
           fn = fn .. string.format(':s?%s/??', root)
         end
+      elseif modifier == 's' then
+        fn = '%:t'
       elseif modifier == 'c' then
         fn = '%'
       end

@@ -21,12 +21,26 @@ function M.hasValue(tab, val)
 end
 
 function M.copy(text)
-  local temp = vim.fn.tempname()
-  local fd = io.open(temp, 'w')
-  io.output(fd)
-  io.write(text)
-  io.close(fd)
-  vim.fn.jobstart('clip.exe < ' .. temp)
+  -- 优先走 nvim 的剪贴板 provider：mac 是 pbcopy、tmux 会话是 g:clipboard='tmux'、
+  -- WSL 配了 win32yank 也在这条路上。探测状态：:checkhealth provider.clipboard
+  if vim.fn.has('clipboard') == 1 then
+    vim.fn.setreg('+', text)
+    return
+  end
+
+  -- 没有 provider 时的兜底（老 WSL 环境）：原来的 clip.exe 实现
+  if vim.fn.executable('clip.exe') == 1 then
+    local temp = vim.fn.tempname()
+    local f = io.open(temp, 'w')
+    if f then
+      f:write(text)
+      f:close()
+      vim.fn.jobstart('clip.exe < ' .. temp)
+    end
+    return
+  end
+
+  vim.notify('复制失败：没有可用的剪贴板 provider（:checkhealth provider.clipboard）', vim.log.levels.WARN)
 end
 
 function M.map(mode, key, command, opt, bufnr)
