@@ -31,7 +31,7 @@ local function entry_path()
 end
 
 -- open entry to the right of directory
-map('f', function()
+map({'<cr>', 'f'}, function()
   local path = entry_path()
   if path then
     local dir_win = vim.api.nvim_get_current_win()
@@ -48,6 +48,8 @@ map('t', function()
     vim.cmd('tabnew ' .. vim.fn.fnameescape(path))
   end
 end, { desc = 'Open file in new tab' })
+map('l', '<Plug>(nvim-dir-open)')
+map('h', '<Plug>(nvim-dir-up)')
 -- create file to the right of directory
 map('(', function()
   local dir = vim.api.nvim_buf_get_name(0)
