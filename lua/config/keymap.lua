@@ -14,19 +14,23 @@ map('n', '<leader><leader>', function()
 end, {desc = 'Nvim Help'})
 
 map('n', '<leader>d', function()
-  -- Toggle directory browser (left sidebar)
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
+  local cur_win = vim.api.nvim_get_current_win()
+  local wins = vim.api.nvim_tabpage_list_wins(0)
+  for _, win in ipairs(wins) do
     local ft = vim.api.nvim_get_option_value('filetype', { buf = vim.api.nvim_win_get_buf(win) })
     if ft == 'directory' then
-      if win == vim.api.nvim_get_current_win() then
-        vim.api.nvim_win_close(win, true)
-      else
+      if win ~= cur_win then
         vim.api.nvim_set_current_win(win)
+      elseif #wins > 1 then
+        vim.api.nvim_win_close(win, true)
+      elseif vim.fn.tabpagenr('$') > 1 then
+        -- sidebar is all this tab has left: drop the tab (close would fail, E444)
+        vim.cmd('tabclose')
       end
       return
     end
   end
-  -- No directory window open: open left sidebar at fixed width
+  -- No directory window in this tab: open left sidebar at fixed width
   vim.cmd('leftabove 20vs ' .. vim.fn.fnameescape(vim.fn.expand('%:p:h')))
 end, { desc = 'Toggle directory browser' })
 
