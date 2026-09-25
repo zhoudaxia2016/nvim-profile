@@ -14,11 +14,6 @@ require 'config'
 require 'plugins'
 require 'features'
 
--- TODO: will be fixed after #21771 close
-vim.cmd[[
-autocmd DirChanged * call chansend(v:stderr, printf("\033]7;%s\033", v:event.cwd))
-]]
-
 require('vim._core.ui2').enable({
   enable = true,
   msg = {
